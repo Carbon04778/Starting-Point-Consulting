@@ -1,0 +1,33 @@
+---
+/**
+ * 404. Handoff §17 requires "404 page and thank-you / confirmation pages in
+ * brand".
+ *
+ * NOTE: no approved copy exists for this page anywhere in the package. The
+ * wording below is deliberately minimal and utilitarian — it makes no claim
+ * about the business and uses no marketing language — but it has not been
+ * approved by Darlene. Listed in docs/OPEN-QUESTIONS.md.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { routes } from '../config/site.js';
+---
+
+<BaseLayout
+  title="Page not found | Starting Point Consulting"
+  description="The page you were looking for could not be found. Find your way back to Starting Point Consulting."
+  noindex
+>
+  <section class="section section--hero section--cream">
+    <div class="container measure">
+      <p class="eyebrow">Page not found</p>
+      <h1>We could not find that page.</h1>
+      <p class="t-lead" style="margin-top: 14px;">
+        The link may have moved or been mistyped. Here is the way back.
+      </p>
+      <div class="button-row" style="margin-top: 28px;">
+        <a class="btn btn--primary" href={routes.home}>Return home</a>
+        <a class="btn btn--secondary" href={routes.contact}>Contact us</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

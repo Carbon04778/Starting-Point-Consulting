@@ -1,0 +1,243 @@
+---
+/**
+ * Booking.
+ *
+ * ONE PUBLIC EVENT ONLY. Master Copy §07, "Corrected September 2026 — the
+ * six-row session picker is retired": this page offers the Organizational
+ * Discovery Conversation and nothing else. The three paid session events are
+ * reachable only from a post-payment scheduling page, and there is no
+ * complimentary discovery call for individual services. Blueprints Page 05
+ * says the same and marks the prototype's six-row picker superseded.
+ *
+ * A CALENDLY EMBED, NOT A CUSTOM CALENDAR. Blueprints Page 05 is explicit:
+ * "the prototype's calendar exists to show the intended layout and labelling
+ * only." So the month grid, the "Confirm, [Month] [Day], [time]" button and the
+ * "You're booked." confirmed state described in the blueprint are Calendly's
+ * own UI and are deliberately not rebuilt here — reimplementing them would
+ * produce a second, non-functional calendar beside the real one.
+ *
+ * The route itself is unconfirmed — `/booking` is one of the five proposed
+ * slugs in OPEN-QUESTIONS #2.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import { business, routes, calendly } from '../config/site.js';
+
+/* Master Copy §07 "Captions". */
+const reassurance = ['Video call (link sent on booking)', 'Times shown in your local zone'];
+---
+
+<BaseLayout
+  title={`Booking | ${business.name}`}
+  {/* §13's metadata sheet has no row for Booking, so this is built from §07's
+      own approved event wording and fitted to §13's 150–160 window (154). */}
+  description="Book an Organizational Discovery Conversation: 30 minutes, no cost. We talk through your goals and what would fit, then follow with a customized proposal."
+>
+  <section class="section section--hero section--cream">
+    <div class="container booking__head">
+      <p class="eyebrow">Booking</p>
+      <h1>Start a conversation</h1>
+      <p class="t-lead booking__lead">
+        A conversation for organizations, teams, communities, and event organizers. We’ll talk
+        through your goals and what would fit, then follow with a customized proposal.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container booking__grid">
+      {/* The one event — Master Copy §07 "The one event row". */}
+      <aside class="card booking__event">
+        <p class="card-eyebrow">Select a day &amp; time</p>
+        <h2>Organizational Discovery Conversation</h2>
+
+        <ul class="booking__meta">
+          <li>30 min</li>
+          <li>No cost</li>
+        </ul>
+
+        <p class="card__body">
+          A conversation for organizations, teams, communities, and event organizers. We’ll talk
+          through your goals and what would fit, then follow with a customized proposal.
+        </p>
+
+        <ul class="booking__reassurance">
+          {
+            reassurance.map((item) => (
+              <li>
+                <Icon name="check" size={16} />
+                <span>{item}</span>
+              </li>
+            ))
+          }
+        </ul>
+
+        {/* Master Copy §07 lists a "See sessions" button beside the booking
+            action. Individuals do not book here — this is the route to the paid
+            individual offerings. */}
+        <div class="card__foot">
+          <a class="btn btn--text" href={routes.individualSessions}>
+            Looking for an individual session? See sessions <Icon name="arrow-right" size={18} />
+          </a>
+        </div>
+      </aside>
+
+      {/* Calendly owns the calendar, the confirm button and the booked state. */}
+      <div class="booking__calendar">
+        <div
+          class="calendly-inline-widget booking__embed"
+          data-url={`${calendly.organizationalDiscovery}?hide_gdpr_banner=0&primary_color=C8902F`}
+          data-auto-load="false"
+        >
+        </div>
+
+        {/* Shown until the widget loads, and the permanent fallback if a
+            visitor blocks third-party scripts. Never leaves someone with an
+            empty box and no way to book. */}
+        <noscript>
+          <p class="booking__fallback">
+            Booking runs on Calendly, which needs JavaScript.
+            <a href={calendly.organizationalDiscovery} target="_blank" rel="noopener noreferrer">
+              Open the booking page directly
+            </a>
+            , or <a href={routes.contact}>send us a message</a> and we’ll arrange a time.
+          </p>
+        </noscript>
+
+        <p class="booking__fallback" data-booking-fallback>
+          <a href={calendly.organizationalDiscovery} target="_blank" rel="noopener noreferrer">
+            Trouble with the calendar? Open the booking page directly
+          </a>
+        </p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .booking__head {
+    max-width: var(--measure-lead);
+  }
+
+  .booking__lead {
+    margin-top: 16px;
+  }
+
+  .booking__grid {
+    display: grid;
+    grid-template-columns: 0.85fr 1.15fr;
+    gap: var(--grid-gap);
+    align-items: start;
+  }
+
+  .booking__event h2 {
+    font-size: var(--text-lg);
+    margin-top: 2px;
+  }
+
+  .booking__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 10px;
+    margin-top: 2px;
+  }
+
+  .booking__meta li {
+    padding: 4px 12px;
+    border-radius: var(--radius-pill);
+    background: var(--sage-50);
+    color: var(--sage-700);
+    font-family: var(--heading-font);
+    font-weight: var(--fw-medium);
+    font-size: var(--text-sm);
+  }
+
+  .booking__reassurance {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 4px;
+    font-size: var(--text-sm);
+    line-height: 1.5;
+    color: var(--text-muted);
+  }
+
+  .booking__reassurance li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .booking__reassurance :global(svg) {
+    flex: none;
+    margin-top: 2px;
+    color: var(--gold-600);
+  }
+
+  /* Calendly sizes its own iframe; this is the reserved space so the page does
+     not jump while the widget loads. */
+  .booking__embed {
+    min-width: 0;
+    height: 700px;
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    border: 1px solid var(--border-subtle);
+    background: var(--surface-card);
+  }
+
+  .booking__fallback {
+    margin-top: 12px;
+    font-size: var(--text-sm);
+    line-height: 1.55;
+    color: var(--text-muted);
+  }
+
+  @media (max-width: 900px) {
+    .booking__grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .booking__embed {
+      height: 640px;
+    }
+  }
+</style>
+
+<script>
+  // Calendly's widget script is loaded here rather than in the document head so
+  // it only ever runs on this page. `data-auto-load="false"` on the container
+  // keeps the widget from initialising before the script is ready.
+  const container = document.querySelector<HTMLElement>('.calendly-inline-widget');
+
+  if (container) {
+    const styles = document.createElement('link');
+    styles.rel = 'stylesheet';
+    styles.href = 'https://assets.calendly.com/assets/external/widget.css';
+    document.head.append(styles);
+
+    const script = document.createElement('script');
+    script.src = 'https://assets.calendly.com/assets/external/widget.js';
+    script.async = true;
+
+    script.addEventListener('load', () => {
+      const calendly = (window as unknown as { Calendly?: { initInlineWidget(o: object): void } })
+        .Calendly;
+      calendly?.initInlineWidget({
+        url: container.dataset.url,
+        parentElement: container,
+      });
+    });
+
+    // If Calendly cannot load at all, say so rather than leaving a blank frame.
+    script.addEventListener('error', () => {
+      container.innerHTML = '';
+      container.style.display = 'grid';
+      container.style.placeItems = 'center';
+      container.style.padding = '24px';
+      container.textContent =
+        'The booking calendar could not load. Use the link below to book, or send us a message.';
+    });
+
+    document.head.append(script);
+  }
+</script>

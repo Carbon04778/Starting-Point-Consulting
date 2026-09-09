@@ -1,0 +1,548 @@
+---
+/**
+ * Site footer.
+ *
+ * BUILT TO THE APPROVED PROTOTYPE. Every measurement, colour and weight below
+ * is taken from `Footer.jsx` in `docs/reference/approved-ui-mockup.html`
+ * (decoded from the bundle — see scripts/extract-legal.mjs for the method).
+ * Page Blueprints Global 03 describes the same footer in prose and its own
+ * preamble defers to the prototype: "Where the two ever disagree, the
+ * prototype is correct."
+ *
+ * FOUR PLACES DO NOT FOLLOW THE PROTOTYPE, each because a later, higher source
+ * overrides it. They are listed in docs/OPEN-QUESTIONS.md so the divergence is
+ * never mistaken for drift:
+ *
+ *   1. "Book a call" is absent from the Company column. Master Copy §18,
+ *      "Corrected September 2026": the universal CTA is retired.
+ *   2. "Cookie preferences" is absent from the policies row. It opens a consent
+ *      manager that is not built yet; shipping it now would be an inert
+ *      control (Pending Items).
+ *   3. The documents row (Client Service Agreement · Testimonial Release) IS
+ *      rendered. The prototype declares `agreements` and then never renders
+ *      it — an oversight, not a decision: Master Copy §18 lists the row and
+ *      Blueprints Global 03 Row 2 shows it beside the policies.
+ *   4. The baseline keeps the Blueprints Global 03 Row 3 sentence rather than
+ *      the prototype's "© 2026 … LLC. All Rights Reserved." The scope phrase
+ *      "educational and supportive, not therapy or medical care" is protected
+ *      language (Legal Pages Index §03). The prototype's *styling* of the
+ *      baseline is applied.
+ *
+ * The newsletter signup IS rendered, on Hadley's instruction, even though the
+ * platform is still unchosen — see OPEN-QUESTIONS #29. The social icons are
+ * built to the prototype but stay hidden until the profile URLs arrive
+ * (Pending Items §04: omit the icon rather than link nowhere).
+ *
+ * The wordmark is TYPE-SET, not an image — there is no reversed (light-on-dark)
+ * logo file yet (Brand Specs §01). The emblem above it is the approved emblem
+ * asset, which the prototype places here at 64px.
+ *
+ * The full mailing address deliberately does NOT appear here (Handoff §11) —
+ * it belongs on the legal pages.
+ */
+import Icon from './Icon.astro';
+import NewsletterSignup from './NewsletterSignup.astro';
+import {
+  business,
+  footerHowWePartner,
+  footerWhoWeServe,
+  footerCompany,
+  footerPolicies,
+  footerDocuments,
+  footerBaseline,
+  hasSocialLinks,
+  pending,
+} from '../config/site.js';
+
+const year = new Date().getFullYear();
+
+/**
+ * `collapse` mirrors the prototype exactly: only the two long browse columns
+ * become accordions on mobile. Company stays open.
+ *
+ * Blueprints Global 03 says "columns 2–4 collapse". The prototype disagrees and
+ * wins, per its own preamble. Flipping this back is one flag per column.
+ */
+const columns = [
+  { id: 'how-we-partner', title: 'How we partner', links: footerHowWePartner, collapse: true },
+  { id: 'who-we-serve', title: 'Who we serve', links: footerWhoWeServe, collapse: true },
+  { id: 'company', title: 'Company', links: footerCompany, collapse: false },
+];
+
+// See note 2 above.
+const policies = footerPolicies.filter((item) => item.href);
+
+const legalGroups = [
+  { label: 'Policies', items: policies },
+  { label: 'Documents', items: footerDocuments },
+];
+---
+
+<footer class="site-footer on-dark">
+  <div class="container site-footer__top">
+    <div class="site-footer__brand">
+      {/* Prototype: the emblem sits above the type-set wordmark at 64px. */}
+      <img
+        class="site-footer__emblem"
+        src="/assets/logo/starting-point-emblem-940x1000.svg"
+        alt=""
+        width="60"
+        height="64"
+        loading="lazy"
+        decoding="async"
+      />
+
+      <p class="wordmark">
+        <span class="wordmark__strong">Starting Point</span>
+        <span class="wordmark__light">Consulting</span>
+      </p>
+
+      <p class="site-footer__positioning">Helping people and systems thrive in a complex world.</p>
+
+      {/* NOT in the prototype's footer, and kept anyway: Handoff §01 fixes this
+          wording and §13 requires it on both / and /contact. The footer is what
+          satisfies that on the home page. Removing it fails `npm run qa`
+          ("Service area line"). Set in the quieter legal-row tone so it sits
+          under the positioning line rather than competing with it. */}
+      <p class="site-footer__service-area">{business.serviceArea}</p>
+
+      {/* Social icons are omitted until the profile URLs arrive —
+          Pending Items §04: "omit the icon rather than linking nowhere".
+          The markup and styling are the prototype's, ready for the URLs. */}
+      {
+        hasSocialLinks && (
+          <ul class="site-footer__social">
+            {pending.linkedInUrl && (
+              <li>
+                <a
+                  class="site-footer__social-link"
+                  href={pending.linkedInUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="LinkedIn"
+                >
+                  <svg viewBox="0 0 24 24" width="17" height="17" fill="currentColor" aria-hidden="true" focusable="false">
+                    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                  </svg>
+                </a>
+              </li>
+            )}
+            {pending.instagramUrl && (
+              <li>
+                <a
+                  class="site-footer__social-link"
+                  href={pending.instagramUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Instagram"
+                >
+                  <svg viewBox="0 0 24 24" width="17" height="17" fill="currentColor" aria-hidden="true" focusable="false">
+                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 1.366.062 2.633.334 3.608 1.308.974.974 1.246 2.241 1.308 3.608.058 1.266.07 1.646.07 4.85s-.012 3.584-.07 4.85c-.062 1.366-.334 2.633-1.308 3.608-.974.974-2.241 1.246-3.608 1.308-1.266.058-1.646.07-4.85.07s-3.584-.012-4.85-.07c-1.366-.062-2.633-.334-3.608-1.308-.974-.974-1.246-2.241-1.308-3.608C2.175 15.584 2.163 15.204 2.163 12s.012-3.584.07-4.85c.062-1.366.334-2.633 1.308-3.608.974-.974 2.241-1.246 3.608-1.308 1.266-.058 1.646-.07 4.85-.07M12 0C8.741 0 8.332.014 7.052.072 5.197.157 3.355.673 2.014 2.014.673 3.355.157 5.197.072 7.052.014 8.332 0 8.741 0 12s.014 3.668.072 4.948c.085 1.855.601 3.697 1.942 5.038 1.341 1.341 3.183 1.857 5.038 1.942C8.332 23.986 8.741 24 12 24s3.668-.014 4.948-.072c1.855-.085 3.697-.601 5.038-1.942 1.341-1.341 1.857-3.183 1.942-5.038.058-1.28.072-1.689.072-4.948s-.014-3.668-.072-4.948c-.085-1.855-.601-3.697-1.942-5.038C20.645.673 18.803.157 16.948.072 15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z" />
+                  </svg>
+                </a>
+              </li>
+            )}
+          </ul>
+        )
+      }
+
+      {/* The prototype's <NewsletterSignup variant="footer" />, in the position
+          the prototype puts it. Built on Hadley's instruction, over the Pending
+          Items §01 default of hiding signup components until a platform is
+          chosen. It has no destination yet and follows the contact form's
+          pattern instead — see OPEN-QUESTIONS #29. */}
+      <div class="site-footer__newsletter">
+        <NewsletterSignup />
+      </div>
+    </div>
+
+    {
+      columns.map((column) => (
+        <section class:list={['site-footer__col', { 'site-footer__col--collapsible': column.collapse }]}>
+          {/* Only a collapsible column gets a real control. Company never
+              collapses, so it stays a plain heading rather than a button that
+              announces "expanded" and does nothing. */}
+          <h2 class="site-footer__col-title">
+            {
+              column.collapse ? (
+                <button
+                  type="button"
+                  class="site-footer__col-toggle"
+                  aria-expanded="true"
+                  aria-controls={`footer-${column.id}`}
+                  data-footer-toggle
+                >
+                  <span>{column.title}</span>
+                  <span class="site-footer__chevron">
+                    <Icon name="chevron-down" size={17} />
+                  </span>
+                </button>
+              ) : (
+                <span class="site-footer__col-toggle">{column.title}</span>
+              )
+            }
+          </h2>
+          <div class="site-footer__panel" id={`footer-${column.id}`}>
+            <ul class="site-footer__links">
+              {column.links.map((link) => (
+                <li>
+                  <a href={link.href}>{link.label}</a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      ))
+    }
+  </div>
+
+  <div class="container site-footer__legal">
+    <div class="site-footer__legal-rows">
+      {
+        legalGroups.map((group) => (
+          <div class="site-footer__legal-group">
+            <span class="site-footer__legal-label">{group.label}</span>
+            <ul class="site-footer__legal-list">
+              {group.items.map((item) => (
+                <li>
+                  <a href={item.href}>{item.label}</a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))
+      }
+    </div>
+
+    <p class="site-footer__baseline">
+      © {year} {business.name} · {footerBaseline}
+    </p>
+  </div>
+</footer>
+
+<style>
+  /* Prototype: linear-gradient(180deg, sage-700 0%, ink-800 70%), sand-100 text. */
+  .site-footer {
+    background: linear-gradient(180deg, var(--sage-700) 0%, var(--ink-800) 70%);
+    color: var(--sand-100);
+  }
+
+  /* Prototype: padding '64px 40px 40px', columns 1.3fr 1fr 1fr 0.9fr, gap 30. */
+  .site-footer__top {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr 1fr 0.9fr;
+    gap: 30px;
+    padding-block: 64px 40px;
+  }
+
+  .site-footer__emblem {
+    display: block;
+    height: 64px;
+    width: auto;
+    margin-bottom: 14px;
+  }
+
+  /* Type-set wordmark stands in for the reversed logo file.
+     Prototype: 22px / 600 / 0.18em on white, then 12px / 0.32em on gold-300. */
+  .wordmark {
+    font-family: var(--heading-font);
+    text-transform: uppercase;
+    line-height: 1.15;
+  }
+
+  .wordmark__strong {
+    display: block;
+    font-size: 1.375rem; /* 22px */
+    font-weight: var(--fw-semibold);
+    letter-spacing: 0.18em;
+    color: var(--white);
+  }
+
+  .wordmark__light {
+    display: block;
+    margin-top: 4px;
+    font-size: 0.75rem; /* 12px */
+    font-weight: var(--fw-regular);
+    letter-spacing: 0.32em;
+    color: var(--gold-300);
+  }
+
+  /* Prototype: Newsreader italic, text-md, lh 1.5, sand-200, 300px measure. */
+  .site-footer__positioning {
+    max-width: 300px;
+    margin-top: 20px;
+    font-family: var(--lead-font);
+    font-style: italic;
+    font-size: var(--text-md);
+    line-height: 1.5;
+    color: var(--sand-200);
+  }
+
+  .site-footer__service-area {
+    max-width: 300px;
+    margin-top: 12px;
+    font-size: 0.8125rem; /* 13px, matching the legal rows */
+    line-height: 1.6;
+    color: var(--ink-300);
+  }
+
+  /* The prototype stacks the newsletter under the social row. */
+  .site-footer__newsletter {
+    margin-top: 28px;
+    max-width: 330px;
+  }
+
+  /* Prototype: 40px circles, 12px apart, hairline border, gold on hover. */
+  .site-footer__social {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+  }
+
+  .site-footer__social-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    color: var(--sand-100);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    background: rgba(255, 255, 255, 0.04);
+    transition:
+      background var(--t-fast) var(--ease-out),
+      border-color var(--t-fast) var(--ease-out);
+  }
+
+  .site-footer__social-link:hover {
+    background: rgba(222, 175, 80, 0.18); /* gold-300 @ 18% */
+    border-color: var(--gold-300);
+  }
+
+  /* Prototype column heading: Jost 12px, 0.14em tracked caps, gold-300, 14px
+     below. Not the sand-100 body-size heading it used to be. */
+  .site-footer__col-title {
+    font-family: var(--heading-font);
+    font-weight: var(--fw-regular);
+    font-size: 0.75rem; /* 12px */
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--gold-300);
+    margin-bottom: 14px;
+  }
+
+  .site-footer__col-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+    color: inherit;
+    font: inherit;
+    letter-spacing: inherit;
+    text-transform: inherit;
+    text-align: left;
+    /* Desktop: the column is always open, so the heading is not a control. */
+    cursor: default;
+    pointer-events: none;
+  }
+
+  /* Chevrons belong to the mobile accordion only. The icon is rendered by a
+     child component, so it is wrapped in a span that this component owns —
+     styling the <svg> directly would need :global(), and a scoped selector on
+     the svg silently matches nothing. */
+  .site-footer__chevron {
+    display: none;
+    color: var(--gold-300);
+  }
+
+  /* Prototype link list: 14px, lh 1.4, 12px apart, sand-200 → gold-200. */
+  .site-footer__links {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    font-size: var(--text-sm);
+    line-height: 1.4;
+  }
+
+  .site-footer :global(a) {
+    color: var(--sand-200);
+    text-decoration: none;
+    transition: color var(--t-fast) var(--ease-out);
+  }
+
+  .site-footer :global(a:hover) {
+    color: var(--gold-200);
+  }
+
+  /* Footer links are small, so keep a 44px hit area without visually spacing
+     the list apart (Handoff §14). */
+  .site-footer__links :global(a),
+  .site-footer__legal-list :global(a) {
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
+    padding-block: 10px;
+    margin-block: -10px;
+  }
+
+  /* ---------------------------------------------------------------- */
+  /* Legal block — prototype: its own container behind a 12% hairline, */
+  /* padding '22px 40px 28px'.                                         */
+  /* ---------------------------------------------------------------- */
+
+  .site-footer__legal {
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    padding-block: 22px 28px;
+  }
+
+  .site-footer__legal-rows {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px 40px;
+  }
+
+  .site-footer__legal-group {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  /* Prototype: Jost 11px, 0.16em tracked caps, gold-300, never shrinks. */
+  .site-footer__legal-label {
+    flex: none;
+    font-family: var(--heading-font);
+    font-size: 0.6875rem; /* 11px */
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--gold-300);
+  }
+
+  .site-footer__legal-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  /* Prototype: 13px, ink-300, hover gold-300 — dimmer than the column links. */
+  .site-footer__legal-list :global(a) {
+    font-size: 0.8125rem; /* 13px */
+    color: var(--ink-300);
+  }
+
+  .site-footer__legal-list :global(a:hover) {
+    color: var(--gold-300);
+  }
+
+  .site-footer__baseline {
+    max-width: none;
+    margin-top: 22px;
+    padding-top: 18px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    font-size: 0.8125rem; /* 13px */
+    line-height: 1.6;
+    color: var(--ink-300);
+  }
+
+  /* ---------------------------------------------------------------- */
+  /* Mobile — prototype: single column, gap 8, padding '48px 24px 32px'. */
+  /* Only the two browse columns collapse; Company and everything below  */
+  /* stay visible at all times.                                          */
+  /* ---------------------------------------------------------------- */
+
+  @media (max-width: 768px) {
+    .site-footer__top {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 8px;
+      padding-block: 48px 32px;
+    }
+
+    .site-footer__brand {
+      margin-bottom: 24px;
+    }
+
+    .site-footer__col--collapsible {
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
+      padding-top: 4px;
+    }
+
+    .site-footer__col--collapsible .site-footer__col-title {
+      margin-bottom: 0;
+    }
+
+    .site-footer__col--collapsible .site-footer__col-toggle {
+      min-height: var(--tap-min);
+      padding-block: 14px;
+      cursor: pointer;
+      pointer-events: auto;
+    }
+
+    .site-footer__col--collapsible .site-footer__chevron {
+      display: inline-flex;
+      transition: transform var(--t-fast) var(--ease-out);
+    }
+
+    /* Prototype: the chevron is rotated while the panel is open. */
+    .site-footer__col-toggle[aria-expanded='true'] .site-footer__chevron {
+      transform: rotate(180deg);
+    }
+
+    /* Collapse by height so the panel animates and, when closed, is removed
+       from the tab order and the accessibility tree. */
+    .site-footer__col--collapsible .site-footer__panel {
+      display: grid;
+      grid-template-rows: 1fr;
+      transition: grid-template-rows var(--t-slow) var(--ease-out);
+    }
+
+    .site-footer__col--collapsible .site-footer__links {
+      padding-block: 4px 18px;
+    }
+
+    .site-footer__col-toggle[aria-expanded='false'] + .site-footer__panel {
+      grid-template-rows: 0fr;
+    }
+
+    .site-footer__col-toggle[aria-expanded='false'] + .site-footer__panel .site-footer__links {
+      overflow: hidden;
+      visibility: hidden;
+    }
+
+    .site-footer__col:not(.site-footer__col--collapsible) {
+      margin-top: 24px;
+    }
+  }
+</style>
+
+<script>
+  // Footer accordions are mobile-only, and only on the columns that carry
+  // data-footer-toggle. Panels are rendered OPEN (aria-expanded="true") and are
+  // only collapsed once JS confirms a mobile width, so a visitor without JS can
+  // always reach every footer link.
+  const mobile = window.matchMedia('(max-width: 768px)');
+  const toggles = Array.from(
+    document.querySelectorAll<HTMLButtonElement>('[data-footer-toggle]'),
+  );
+
+  const sync = () => {
+    for (const toggle of toggles) {
+      // Desktop: always open, and the heading is not a control.
+      toggle.setAttribute('aria-expanded', mobile.matches ? 'false' : 'true');
+      toggle.tabIndex = mobile.matches ? 0 : -1;
+    }
+  };
+
+  for (const toggle of toggles) {
+    toggle.addEventListener('click', () => {
+      if (!mobile.matches) return;
+      toggle.setAttribute(
+        'aria-expanded',
+        toggle.getAttribute('aria-expanded') === 'true' ? 'false' : 'true',
+      );
+    });
+  }
+
+  mobile.addEventListener('change', sync);
+  sync();
+</script>

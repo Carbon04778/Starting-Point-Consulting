@@ -1,0 +1,284 @@
+---
+/**
+ * Site header.
+ *
+ * Handoff §06 "Navigation": sticky, translucent cream with blur, 1px bottom
+ * hairline, 72px tall. Full lockup left, the nav items, then the primary
+ * button. Active item sits in a soft sand pill. Hover fades to sand-100 over
+ * 150ms, no underline, no movement.
+ *
+ * Blueprints Global 02 mobile: emblem + wordmark left, hamburger right. Menu
+ * opens as a full-width cream panel — items stacked at 18px with 20px vertical
+ * rhythm, then the primary CTA full-width at the bottom. Header stays sticky.
+ * Every tap target ≥ 44px.
+ */
+import Icon from './Icon.astro';
+import { primaryNav, primaryNavCta, business } from '../config/site.js';
+
+const path = Astro.url.pathname.replace(/\/$/, '') || '/';
+const isActive = (href) => (href === '/' ? path === '/' : path === href || path.startsWith(`${href}/`));
+---
+
+<header class="site-header">
+  <div class="site-header__inner container">
+    <a class="lockup" href="/" aria-label={`${business.name} — home`}>
+      <img
+        src="/assets/logo/starting-point-horizontal-2000x771.svg"
+        alt=""
+        width="114"
+        height="44"
+        decoding="async"
+      />
+    </a>
+
+    <nav class="site-nav" aria-label="Primary">
+      <ul class="site-nav__list">
+        {
+          primaryNav.map((item) => (
+            <li>
+              <a
+                href={item.href}
+                class:list={['site-nav__link', { 'is-active': isActive(item.href) }]}
+                aria-current={isActive(item.href) ? 'page' : undefined}
+              >
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <a class="btn btn--primary site-header__cta" href={primaryNavCta.href}>
+      {primaryNavCta.label}
+    </a>
+
+    <button
+      type="button"
+      class="site-header__toggle"
+      aria-expanded="false"
+      aria-controls="mobile-menu"
+      data-menu-toggle
+    >
+      <Icon name="menu" size={24} class="site-header__toggle-open" />
+      <Icon name="close" size={24} class="site-header__toggle-close" />
+      <span class="sr-only">Menu</span>
+    </button>
+  </div>
+
+  <div class="mobile-menu" id="mobile-menu" hidden data-menu-panel>
+    <nav class="container" aria-label="Primary, mobile">
+      <ul class="mobile-menu__list">
+        {
+          primaryNav.map((item) => (
+            <li>
+              <a
+                href={item.href}
+                class:list={['mobile-menu__link', { 'is-active': isActive(item.href) }]}
+                aria-current={isActive(item.href) ? 'page' : undefined}
+              >
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+      <a class="btn btn--primary mobile-menu__cta" href={primaryNavCta.href}>
+        {primaryNavCta.label}
+      </a>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(252, 250, 245, 0.86); /* --sand-50 translucent */
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--hairline);
+  }
+
+  /* Browsers without backdrop-filter get the solid wash rather than
+     unreadable text over page content. */
+  @supports not ((backdrop-filter: blur(12px)) or (-webkit-backdrop-filter: blur(12px))) {
+    .site-header {
+      background: var(--wash-cream);
+    }
+  }
+
+  .site-header__inner {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    min-height: var(--header-h);
+  }
+
+  /* Handoff §02: full lockup in the site header at roughly 44px tall. */
+  .lockup {
+    display: flex;
+    align-items: center;
+    flex: none;
+  }
+
+  .lockup img {
+    height: 44px;
+    width: auto;
+  }
+
+  .site-nav {
+    margin-inline: auto;
+  }
+
+  .site-nav__list {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  /* Navigation type — Handoff §04: Jost 500, 15px, sentence case. */
+  .site-nav__link {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--tap-min);
+    padding: 8px 14px;
+    border-radius: var(--radius-pill);
+    font-family: var(--heading-font);
+    font-weight: var(--fw-medium);
+    font-size: 0.9375rem; /* 15px */
+    color: var(--ink-600);
+    text-decoration: none;
+    transition:
+      background-color var(--t-fast) var(--ease-out),
+      color var(--t-fast) var(--ease-out);
+  }
+
+  /* Hover: background fades to sand-100, text moves to charcoal.
+     No underline, no movement. */
+  .site-nav__link:hover {
+    background: var(--sand-100);
+    color: var(--text-strong);
+    text-decoration: none;
+  }
+
+  /* Active: soft sand pill with charcoal text. */
+  .site-nav__link.is-active {
+    background: var(--sand-200);
+    color: var(--text-strong);
+  }
+
+  .site-header__cta {
+    flex: none;
+    padding: 10px 20px;
+    font-size: 0.9375rem;
+  }
+
+  .site-header__toggle {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: var(--tap-min);
+    height: var(--tap-min);
+    margin-left: auto;
+    border-radius: var(--radius-button);
+    color: var(--text-strong);
+  }
+
+  .site-header__toggle-close {
+    display: none;
+  }
+
+  .site-header__toggle[aria-expanded='true'] .site-header__toggle-open {
+    display: none;
+  }
+
+  .site-header__toggle[aria-expanded='true'] .site-header__toggle-close {
+    display: block;
+  }
+
+  /* Full-width cream panel. */
+  .mobile-menu {
+    background: var(--wash-cream);
+    border-top: 1px solid var(--hairline);
+    padding-block: 12px 24px;
+  }
+
+  .mobile-menu__list {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .mobile-menu__link {
+    display: flex;
+    align-items: center;
+    min-height: var(--tap-min);
+    padding: 10px 12px;
+    border-radius: var(--radius-button);
+    font-family: var(--heading-font);
+    font-weight: var(--fw-medium);
+    font-size: var(--text-md); /* 18px in the mobile panel — Handoff §04 */
+    color: var(--text-strong);
+    text-decoration: none;
+  }
+
+  .mobile-menu__link.is-active {
+    background: var(--sand-200);
+  }
+
+  .mobile-menu__cta {
+    width: 100%;
+    margin-top: 16px;
+  }
+
+  /* Below 1024px the six items plus the CTA no longer fit on one line. */
+  @media (max-width: 1024px) {
+    .site-nav,
+    .site-header__cta {
+      display: none;
+    }
+
+    .site-header__toggle {
+      display: inline-flex;
+    }
+  }
+
+  @media (min-width: 1025px) {
+    .mobile-menu {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  // Mobile menu. Progressive enhancement: without JS the panel stays hidden
+  // and the header still renders — no page depends on it for content.
+  const toggle = document.querySelector('[data-menu-toggle]');
+  const panel = document.querySelector('[data-menu-panel]');
+
+  if (toggle instanceof HTMLButtonElement && panel instanceof HTMLElement) {
+    const setOpen = (open) => {
+      toggle.setAttribute('aria-expanded', String(open));
+      panel.hidden = !open;
+    };
+
+    toggle.addEventListener('click', () => {
+      setOpen(toggle.getAttribute('aria-expanded') !== 'true');
+    });
+
+    // Escape closes the panel and returns focus to the control that opened it.
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && toggle.getAttribute('aria-expanded') === 'true') {
+        setOpen(false);
+        toggle.focus();
+      }
+    });
+
+    // Re-entering desktop width must not leave a hidden panel "open".
+    const desktop = window.matchMedia('(min-width: 1025px)');
+    desktop.addEventListener('change', (event) => {
+      if (event.matches) setOpen(false);
+    });
+  }
+</script>

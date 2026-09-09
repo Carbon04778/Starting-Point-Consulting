@@ -1,0 +1,16 @@
+EYEBROW: Important information
+TITLE: Disclaimer
+
+INTRO: The information provided by Starting Point Consulting is for educational and informational purposes only.
+
+---
+
+Our workshops, coaching, consulting, speaking engagements, and educational resources are designed to support learning, personal growth, leadership development, resilience, and well-being.
+
+Our services are not intended to diagnose, treat, cure, or prevent any medical or mental health condition, nor are they a substitute for professional medical, psychological, or therapeutic care.
+
+[CALLOUT] If you are experiencing a medical or mental health emergency, or have concerns about your health, please seek care from a qualified healthcare professional.
+
+Our work complements, but does not replace, the care provided by licensed medical and mental health professionals.
+
+Participation in our programs is voluntary, and individuals are encouraged to use their own judgment and consult their healthcare providers when appropriate.

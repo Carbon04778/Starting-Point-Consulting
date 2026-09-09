@@ -1,0 +1,211 @@
+---
+/**
+ * Services — Blueprints Page 02, Master Website Copy §03.
+ *
+ * Section order:
+ *   1 Header  2 Service cards 3×2  3 Integration feature card
+ *   4 Who we serve  5 Let's begin
+ *
+ * HEADING LEVELS. Master Copy §03 labels "Support for every starting point" an
+ * eyebrow and "How we partner" the H2. Handoff §09 overrides: "The Services
+ * page H1 is 'Support for every starting point.'" Both approved strings are
+ * used, with the first promoted to H1 per the Handoff. Nothing is invented and
+ * the page keeps exactly one h1.
+ *
+ * FEATURE CARD NAMING. Blueprints Page 02 §3 calls this the "Speaking &
+ * Consulting feature card" but then describes "three bulleted lines about
+ * integration, somatic practice, and meaning-making" — the Integration content.
+ * Master Copy §03 titles it "Transformation & Integration Support" and gives
+ * exactly those three bullets, so the blueprint's label is stale. The
+ * blueprint's "link through to Speaking" is omitted: the card is about
+ * integration, and Master Copy gives it no button. Flagged in OPEN-QUESTIONS.
+ *
+ * Handoff §07: Individual Sessions is reached from here, not from the top nav.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import ContactPanel from '../components/ContactPanel.astro';
+import { routes } from '../config/site.js';
+import {
+  serviceCards,
+  integrationFeature,
+  integrationScopeDisclaimer,
+  boundarySentence,
+  whoWeServe,
+} from '../copy/shared.js';
+---
+
+<BaseLayout
+  title="Services | Starting Point Consulting"
+  description="Individual sessions, workshops, leadership development, resilience and well-being programs, and integration support. Practical tools grounded in nervous system science."
+>
+  {/* 1 · Header */}
+  <section class="section section--hero section--cream">
+    <div class="container">
+      <p class="eyebrow">Services</p>
+      <h1>Support for every starting point.</h1>
+      <h2 class="services__sub">How we partner</h2>
+      <p class="t-lead services__lead">
+        From individuals to whole systems, neuroscience-informed education, leadership, and
+        programs that turn complex science into practical, human tools.
+      </p>
+    </div>
+  </section>
+
+  {/* 2 · Service cards — 3×2. Anchor ids are the footer's link targets. */}
+  <section class="section section--sand">
+    <div class="container">
+      <div class="grid grid--3">
+        {
+          serviceCards.map((service) => (
+            <article class="card card--equal" id={service.anchor}>
+              <span class:list={['icon-plate', `icon-plate--${service.tone}`]}>
+                <Icon name={service.icon} size={22} />
+              </span>
+              <h3>{service.title}</h3>
+              <p class="card__body">{service.body}</p>
+              {service.href && (
+                <div class="card__foot">
+                  <a class="btn btn--text" href={service.href}>
+                    Explore {service.title} <Icon name="arrow-right" size={18} />
+                  </a>
+                </div>
+              )}
+            </article>
+          ))
+        }
+      </div>
+
+      {/* Handoff §11 — the boundary sentence appears on every service area
+          and must not be removed or softened. */}
+      <div class="scope-callout services__boundary">
+        <p>{boundarySentence}</p>
+      </div>
+    </div>
+  </section>
+
+  {/* 3 · Transformation & Integration Support feature card */}
+  <section class="section section--cream">
+    <div class="container">
+      <article class="feature-card">
+        <span class="feature-card__badge">{integrationFeature.badge}</span>
+        <h2>{integrationFeature.title}</h2>
+        <p class="feature-card__sub">{integrationFeature.subheading}</p>
+        <p class="card__body">{integrationFeature.body}</p>
+        <ul class="feature-card__list">
+          {
+            integrationFeature.bullets.map((bullet) => (
+              <li>
+                <Icon name="check" size={18} />
+                <span>{bullet}</span>
+              </li>
+            ))
+          }
+        </ul>
+        {/* Must appear in full — Legal Pages Index §03. */}
+        <div class="scope-callout">
+          <p>{integrationScopeDisclaimer}</p>
+        </div>
+      </article>
+
+      <p class="services__note">
+        Integration support is offered inside <a href={`${routes.individualSessions}#integration-support`}>Individual
+        Sessions</a>, alongside single sessions and multi-session paths.
+      </p>
+    </div>
+  </section>
+
+  {/* 4 · Who we serve */}
+  <section class="section section--sand" id="who-we-serve">
+    <div class="container">
+      <h2>{whoWeServe.heading}</h2>
+      <p class="t-lead services__lead">{whoWeServe.body}</p>
+      <div class="chip-row services__chips">
+        {whoWeServe.chips.map((chip) => <span class="chip chip--static">{chip}</span>)}
+      </div>
+    </div>
+  </section>
+
+  {/* 5 · Let's begin */}
+  <ContactPanel />
+</BaseLayout>
+
+<style>
+  .services__sub {
+    margin-top: 24px;
+  }
+
+  .services__lead {
+    margin-top: 12px;
+  }
+
+  .services__boundary {
+    margin-top: 32px;
+    max-width: var(--measure-lead);
+  }
+
+  .services__chips {
+    margin-top: 32px;
+  }
+
+  .services__note {
+    margin-top: 24px;
+    max-width: var(--measure-lead);
+    color: var(--text-muted);
+  }
+
+  .feature-card {
+    background: var(--gold-50);
+    border: 1px solid var(--gold-100);
+    border-radius: var(--radius-card);
+    padding: var(--card-pad);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .feature-card__badge {
+    align-self: flex-start;
+    padding: 6px 14px;
+    border-radius: var(--radius-pill);
+    background: var(--gold-500);
+    color: var(--ink-900);
+    font-family: var(--heading-font);
+    font-weight: var(--fw-medium);
+    font-size: var(--text-xs);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .feature-card__sub {
+    font-family: var(--lead-font);
+    font-size: var(--text-md);
+    line-height: var(--lh-normal);
+    color: var(--sage-700);
+  }
+
+  .feature-card__list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 4px;
+  }
+
+  .feature-card__list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .feature-card__list :global(svg) {
+    color: var(--gold-700);
+    flex: none;
+    margin-top: 4px;
+  }
+
+  @media (max-width: 768px) {
+    .feature-card {
+      padding: var(--card-pad-mobile);
+    }
+  }
+</style>

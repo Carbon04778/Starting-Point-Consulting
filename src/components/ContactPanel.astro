@@ -1,0 +1,308 @@
+---
+/**
+ * The "Let's begin" split panel.
+ *
+ * Blueprints Page 01 §5: split panel, charcoal left / cream right — the page's
+ * one dark moment. Left carries the eyebrow, H2, lead, three icon rows and the
+ * CTA; right carries the contact form in a cream card.
+ *
+ * Blueprints Page 15: the same panel is the whole Contact page. On submit the
+ * form is replaced in place by the success state — no page reload, no redirect.
+ *
+ * The form has no backend yet. Until it does, it posts nowhere and the submit
+ * handler shows the approved success state; wiring it to
+ * darlene@startingpointconsulting.com is a later phase. See the note below.
+ */
+import Icon from '../components/Icon.astro';
+import { contactPanel } from '../copy/shared.js';
+
+interface Props {
+  /** Contact page renders the heading as the page h1; sections use h2. */
+  as?: 'h1' | 'h2';
+  eyebrow?: string;
+}
+
+const { as: Heading = 'h2', eyebrow } = Astro.props;
+const { heading, body, iconRows, button, form } = contactPanel;
+
+// The success message sits one level below the panel heading, so the document
+// outline never skips a level (Handoff §14: "headings in real hierarchical
+// order"). On Contact the panel is the h1, so success is an h2; used as a
+// closing section elsewhere it is an h3.
+const SuccessHeading = Heading === 'h1' ? 'h2' : 'h3';
+
+// Prototype Contact.jsx: Heart / Mail / Calendar, 18px, gold-300.
+const rowIcons = ['heart', 'mail', 'calendar'];
+---
+
+<section class="contact-panel" id="lets-begin">
+  <div class="container">
+    <div class="contact-panel__grid">
+      <div class="contact-panel__dark on-dark">
+      {eyebrow && <p class="eyebrow">{eyebrow}</p>}
+      <Heading class="contact-panel__heading">{heading}</Heading>
+      <p class="contact-panel__lead">{body}</p>
+
+      <ul class="contact-panel__rows">
+        {
+          iconRows.map((row, i) => (
+            <li>
+              <span class="contact-panel__row-icon">
+                <Icon name={rowIcons[i]} size={18} />
+              </span>
+              <span>{row}</span>
+            </li>
+          ))
+        }
+      </ul>
+
+      <a class="btn btn--primary contact-panel__cta" href={button.href} target="_blank" rel="noopener noreferrer">
+        {button.label}
+      </a>
+    </div>
+
+    <div class="contact-panel__card">
+      <form class="contact-form" data-contact-form novalidate>
+        {
+          form.fields.map((field) => (
+            <div class="field">
+              <label class="field__label" for={`contact-${field.name}`}>
+                {field.label}
+                {field.required && <span class="field__required"> (required)</span>}
+              </label>
+
+              {field.type === 'textarea' ? (
+                <textarea
+                  class="field__control"
+                  id={`contact-${field.name}`}
+                  name={field.name}
+                  placeholder={field.placeholder}
+                  required={field.required}
+                />
+              ) : field.type === 'select' ? (
+                <select class="field__control" id={`contact-${field.name}`} name={field.name} required={field.required}>
+                  <option value="">{field.placeholder}</option>
+                  {field.options.map((option) => (
+                    <option value={option}>{option}</option>
+                  ))}
+                </select>
+              ) : (
+                <input
+                  class="field__control"
+                  id={`contact-${field.name}`}
+                  name={field.name}
+                  type={field.type}
+                  placeholder={field.placeholder}
+                  required={field.required}
+                />
+              )}
+            </div>
+          ))
+        }
+
+        <button class="btn btn--primary contact-form__submit" type="submit">{form.submit}</button>
+      </form>
+
+      <div class="form-success" hidden data-contact-success role="status">
+        {/* Prototype: a 56px success-50 disc with a 28px success-500 check. */}
+        <span class="form-success__mark" aria-hidden="true">
+          <Icon name="check" size={28} />
+        </span>
+        <SuccessHeading>{form.success.heading}</SuccessHeading>
+        <p>{form.success.body}</p>
+      </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* Prototype Contact.jsx: surface-page ground, 88px block padding. */
+  .contact-panel {
+    border-top: 1px solid var(--hairline);
+    background: var(--surface-page);
+    padding-block: 88px;
+  }
+
+  /* Prototype: one rounded, shadowed container at container-lg with the two
+     halves flush against each other — not two separate cards with a gap. */
+  .contact-panel__grid {
+    max-width: var(--container-lg);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    align-items: stretch;
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+  }
+
+  /* The page's one dark moment. Prototype: 165deg sage-600 → sage-700 45% →
+     ink-800, 56px/48px padding, contents centred vertically. */
+  .contact-panel__dark {
+    background: linear-gradient(
+      165deg,
+      var(--sage-600) 0%,
+      var(--sage-700) 45%,
+      var(--ink-800) 100%
+    );
+    color: var(--text-on-dark);
+    padding: 56px 48px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  /* Prototype: text-2xl, -0.01em, pure white, 16px under the eyebrow. */
+  .contact-panel__heading {
+    color: var(--white);
+    font-size: var(--text-2xl);
+    letter-spacing: -0.01em;
+  }
+
+  .contact-panel__lead {
+    font-family: var(--lead-font);
+    font-size: var(--text-lg);
+    line-height: 1.5;
+    color: var(--sand-200);
+    margin-top: 18px;
+  }
+
+  /* Prototype: 36px below the lead, rows 14px apart, sand-100. */
+  .contact-panel__rows {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 36px;
+  }
+
+  .contact-panel__rows li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: var(--text-base);
+    line-height: 1.55;
+    color: var(--sand-100);
+  }
+
+  /* Prototype: a bare 18px gold-300 glyph, no plate behind it. */
+  .contact-panel__row-icon {
+    display: inline-flex;
+    flex: none;
+    color: var(--gold-300);
+  }
+
+  .contact-panel__cta {
+    align-self: flex-start;
+    margin-top: 28px;
+  }
+
+  /* Prototype: white, 48px padding, no border or radius of its own — the
+     wrapper already clips and shadows it. */
+  .contact-panel__card {
+    background: var(--surface-card);
+    padding: 48px;
+  }
+
+  .contact-form__submit {
+    width: 100%;
+    margin-top: 8px;
+  }
+
+  /* Prototype success state: 56px success-50 disc, success-500 check. */
+  .form-success__mark {
+    display: grid;
+    place-items: center;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--success-50);
+    color: var(--success-500);
+    margin-bottom: 4px;
+  }
+
+  @media (max-width: 900px) {
+    .contact-panel__grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .contact-panel {
+      padding-block: var(--section-y-mobile);
+    }
+
+    /* Blueprints Page 01 mobile: the charcoal panel stacks above the form;
+       the form keeps 24px inner padding and 16px field spacing. */
+    .contact-panel__dark,
+    .contact-panel__card {
+      padding: 24px;
+    }
+  }
+</style>
+
+<script>
+  // The contact form has no destination yet. Handoff §10 "Forms" settles the
+  // inbox (darlene@startingpointconsulting.com) but the sending path is a
+  // later phase, so the form does not pretend to deliver: it validates, shows
+  // the approved success state in place, and logs the payload for the
+  // developer. Wire the real submission before launch — QA checklist:
+  // "forms arrive in the right inbox with a success message".
+  const form = document.querySelector('[data-contact-form]');
+  const success = document.querySelector('[data-contact-success]');
+
+  if (form instanceof HTMLFormElement && success instanceof HTMLElement) {
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+
+      // Clear any previous error state before re-validating.
+      for (const field of form.querySelectorAll('.field--error')) {
+        field.classList.remove('field--error');
+        field.querySelector('.field__error')?.remove();
+      }
+
+      let firstInvalid = null;
+
+      for (const control of form.querySelectorAll('[required]')) {
+        if (control.value.trim()) continue;
+
+        const wrapper = control.closest('.field');
+        if (!wrapper) continue;
+
+        wrapper.classList.add('field--error');
+
+        // Errors described in words, tied to the control for screen readers.
+        const message = document.createElement('p');
+        message.className = 'field__error';
+        message.id = `${control.id}-error`;
+        const label = wrapper.querySelector('.field__label')?.firstChild?.textContent?.trim() ?? 'This field';
+        message.textContent = `Enter your ${label.toLowerCase()} so we can reply.`;
+        wrapper.append(message);
+        control.setAttribute('aria-describedby', message.id);
+        control.setAttribute('aria-invalid', 'true');
+
+        firstInvalid ??= control;
+      }
+
+      if (firstInvalid) {
+        firstInvalid.focus();
+        return;
+      }
+
+      console.info('[contact form] not yet wired to an inbox. Payload:', Object.fromEntries(new FormData(form)));
+
+      form.hidden = true;
+      success.hidden = false;
+      success.focus?.();
+    });
+
+    // Clear a field's error as soon as the visitor starts fixing it.
+    form.addEventListener('input', (event) => {
+      const wrapper = event.target.closest?.('.field--error');
+      if (!wrapper) return;
+      wrapper.classList.remove('field--error');
+      wrapper.querySelector('.field__error')?.remove();
+      event.target.removeAttribute('aria-invalid');
+    });
+  }
+</script>

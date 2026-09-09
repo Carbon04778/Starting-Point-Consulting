@@ -1,0 +1,6 @@
+/* Starting Point Consulting — Webfonts
+   Loaded from Google Fonts CDN (see readme → CAVEATS for self-hosting note).
+   - Jost      : geometric sans, echoes the logo's tracked caps. Display + eyebrows.
+   - Newsreader: warm optical serif. Editorial leads, pull quotes, large numbers.
+   - Hanken Grotesk: humanist grotesque. Body, UI, labels, buttons. */
+@import url('https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=Hanken+Grotesk:wght@400;500;600;700&display=swap');

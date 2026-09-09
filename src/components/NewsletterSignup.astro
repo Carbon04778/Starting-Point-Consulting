@@ -1,0 +1,219 @@
+---
+/**
+ * Newsletter signup — footer variant.
+ *
+ * Built to the prototype's `NewsletterSignup({ variant: 'footer' })`, decoded
+ * from `docs/reference/approved-ui-mockup.html`. Every measurement below is
+ * the prototype's: 12px/0.14em gold-300 label, 13px sand-200 body, a pill
+ * field on a 6%-white ground behind a 20%-white hairline, an 8px gap, and a
+ * round gold-500 submit.
+ *
+ * All copy is approved verbatim — Master Copy §17 "Newsletter" supplies the
+ * eyebrow, the compact/footer body, the field label ("Email address"), the
+ * placeholder ("Your email"), the button ("Subscribe") and the success line.
+ * Nothing here is invented.
+ *
+ * FOUR DELIBERATE DEPARTURES FROM THE PROTOTYPE, all accessibility floors that
+ * Handoff §14 states as requirements (see OPEN-QUESTIONS #29):
+ *
+ *   1. The arrow is ink-900, not the prototype's #fff. White on gold-500 is
+ *      2.81:1 — below the 3:1 that WCAG 1.4.11 asks of a meaningful glyph, and
+ *      the exact pairing `npm run check:contrast` guards against. Ink-900 on
+ *      gold-500 is 6.31:1 and is what every other primary button already uses.
+ *   2. The control is 44px, not 42px. Handoff §14: "tap targets at least 44px".
+ *   3. The prototype sets `outline: none` with nothing in its place. The field
+ *      keeps the site focus ring instead.
+ *   4. The field border is 40% white, not 20%. See the note on the rule.
+ *
+ * All four are small and reversible; each is one value.
+ *
+ * NO DESTINATION YET. Pending Items §01 — the platform (Beehiiv vs
+ * Kit/ConvertKit) is still Darlene's to choose, and the prototype itself
+ * carries `TODO(ConvertKit)` at this spot. The form follows the same house
+ * pattern the contact form uses: it validates, shows the approved success
+ * state in place, and logs the payload for the developer. Wire the real
+ * endpoint before launch.
+ */
+import Icon from './Icon.astro';
+import { newsletter } from '../copy/shared.js';
+---
+
+<div class="newsletter">
+  <p class="newsletter__label">{newsletter.eyebrow}</p>
+
+  <div data-newsletter-idle>
+    <p class="newsletter__body">{newsletter.bodyCompact}</p>
+
+    <form class="newsletter__form" data-newsletter-form novalidate>
+      <label class="sr-only" for="newsletter-email">{newsletter.fieldLabel}</label>
+      <input
+        class="newsletter__input"
+        id="newsletter-email"
+        name="email"
+        type="email"
+        autocomplete="email"
+        required
+        placeholder={newsletter.placeholder}
+        aria-describedby="newsletter-error"
+      />
+      <button class="newsletter__submit" type="submit" aria-label={newsletter.submit}>
+        <Icon name="arrow-right" size={18} />
+      </button>
+    </form>
+
+    {/* Kept in the DOM so the error is announced when it appears. */}
+    <p class="newsletter__error" id="newsletter-error" role="alert" hidden data-newsletter-error>
+      {newsletter.error}
+    </p>
+  </div>
+
+  <p class="newsletter__body" hidden data-newsletter-success role="status">
+    {newsletter.successCompact}
+  </p>
+</div>
+
+<style>
+  /* Prototype: Jost 12px, 0.14em tracked caps, gold-300, 12px below. */
+  .newsletter__label {
+    font-family: var(--heading-font);
+    font-size: 0.75rem; /* 12px */
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--gold-300);
+    margin-bottom: 12px;
+  }
+
+  /* Prototype: 13px, lh 1.6, sand-200, 12px above the form. */
+  .newsletter__body {
+    font-size: 0.8125rem; /* 13px */
+    line-height: 1.6;
+    color: var(--sand-200);
+    margin-bottom: 12px;
+  }
+
+  .newsletter__form {
+    display: flex;
+    gap: 8px;
+  }
+
+  /* Prototype: pill field, 10px/14px padding, 6% white ground, 20% hairline.
+     The border is 40% rather than the prototype's 20%: a control's boundary
+     needs 3:1 (WCAG 1.4.11) and 20% white gives only 1.91:1 against the
+     footer's ink end. 40% is the first step that clears 3:1 at both ends of
+     the footer gradient (3.13:1 on sage-700, 3.75:1 on ink-800). */
+  .newsletter__input {
+    flex: 1;
+    min-width: 0;
+    padding: 10px 14px;
+    border-radius: var(--radius-pill);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--white);
+    font-family: var(--body-font);
+    font-size: var(--text-sm);
+    transition:
+      border-color var(--t-fast) var(--ease-out),
+      background var(--t-fast) var(--ease-out);
+  }
+
+  /* sand-300 rather than the browser default so the placeholder clears AA
+     against the field's ground. */
+  .newsletter__input::placeholder {
+    color: var(--sand-300);
+    opacity: 1;
+  }
+
+  .newsletter__input:hover {
+    border-color: rgba(255, 255, 255, 0.55);
+  }
+
+  /* The prototype removes the outline and puts nothing in its place; Handoff
+     §14 requires a visible focus indicator. */
+  .newsletter__input:focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+    border-color: var(--gold-300);
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .newsletter__input[aria-invalid='true'] {
+    border-color: var(--gold-200);
+  }
+
+  /* Prototype: 42px round gold-500 with a white arrow. 44px here to meet the
+     Handoff §14 tap minimum, and ink-900 for the 6.31:1 the design system
+     requires on gold-500 — white would be 2.81:1. */
+  .newsletter__submit {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--tap-min);
+    height: var(--tap-min);
+    border: 0;
+    border-radius: 50%;
+    background: var(--gold-500);
+    color: var(--ink-900);
+    cursor: pointer;
+    transition: background var(--t-fast) var(--ease-out);
+  }
+
+  .newsletter__submit:hover {
+    background: var(--gold-600);
+  }
+
+  .newsletter__submit:focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+
+  .newsletter__error {
+    margin-top: 8px;
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    color: var(--gold-200);
+  }
+</style>
+
+<script>
+  // No destination yet (Pending Items §01) — same house pattern as the contact
+  // form: validate, show the approved success state in place, log the payload.
+  // Replace the marked block with the real platform call before launch.
+  const form = document.querySelector<HTMLFormElement>('[data-newsletter-form]');
+  const idle = document.querySelector<HTMLElement>('[data-newsletter-idle]');
+  const success = document.querySelector<HTMLElement>('[data-newsletter-success]');
+  const error = document.querySelector<HTMLElement>('[data-newsletter-error]');
+
+  if (form && idle && success && error) {
+    const field = form.elements.namedItem('email');
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      if (!(field instanceof HTMLInputElement)) return;
+
+      if (!field.value.trim() || !field.checkValidity()) {
+        error.hidden = false;
+        field.setAttribute('aria-invalid', 'true');
+        field.focus();
+        return;
+      }
+
+      error.hidden = true;
+      field.removeAttribute('aria-invalid');
+
+      // --- TODO: send to the newsletter platform once Darlene picks one. ---
+      console.info('[newsletter] no platform wired yet; payload:', field.value.trim());
+
+      idle.hidden = true;
+      success.hidden = false;
+    });
+
+    // Clear the error as soon as the visitor starts fixing it — same behaviour
+    // as the contact form.
+    form.addEventListener('input', () => {
+      if (error.hidden) return;
+      error.hidden = true;
+      if (field instanceof HTMLInputElement) field.removeAttribute('aria-invalid');
+    });
+  }
+</script>

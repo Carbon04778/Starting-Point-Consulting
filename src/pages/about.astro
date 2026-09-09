@@ -1,0 +1,258 @@
+---
+/**
+ * About — "The journey behind the work".
+ * Blueprints Page 10, Master Website Copy §12.
+ *
+ * Section order:  1 Founder  2 Stats band  3 Testimonials
+ *
+ * HEADING LEVEL. Master Copy §12 labels "The journey behind the work" an H2 and
+ * gives the page no H1. Promoted to H1 here so the page has exactly one
+ * (Handoff §14). Same string, structural fix only.
+ *
+ * CREDENTIAL BADGES. Blueprints Page 10 lists eight. Handoff §01 approves
+ * exactly five and says "Do not add anything to this set, and do not build a
+ * credential wall." The five are used. MBA, BSN and RN are deliberately not
+ * repeated as badges because they follow her name.
+ *
+ * FOUNDER IDENTITY is exactly two lines and never more (Handoff §01). No
+ * stacked titles.
+ *
+ * LEAD FUTURES FOUNDATION appears here, in the narrative bio, and in exactly
+ * two other places off-site. Not a partner, sponsor, affiliate, or client. Do
+ * not expand it, do not add a logo, do not name any prospective LEAD partner.
+ *
+ * TESTIMONIALS are hidden until Darlene confirms a signed Testimonial & Media
+ * Release is on file for each (Handoff §06, Pending Items §04).
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { business, routes, pending } from '../config/site.js';
+
+/* Handoff §01 — the complete approved credential and training badge set.
+   Shared with For Therapists & Providers so the two cannot drift apart. */
+import { credentialBadges as badges } from '../copy/shared.js';
+
+/* Master Copy §12 — "Stats band". */
+const stats = [
+  ['Decades', 'Critical care, palliative care & hospice nursing'],
+  ['4', 'Guiding principles: Understand · Connect · Grow · Thrive'],
+  ['6', 'Ways we help, individuals to communities'],
+  ['100%', 'Evidence-informed, human-centered'],
+];
+
+/* Master Copy §12 — both quotes approved as written and attributed without
+   names. Rendered only when a signed release is confirmed on file. */
+const testimonials = [
+  {
+    quote:
+      'I came on my own, unsure what to expect. I left with simple tools and a way of understanding myself that I use every day.',
+    attribution: 'A client · Individual, self-referred',
+  },
+  {
+    quote:
+      'Starting Point gave our leaders a shared language for resilience, and the practical tools to actually use it under pressure.',
+    attribution: 'Director of Nursing · Regional health system',
+  },
+];
+
+/* Handoff §13 — Person on About, worksFor pointing at the Organization. */
+const person = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: 'Darlene Erich',
+  honorificSuffix: 'MBA, BSN, RN',
+  jobTitle: 'Founder, Starting Point Consulting',
+  worksFor: { '@id': `${Astro.site}#organization` },
+  url: new URL(routes.about, Astro.site).href,
+  image: new URL('/assets/photos/darlene-erich-portrait.jpg', Astro.site).href,
+};
+---
+
+<BaseLayout
+  title="About Darlene Erich | Starting Point Consulting"
+  description="A registered nurse, healthcare executive, and somatic educator with decades in critical care, palliative care, and hospice nursing. Where science meets humanity."
+>
+  <script slot="head" is:inline set:html={JSON.stringify(person)} type="application/ld+json" />
+
+  {/* 1 · Founder section — two columns */}
+  <section class="section section--hero section--cream">
+    <div class="container about__grid">
+      <figure class="about__portrait">
+        <img
+          class="photo"
+          src="/assets/photos/darlene-erich-portrait.jpg"
+          alt="Darlene Erich, founder of Starting Point Consulting."
+          width="480"
+          height="600"
+          decoding="async"
+        />
+      </figure>
+
+      <div>
+        <p class="eyebrow">{business.founder.name}</p>
+        <h1>The journey behind the work</h1>
+        <p class="t-lead about__sub">
+          The culmination of a career in care, leadership, and human connection.
+        </p>
+
+        <div class="about__body">
+          <p>
+            A critical care registered nurse, healthcare executive, somatic practitioner, and
+            educator, our founder has spent a career where science meets humanity.
+          </p>
+          <p>
+            Decades at the bedside in critical care, palliative care, and hospice mean this work did
+            not begin with theory. It began with chronic stress, trauma, and grief up close, in
+            herself and in the people she worked alongside.
+          </p>
+          <p>
+            Darlene also serves as Director of Somatic Self-Regulation &amp; Well-Being with LEAD
+            Futures Foundation, where she helps develop nervous system-informed well-being
+            initiatives for educators, healthcare professionals, first responders, nonprofit
+            organizations, and community leaders.
+          </p>
+          <p>
+            Every step has reinforced one belief: when we better understand ourselves, we create
+            healthier families, stronger teams, more resilient organizations, and thriving
+            communities.
+          </p>
+        </div>
+
+        <ul class="chip-row about__badges">
+          {badges.map((badge) => <li class="chip chip--static">{badge}</li>)}
+        </ul>
+
+        {/* Master Copy §12 gives a "Read the full story" button. On the About
+            page it would link to itself, and no other destination is specified,
+            so it is omitted rather than pointed somewhere invented. See
+            docs/OPEN-QUESTIONS.md. */}
+      </div>
+    </div>
+  </section>
+
+  {/* 2 · Stats band — four columns */}
+  <section class="section section--sand">
+    <div class="container">
+      <ul class="grid grid--4 stats">
+        {
+          stats.map(([value, label]) => (
+            <li class="stats__item">
+              <p class="stats__value">{value}</p>
+              <p class="stats__label">{label}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  {/* 3 · Testimonials — published only with a signed release on file. */}
+  {
+    pending.testimonials && (
+      <section class="section section--cream">
+        <div class="container">
+          <div class="grid grid--2">
+            {testimonials.map((testimonial) => (
+              <figure class="card testimonial">
+                <blockquote class="t-quote">{testimonial.quote}</blockquote>
+                <figcaption class="t-small">{testimonial.attribution}</figcaption>
+              </figure>
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  <section class="section section--cream">
+    <div class="container">
+      <div class="button-row">
+        <a class="btn btn--primary" href={routes.services}>Explore our work</a>
+        <a class="btn btn--secondary" href={routes.ourApproach}>Our approach</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .about__grid {
+    display: grid;
+    grid-template-columns: 0.85fr 1.15fr;
+    gap: 48px;
+    align-items: start;
+  }
+
+  .about__portrait {
+    margin: 0;
+  }
+
+  /* Blueprints Page 10: portrait, 4:5, radius 14px. */
+  .about__portrait img {
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    border-radius: 14px;
+  }
+
+  .about__sub {
+    margin-top: 14px;
+  }
+
+  .about__body {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 24px;
+  }
+
+  .about__badges {
+    margin-top: 28px;
+  }
+
+  .stats {
+    text-align: left;
+  }
+
+  .stats__item {
+    padding-top: 20px;
+    border-top: 2px solid var(--gold-500);
+  }
+
+  .stats__value {
+    font-family: var(--lead-font);
+    font-size: var(--text-2xl);
+    line-height: 1.1;
+    color: var(--text-strong);
+  }
+
+  .stats__label {
+    margin-top: 8px;
+    font-size: var(--text-sm);
+    line-height: 1.55;
+    color: var(--text-muted);
+  }
+
+  /* Handoff §06: quote block never boxed, gold rule above. */
+  .testimonial {
+    gap: 16px;
+    border-top: 2px solid var(--gold-500);
+  }
+
+  @media (max-width: 900px) {
+    .about__grid {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 32px;
+    }
+
+    /* Blueprints Page 10 mobile: portrait first, then the text. */
+    .about__portrait {
+      order: -1;
+      max-width: 320px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    /* Blueprints Page 10 mobile: stats become a 2×2 grid. */
+    .stats {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+</style>

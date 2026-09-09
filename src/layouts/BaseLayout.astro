@@ -1,0 +1,117 @@
+---
+/**
+ * Base page layout: head, skip link, header, main, footer.
+ *
+ * Handoff §13 requires per-page titles and meta descriptions placed exactly as
+ * written, one h1 per page, and Organization + ProfessionalService structured
+ * data site-wide. Titles are passed in per page rather than composed here, so
+ * the supplied strings go in verbatim.
+ *
+ * `noindex` is required on the three post-payment scheduling pages, the New
+ * Client Intake, guide delivery, and thank-you pages (Handoff §17).
+ */
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { business, pending } from '../config/site.js';
+import '../styles/global.css';
+
+interface Props {
+  /** Placed verbatim as <title>. Handoff §13 gives these per page. */
+  title: string;
+  /** Placed verbatim as the meta description, 150–160 chars. */
+  description: string;
+  /** Set true for private/utility pages that must stay out of search. */
+  noindex?: boolean;
+  /** Overrides the canonical URL when a page is served at more than one path. */
+  canonical?: string;
+  /** Extra class on <body>, for page-specific scoping. */
+  bodyClass?: string;
+}
+
+const { title, description, noindex = false, canonical, bodyClass = '' } = Astro.props;
+
+const canonicalUrl = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
+
+/**
+ * Handoff §13 "Structured data":
+ *   Organization — site-wide header, legal name, logo URL, email,
+ *     LinkedIn and Instagram as sameAs.
+ *   ProfessionalService — use instead of LocalBusiness, areaServed United
+ *     States, Utah as the base, NO street address.
+ *
+ * sameAs is omitted entirely until the profile URLs arrive rather than emitted
+ * empty (Pending Items §04).
+ */
+const sameAs = [pending.linkedInUrl, pending.instagramUrl].filter(Boolean);
+
+const organization = {
+  '@context': 'https://schema.org',
+  '@type': 'ProfessionalService',
+  '@id': `${Astro.site}#organization`,
+  name: business.name,
+  legalName: business.legalName,
+  url: String(Astro.site),
+  email: business.email,
+  logo: new URL('/assets/logo/starting-point-primary-logo-2000x1650.png', Astro.site).href,
+  description:
+    'Nervous system education, somatic practice, and resilience and well-being programs for individuals, healthcare teams, first responders, educators, leaders, and organizations.',
+  areaServed: { '@type': 'Country', name: 'United States' },
+  address: { '@type': 'PostalAddress', addressRegion: 'UT', addressCountry: 'US' },
+  founder: { '@type': 'Person', name: business.founder.name },
+  ...(sameAs.length ? { sameAs } : {}),
+};
+---
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalUrl} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+
+    <link rel="icon" type="image/svg+xml" href="/assets/logo/starting-point-favicon-32x32.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/logo/starting-point-favicon-32x32.png" />
+    <link
+      rel="apple-touch-icon"
+      href="/assets/logo/starting-point-social-icon-1080x1080.png"
+    />
+
+    {/* Fonts are pulled from Google Fonts by docs/tokens/fonts.css. */}
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={business.name} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    {/* og:image is deliberately absent — the production 1200×630 share graphic
+        is a pending item (Pending Items §04). Adding a stand-in would ship a
+        placeholder into every link preview. */}
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <script is:inline set:html={JSON.stringify(organization)} type="application/ld+json" />
+
+    {/* Page-level structured data — Person on About, FAQPage on FAQ,
+        Article on each Starting Points post (Handoff §13). */}
+    <slot name="head" />
+
+    {/* Flips before first paint so no-JS styling never flashes. */}
+    <script is:inline>
+      document.documentElement.classList.remove('no-js');
+    </script>
+  </head>
+
+  <body class={bodyClass}>
+    <a class="skip-link" href="#main">Skip to main content</a>
+    <Header />
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>

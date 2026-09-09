@@ -1,0 +1,88 @@
+/* Starting Point Consulting — Color tokens
+   Palette drawn directly from the brand emblem: sunrise gold, mountain charcoal,
+   sage/olive hillsides, and the winding sand pathway. Warm, grounded, natural. */
+:root {
+  /* ---- Sunrise Gold (primary accent) ---- */
+  --gold-50:  #FBF3E3;
+  --gold-100: #F4E2C0;
+  --gold-200: #EAC988;
+  --gold-300: #DEAF50;
+  --gold-400: #D09A33;   /* sun core */
+  --gold-500: #C8902F;   /* PRIMARY — sunrise gold */
+  --gold-600: #A9781F;
+  --gold-700: #855D16;
+  --gold-800: #5F4310;
+
+  /* ---- Sage / Olive (growth, hillsides) ---- */
+  --sage-50:  #EEF0E9;
+  --sage-100: #DBDFD0;
+  --sage-200: #B7BFA3;
+  --sage-300: #8E9877;
+  --sage-400: #6B7655;
+  --sage-500: #5C654C;   /* SECONDARY — olive hillside */
+  --sage-600: #4A5240;   /* deep olive (logo mountain) */
+  --sage-700: #3A4133;
+  --sage-800: #2C3127;
+
+  /* ---- Charcoal / Ink (mountains, text) ---- */
+  --ink-900: #14191D;    /* logo charcoal "POINT" */
+  --ink-800: #1B2127;    /* mountain charcoal */
+  --ink-700: #2A323A;
+  --ink-600: #3E4852;
+  --ink-500: #586470;
+  --ink-400: #7C8893;
+  --ink-300: #A6AFB8;
+  --ink-200: #CBD1D6;
+  --ink-100: #E5E9EC;
+
+  /* ---- Sand / Cream (pathway, surfaces) ---- */
+  --sand-50:  #FCFAF5;   /* lightest surface */
+  --sand-100: #F7F2E8;   /* warm page wash */
+  --sand-200: #EFE7D6;
+  --sand-300: #E3D7BF;
+  --white:    #FFFFFF;
+
+  /* ---- Semantic status ---- */
+  --success-500: #4E7A52;
+  --success-50:  #E7F0E6;
+  --warning-500: #C8902F;
+  --warning-50:  #FBF3E3;
+  --danger-500:  #A8493A;
+  --danger-50:   #F6E7E2;
+  --info-500:    #4A6A78;
+  --info-50:     #E4EEF1;
+
+  /* ============ SEMANTIC ALIASES ============ */
+  /* Surfaces & backgrounds */
+  --surface-page:    var(--sand-100);
+  --surface-card:    var(--white);
+  --surface-raised:  var(--sand-50);
+  --surface-sunken:  var(--sand-200);
+  --surface-inverse: var(--ink-800);
+  --surface-accent:  var(--gold-50);
+
+  /* Text */
+  --text-strong:   var(--ink-900);
+  --text-body:     var(--ink-800);
+  --text-muted:    var(--ink-500);
+  --text-subtle:   var(--ink-400);
+  --text-on-dark:  var(--sand-100);
+  --text-on-accent:var(--ink-900);
+  --text-accent:   var(--gold-700);
+  --text-link:     var(--gold-700);
+
+  /* Brand */
+  --brand-primary:     var(--gold-500);
+  --brand-primary-ink: var(--gold-700);
+  --brand-secondary:   var(--sage-600);
+  --brand-ink:         var(--ink-800);
+
+  /* Borders & lines */
+  --border-subtle:  var(--sand-300);
+  --border-default: var(--ink-200);
+  --border-strong:  var(--ink-300);
+  --border-accent:  var(--gold-300);
+
+  /* Focus */
+  --focus-ring: var(--gold-400);
+}

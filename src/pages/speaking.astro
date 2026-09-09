@@ -1,0 +1,316 @@
+---
+/**
+ * Speaking — Blueprints Page 03, Master Website Copy §05.
+ *
+ * Section order:
+ *   1 Hero  2 Signature talks  3 Formats  4 What audiences walk away with
+ *   5 Audience chips  6 Planning an event?
+ *
+ * NO PRICING APPEARS ANYWHERE ON THIS PAGE. The former "Keynotes start at
+ * $2,500…" paragraph is removed (Master Copy §05, "Resolved September 2026";
+ * Handoff §16). The approved replacement paragraph is placed in section 6.
+ *
+ * Every CTA routes to the Organizational Discovery Conversation. There is no
+ * separate speaking Calendly event and none should be created (Handoff §10).
+ *
+ * The "Speaker kit" secondary button from Blueprints Page 03 §1 is NOT built:
+ * the Speaker Kit file is not in assets/, and Pending Items forbids shipping a
+ * button that downloads nothing. See docs/OPEN-QUESTIONS.md.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import { business, calendly, pending } from '../config/site.js';
+import { boundarySentence } from '../copy/shared.js';
+
+/* Master Copy §05 — "Signature talks".
+   The first title carries a "confirm title" marker in the copy doc, so it is
+   flagged rather than presented as settled. See docs/OPEN-QUESTIONS.md. */
+const talks = [
+  {
+    audience: 'Healthcare · First responders · General',
+    title: 'From Surviving to Steady',
+    body: 'What happens in the brain and body under sustained stress, and the practical tools that help people move from surviving to steady.',
+  },
+  {
+    audience: 'Leadership · Healthcare · Organizations',
+    title: 'Resilient Teams, Healthier Cultures',
+    body: 'How safety, connection, and regulation shape the way teams work, learn, and lead, and what leaders can do to build cultures that last.',
+  },
+  {
+    audience: 'Conferences · Schools · Community',
+    title: 'Where Science Meets Humanity',
+    body: 'A hopeful, human look at neuroscience and Polyvagal Theory, translated out of the textbook and into everyday life, care, and connection.',
+  },
+];
+
+/* Master Copy §05 — "Formats". */
+const formats = [
+  ['Keynote', '30 to 60 min, audience-wide and story-led.'],
+  ['Breakout / Workshop', '60 to 90 min interactive session with tools.'],
+  ['Half- or Full-Day', 'Deeper training for teams & leadership.'],
+  ['Virtual', 'Webinars and online sessions, anywhere.'],
+];
+
+/* Master Copy §05 — "What audiences walk away with". */
+const takeaways = [
+  'A clear, jargon-free model of how stress and regulation work',
+  'Simple tools the audience can use immediately',
+  'A shared language for resilience, safety, and connection',
+  'Renewed hope that meaningful change is possible',
+];
+
+/* Master Copy §05 — "Chips — audiences". */
+const audiences = [
+  'Conferences & summits',
+  'Healthcare teams',
+  'First responders',
+  'Schools & educators',
+  'Leadership & executives',
+  'Organizations',
+  'Community events',
+];
+---
+
+<BaseLayout
+  title="Speaking | Darlene Erich, MBA, BSN, RN"
+  description="Keynotes and workshops on stress, resilience, and nervous system regulation for healthcare, first responders, schools, and leadership audiences."
+>
+  {/* 1 · Hero — two columns */}
+  <section class="section section--hero section--cream">
+    <div class="container speaking__hero">
+      <div>
+        <p class="eyebrow">Speaking</p>
+        <h1>Talks that turn science into something people can use.</h1>
+        <p class="t-lead speaking__lead">
+          Keynotes and workshops that translate the science of stress, resilience, and connection
+          into simple, human tools an audience can use the very next day.
+        </p>
+        <div class="button-row speaking__actions">
+          <a
+            class="btn btn--primary"
+            href={calendly.organizationalDiscovery}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Start a conversation
+          </a>
+        </div>
+      </div>
+
+      <figure class="speaking__portrait">
+        {
+          pending.speakingPhoto ? (
+            <img class="photo" src={pending.speakingPhoto} alt="Darlene Erich speaking to an audience." />
+          ) : (
+            /* Image Map SPK-01. Speaking photography is pending, so the
+               approved founder portrait stands in rather than staged stock. */
+            <img
+              class="photo"
+              src="/assets/photos/darlene-erich-portrait.jpg"
+              alt="Darlene Erich, founder of Starting Point Consulting."
+              width="480"
+              height="600"
+              decoding="async"
+            />
+          )
+        }
+        <figcaption class="t-small speaking__byline">{business.founder.name}</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  {/* 2 · Signature talks */}
+  <section class="section section--sand">
+    <div class="container">
+      <h2>Signature talks</h2>
+      <div class="grid grid--3 speaking__grid">
+        {
+          talks.map((talk) => (
+            <article class="card card--equal">
+              <p class="card-eyebrow">{talk.audience}</p>
+              <h3>{talk.title}</h3>
+              <p class="card__body">{talk.body}</p>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  {/* 3 · Formats */}
+  <section class="section section--cream">
+    <div class="container">
+      <h2>Formats</h2>
+      <div class="grid grid--4 speaking__grid">
+        {
+          formats.map(([title, body]) => (
+            <article class="card card--equal">
+              <span class="icon-plate">
+                <Icon name="check" size={22} />
+              </span>
+              <h3>{title}</h3>
+              <p class="card__body">{body}</p>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  {/* 4 · What audiences walk away with — checklist on warm sand */}
+  <section class="section section--sand">
+    <div class="container">
+      <h2>What audiences walk away with</h2>
+      <ul class="checklist">
+        {
+          takeaways.map((item) => (
+            <li>
+              <Icon name="check" size={20} />
+              <span>{item}</span>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  {/* 5 · Audiences chip row */}
+  <section class="section section--cream">
+    <div class="container">
+      <h2>Audiences</h2>
+      <div class="chip-row speaking__chips">
+        {audiences.map((audience) => <span class="chip chip--static">{audience}</span>)}
+      </div>
+
+      {/* Handoff §11 — boundary sentence on every service area. */}
+      <div class="scope-callout speaking__boundary">
+        <p>{boundarySentence}</p>
+      </div>
+    </div>
+  </section>
+
+  {/* 6 · Planning an event? — closing CTA. No price anywhere on this page. */}
+  <section class="section section--dark">
+    <div class="container measure">
+      <h2>Planning an event?</h2>
+      <p class="speaking__closing">Share your date, audience, and goals, we'll tailor a talk that fits.</p>
+      <p class="speaking__terms">
+        Speaking engagements are customized based on audience, format, location, preparation, and
+        event needs. Travel and lodging are added to the proposal. Community and nonprofit
+        engagements are considered individually based on scope, audience, and available resources.
+        Start a conversation to explore the right fit for your event.
+      </p>
+      <div class="button-row speaking__actions">
+        <a
+          class="btn btn--primary"
+          href={calendly.organizationalDiscovery}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Inquire About Speaking
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .speaking__hero {
+    display: grid;
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: 48px;
+    align-items: center;
+  }
+
+  .speaking__lead {
+    margin-top: 18px;
+  }
+
+  .speaking__actions {
+    margin-top: 32px;
+  }
+
+  .speaking__portrait {
+    margin: 0;
+  }
+
+  .speaking__portrait img {
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+  }
+
+  .speaking__byline {
+    margin-top: 12px;
+  }
+
+  .speaking__grid {
+    margin-top: 32px;
+  }
+
+  .speaking__chips {
+    margin-top: 24px;
+  }
+
+  .speaking__boundary {
+    margin-top: 40px;
+    max-width: var(--measure-lead);
+  }
+
+  .card-eyebrow {
+    font-family: var(--heading-font);
+    font-weight: var(--fw-medium);
+    font-size: var(--text-xs);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-accent);
+  }
+
+  .checklist {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 28px;
+    max-width: var(--measure-lead);
+  }
+
+  .checklist li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: var(--text-md);
+    line-height: 1.55;
+  }
+
+  .checklist :global(svg) {
+    color: var(--gold-700);
+    flex: none;
+    margin-top: 4px;
+  }
+
+  .speaking__closing {
+    margin-top: 12px;
+    font-family: var(--lead-font);
+    font-size: var(--text-lg);
+    line-height: var(--lh-normal);
+    color: var(--sand-100);
+  }
+
+  .speaking__terms {
+    margin-top: 20px;
+    font-size: var(--text-base);
+    line-height: 1.65;
+    color: var(--sand-200);
+  }
+
+  @media (max-width: 900px) {
+    .speaking__hero {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 32px;
+    }
+
+    /* Blueprints Page 03 mobile: portrait above the copy. */
+    .speaking__portrait {
+      order: -1;
+    }
+  }
+</style>

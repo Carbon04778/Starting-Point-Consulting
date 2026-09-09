@@ -1,0 +1,30 @@
+{
+  "name": "starting-point-consulting",
+  "version": "0.1.0",
+  "description": "Starting Point Consulting website build.",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "dev": "npm run sync:assets && astro dev",
+    "start": "astro dev",
+    "build": "npm run sync:assets && astro build",
+    "preview": "astro preview",
+    "sync:assets": "node scripts/sync-assets.mjs",
+    "check": "astro check",
+    "check:links": "node scripts/check-links.mjs",
+    "qa": "node scripts/qa.mjs",
+    "check:contrast": "node scripts/check-contrast.mjs",
+    "extract:legal": "node scripts/extract-legal.mjs",
+    "check:copy": "node scripts/check-copy.mjs",
+    "check:pages": "node scripts/check-pages.mjs",
+    "check:legal": "node scripts/check-legal.mjs",
+    "check:rls": "node scripts/check-rls.mjs"
+  },
+  "type": "module",
+  "dependencies": {
+    "@astrojs/vercel": "^11.0.10",
+    "astro": "^7.3.1"
+  },
+  "private": true
+}

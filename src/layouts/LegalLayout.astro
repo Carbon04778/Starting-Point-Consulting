@@ -1,0 +1,212 @@
+---
+/**
+ * Shared legal / long-form page shell.
+ *
+ * WHICH DOCUMENT WINS HERE. Unlike the home page and footer — where Hadley
+ * asked for the prototype strictly, and Blueprints Global defers to it — these
+ * pages have a dedicated spec: Legal Pages Index §02 "Shared layout". It is
+ * specific, it is about these pages only, and CLAUDE.md ranks the mockup last.
+ * So §02 governs, and the prototype's `LegalPage` shell fills the gaps §02
+ * leaves (H1 size, the intro treatment, the callout, section padding).
+ *
+ * From §02, verbatim:
+ *   "Cream background, no cards, no icons, no images, no CTAs except a single
+ *    'Contact us' text link where the source page has one."
+ *   "Eyebrow → H1 → 'Last updated [date]' in 13px ink 500 → body in one 680px
+ *    column."
+ *   "Sub-headings in Jost 600 at 19px; body Hanken Grotesk 16px at 1.68
+ *    leading; lists with plain bullets."
+ *   "Linked from the footer only — never in the top navigation."
+ *
+ * WHERE THIS DIFFERS FROM THE PROTOTYPE, and why (all §02):
+ *   - 680px column, not the prototype's 760px.
+ *   - Cream (sand-50), not the prototype's warm sand (surface-page).
+ *   - 19px sub-headings, not the prototype's --text-lg (22px).
+ *   - Body 16px/1.68, not the prototype's --text-base/1.7.
+ *   - "Last updated" is 13px ink-500 sentence case, not the prototype's 12px
+ *     tracked uppercase in --text-subtle. ink-400 would also fail AA on cream
+ *     (3.04:1) and the palette rule forbids it for small text.
+ *   - ONE "Contact us" text link. The prototype ends every legal page with two
+ *     buttons ("Back to home" + "Questions? Contact us"); §02 allows a single
+ *     text link and no CTAs beyond it.
+ *
+ * Titles and descriptions: Handoff §13's metadata sheet covers the nine public
+ * pages and says nothing about the legal set. The title follows §13's own
+ * established pattern ("<Page> | Starting Point Consulting") and the
+ * description is the page's own approved INTRO sentence, so neither invents
+ * marketing copy. See OPEN-QUESTIONS #30.
+ *
+ * These pages are NOT noindex. §02 excludes them from "search-engine
+ * priority", which is not the same as removing them from the index — a
+ * reachable privacy policy is normally expected to be indexable.
+ */
+import BaseLayout from './BaseLayout.astro';
+import { getLegalPage } from '../lib/legal.js';
+import { business, routes } from '../config/site.js';
+
+interface Props {
+  /** Basename of the file in docs/legal-source/, e.g. 'privacy-policy'. */
+  slug: string;
+}
+
+const { slug } = Astro.props;
+const page = getLegalPage(slug);
+---
+
+<BaseLayout
+  title={`${page.navLabel} | ${business.name}`}
+  description={page.intro}
+  bodyClass="page-legal"
+>
+  <article class="legal">
+    <div class="legal__inner">
+      <p class="eyebrow">{page.eyebrow}</p>
+      <h1>{page.title}</h1>
+
+      <p class="legal__intro">{page.intro}</p>
+
+      {page.lastUpdated && <p class="legal__updated">Last updated {page.lastUpdated}</p>}
+
+      <div class="legal__body">
+        {
+          page.blocks.map((block) => {
+            if (block.type === 'h2') return <h2>{block.text}</h2>;
+            if (block.type === 'ul') {
+              return (
+                <ul>
+                  {block.items.map((item) => (
+                    <li set:html={item} />
+                  ))}
+                </ul>
+              );
+            }
+            if (block.type === 'callout') return <aside class="legal__callout" set:html={block.html} />;
+            return <p set:html={block.html} />;
+          })
+        }
+      </div>
+
+      {/* §02: "no CTAs except a single 'Contact us' text link". */}
+      <p class="legal__contact">
+        Questions? <a href={routes.contact}>Contact us</a>.
+      </p>
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  /* Prototype: 72px above, 96px below. §02: cream ground. */
+  .legal {
+    background: var(--wash-cream);
+    padding-block: 72px 96px;
+  }
+
+  /* §02: "body in one 680px column" — the TEXT is 680px, so the gutter sits
+     outside it. That lands the outer edge at 760px, which is exactly the
+     prototype's own `maxWidth: 760`. */
+  .legal__inner {
+    max-width: calc(var(--measure-text) + 2 * var(--gutter));
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+
+  /* Prototype LegalPage: clamp(36px, 4.5vw, 56px), lh 1.08, 18px under. */
+  .legal h1 {
+    font-size: clamp(2.25rem, 4.5vw, 3.5rem);
+    line-height: 1.08;
+    letter-spacing: -0.015em;
+    margin-top: 18px;
+  }
+
+  .legal .eyebrow {
+    margin-bottom: 0;
+  }
+
+  /* Prototype: Newsreader, text-lg, lh 1.5, ink-700, 640px measure. */
+  .legal__intro {
+    max-width: 640px;
+    margin-top: 20px;
+    font-family: var(--lead-font);
+    font-size: var(--text-lg);
+    line-height: 1.5;
+    color: var(--ink-700);
+  }
+
+  /* §02: 13px ink-500. */
+  .legal__updated {
+    margin-top: 20px;
+    font-size: 0.8125rem; /* 13px */
+    line-height: 1.5;
+    color: var(--ink-500);
+  }
+
+  /* Prototype: a hairline separates the opening from the document body. */
+  .legal__body {
+    margin-top: 36px;
+    padding-top: 36px;
+    border-top: 1px solid var(--border-subtle);
+    /* §02: body Hanken Grotesk 16px at 1.68 leading. */
+    font-size: 1rem;
+    line-height: 1.68;
+    color: var(--text-body);
+  }
+
+  .legal__body :global(p) {
+    margin-bottom: 18px;
+  }
+
+  /* §02: sub-headings in Jost 600 at 19px. */
+  .legal__body :global(h2) {
+    font-family: var(--heading-font);
+    font-weight: var(--fw-semibold);
+    font-size: 1.1875rem; /* 19px */
+    line-height: 1.35;
+    color: var(--text-strong);
+    margin: 32px 0 12px;
+  }
+
+  /* §02: "lists with plain bullets". */
+  .legal__body :global(ul) {
+    margin: 0 0 18px;
+    padding-left: 1.25em;
+    list-style: disc;
+  }
+
+  .legal__body :global(li) {
+    margin-bottom: 8px;
+  }
+
+  .legal__body :global(li)::marker {
+    color: var(--gold-600);
+  }
+
+  /* Prototype LegalCallout: gold-50 behind a 3px gold-500 left rule.
+     Not a card — it carries no shadow and no full border (§02: "no cards"). */
+  .legal__callout {
+    margin: 24px 0;
+    padding: 20px 22px;
+    background: var(--gold-50);
+    border-left: 3px solid var(--gold-500);
+    border-radius: var(--radius-md);
+    color: var(--ink-800);
+    line-height: 1.6;
+  }
+
+  .legal__contact {
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border-subtle);
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+  }
+
+  @media (max-width: 768px) {
+    .legal {
+      padding-block: 48px 64px;
+    }
+
+    .legal__inner {
+      padding-inline: var(--gutter-mobile);
+    }
+  }
+</style>

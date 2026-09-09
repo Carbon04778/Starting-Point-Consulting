@@ -1,0 +1,53 @@
+---
+/**
+ * Contact — "Let's begin".
+ * Blueprints Page 15, Master Website Copy §16.
+ *
+ * The same split panel used as a closing section on Home and Services, here as
+ * a standalone page. On submit the form is replaced in place by the success
+ * state — no page reload, no redirect.
+ *
+ * The retired "Book a discovery call" button is NOT built. The CTA routes to
+ * the Organizational Discovery Conversation, the only event a public CTA may
+ * link to. Individuals use the form or go directly to Individual Sessions
+ * (Master Copy §16, "Corrected September 2026").
+ *
+ * Handoff §13 lists the service-area line among the five things that matter
+ * most for search, in four places including Contact.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ContactPanel from '../components/ContactPanel.astro';
+import { business, routes } from '../config/site.js';
+---
+
+<BaseLayout
+  title="Contact | Starting Point Consulting"
+  description="Tell us where you are today, whether that's your own goals, your team, or your organization. Discovery conversations available for organizations and teams."
+>
+  <ContactPanel as="h1" eyebrow="Contact" />
+
+  <section class="section section--sand">
+    <div class="container measure">
+      <p class="contact__area">{business.serviceArea}</p>
+      <p class="contact__note">
+        Looking for one-to-one work? You can go straight to
+        <a href={routes.individualSessions}>Individual Sessions</a> and choose a time after
+        purchase, or read the <a href={routes.faq}>FAQ</a> first.
+      </p>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .contact__area {
+    font-family: var(--lead-font);
+    font-size: var(--text-lg);
+    line-height: var(--lh-normal);
+    color: var(--sage-700);
+  }
+
+  .contact__note {
+    margin-top: 14px;
+    color: var(--text-muted);
+  }
+</style>

@@ -1,0 +1,551 @@
+---
+/**
+ * Individual Sessions — "Ways to work together".
+ * Blueprints Page 04, Master Website Copy §06.
+ *
+ * This was the standalone Pricing page. There is NO standalone public Pricing
+ * page and no Pricing nav item (Handoff §07). Fixed prices appear only for
+ * individual, integration, and leadership work. Organizational, workshop, and
+ * speaking blocks show formats only and route to "Let's talk" — never a price,
+ * never a "starting at", never a quote form (Blueprints Page 04, "Structural
+ * rule — do not change").
+ *
+ * The retired complimentary 20-minute discovery band is NOT built.
+ *
+ * PURCHASE BUTTONS. Every service CTA points at /checkout/<id>, the Client
+ * Service Agreement acceptance step, which is built in Phase 4. They must not
+ * link straight to Stripe: Handoff §10 requires affirmative CSA acceptance
+ * BEFORE payment, and "Stripe's generic Terms of Service checkbox is not a
+ * substitute". Until Phase 4 lands, `npm run check:links` reports these as
+ * missing — that is accurate, and it is the outstanding work on this page.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import { routes, calendly, checkoutPath } from '../config/site.js';
+import { integrationScopeDisclaimerShort, boundarySentence } from '../copy/shared.js';
+
+/* Master Copy §06 — "For individuals". Card titles are the approved display
+   names; `id` maps each card to its Stripe Payment Link in site.js. */
+const individualCards = [
+  {
+    id: 'individual-nervous-system-session',
+    title: 'Individual Nervous System Session',
+    price: '$175',
+    qualifier: '60 minutes',
+    body: 'One-to-one nervous system education and somatic practice, tailored to where you are.',
+    features: [
+      '60-minute private session',
+      'Practical tools you can use right away',
+      'Follow-up notes & resources',
+    ],
+  },
+  {
+    id: '4-session-package',
+    title: '4-Session Package',
+    badge: 'Most chosen',
+    price: '$640',
+    qualifier: '4 sessions · save $60',
+    body: 'A deeper arc of work to build steadier capacity over time.',
+    features: [
+      'Four 60-minute sessions, paid once',
+      '$160 per session',
+      'A personalized through-line',
+      'Schedule each session yourself, at your pace',
+    ],
+    isPackage: true,
+    packageNote: true,
+  },
+  {
+    id: 'extended-individual-session',
+    title: 'Extended Individual Session',
+    price: '$250',
+    qualifier: '90 minutes',
+    body: 'More room to work when you want time to settle, practice, and integrate without hurrying.',
+    features: ['90-minute private session', 'Unhurried pacing', 'Useful for first sessions or a reset'],
+  },
+];
+
+/* Master Copy §06 — "Integration support". */
+const integrationCards = [
+  {
+    id: 'integration-support-session',
+    title: 'Integration Support Session',
+    price: '$175',
+    qualifier: '60 minutes',
+    body: 'Education-based, somatic support for making sense of a significant experience after it happens.',
+    features: [
+      '60-minute private session',
+      'Nervous system education & somatic practice',
+      'Small, practical steps at your pace',
+    ],
+  },
+  {
+    id: '4-session-integration-path',
+    title: '4-Session Integration Path',
+    price: '$640',
+    qualifier: '4 sessions · save $60',
+    body: 'A steadier arc for translating what surfaced into self, everyday life, and relationships.',
+    features: [
+      'Four 60-minute sessions, paid once',
+      '$160 per session',
+      'Reflection between sessions',
+      'Schedule each session yourself, at your pace',
+    ],
+    isPackage: true,
+    packageNote: true,
+  },
+];
+
+/* Master Copy §06 — "For leaders". Display titles are the approved ones; the
+   Stripe products are named "Individual Leadership Session" and "3-Session
+   Leadership Package". */
+const leadershipCards = [
+  {
+    id: 'individual-leadership-session',
+    title: 'Leadership Session',
+    price: '$295',
+    qualifier: '75 minutes',
+    body: 'For leaders whose stress is showing up in how they lead, decide, and hold a team.',
+    features: [
+      '75-minute private session',
+      'Regulation applied to real decisions',
+      'Notes and practices between sessions',
+    ],
+  },
+  {
+    id: '3-session-leadership-package',
+    title: '3-Session Leadership Package',
+    price: '$825',
+    qualifier: '3 sessions',
+    body: 'Enough continuity to change a pattern rather than manage a moment.',
+    features: [
+      'Three 75-minute sessions, paid once',
+      'A through-line across the three',
+      'Schedule each session yourself, at your pace',
+    ],
+    isPackage: true,
+    // Master Copy §06 supplies only one in-card package caption, and it reads
+    // "One payment covers all FOUR sessions" — wrong for a 3-session package,
+    // and no three-session equivalent is given. Omitted here rather than
+    // altered. Flagged in docs/OPEN-QUESTIONS.md.
+    packageNote: false,
+  },
+];
+
+/* Master Copy §06 — "For organizations", format list, no prices. */
+const organizationFormats = [
+  ['60-minute organizational program', 'A focused session for one team or department'],
+  ['90-minute interactive workshop', 'Teaching plus guided practice together'],
+  ['2-hour workshop', 'Deeper practice and honest team discussion'],
+  ['Half-day program', 'Several modules, with breaks and time to apply them'],
+  ['Full-day program', 'A complete arc for a team or cohort'],
+  ['Ongoing partnership', 'A series built around your calendar and your goals'],
+];
+
+/* Master Copy §06 — "For events", format list, no prices. */
+const speakingFormats = [
+  ['Professional keynote', 'One talk, shaped to your audience'],
+  [
+    'Customized healthcare or organizational keynote',
+    'Built from pre-event conversations with your team',
+  ],
+  ['Keynote plus workshop', 'A talk for everyone, then practice for a smaller group'],
+];
+
+const groups = [
+  {
+    id: 'individual-sessions',
+    wash: 'sand',
+    eyebrow: 'For individuals',
+    heading: 'Individual sessions',
+    body: 'Nervous system education and somatic practice, one to one. Pay, choose your time, and you are set. Educational and supportive, never therapy or medical care.',
+    cards: individualCards,
+  },
+  {
+    id: 'integration-support',
+    wash: 'cream',
+    eyebrow: 'Integration support',
+    heading: 'Making sense of what surfaced',
+    body: 'Post-experience educational and somatic support, at your own pace.',
+    cards: integrationCards,
+    disclaimer: integrationScopeDisclaimerShort,
+  },
+  {
+    id: 'leadership-sessions',
+    wash: 'sand',
+    eyebrow: 'For leaders',
+    heading: 'Leadership sessions',
+    body: 'For an individual leader carrying decisions, teams, and sustained pressure. Purchased and scheduled the same way as individual work.',
+    cards: leadershipCards,
+  },
+];
+---
+
+<BaseLayout
+  title="Individual Sessions | Starting Point Consulting"
+  description="Nervous system sessions, packages, integration support, and leadership sessions, with prices listed. Educational and supportive, never therapy or medical care."
+>
+  {/* 1 · Header. The retired discovery-call band is deliberately absent. */}
+  <section class="section section--hero section--cream">
+    <div class="container">
+      <p class="eyebrow">Simple, transparent pricing.</p>
+      <h1>Ways to work together</h1>
+      <p class="t-lead ways__lead">
+        Start where you are. Every offering is designed to give you practical tools you can use
+        right away.
+      </p>
+    </div>
+  </section>
+
+  {/* 2–4 · Priced groups: individuals, integration support, leaders. */}
+  {
+    groups.map((group) => (
+      <section class={`section section--${group.wash}`} id={group.id}>
+        <div class="container">
+          <p class="eyebrow">{group.eyebrow}</p>
+          <h2>{group.heading}</h2>
+          <p class="t-lead ways__lead">{group.body}</p>
+
+          <div class="grid grid--3 ways__cards">
+            {group.cards.map((card) => (
+              <article class="card card--equal price-card">
+                {card.badge && <span class="price-card__badge">{card.badge}</span>}
+                <h3>{card.title}</h3>
+                <p class="price-card__qualifier">{card.qualifier}</p>
+                <p class="price-card__price">{card.price}</p>
+                <p class="card__body">{card.body}</p>
+
+                <ul class="price-card__features">
+                  {card.features.map((feature) => (
+                    <li>
+                      <Icon name="check" size={18} />
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                {card.packageNote && (
+                  <p class="price-card__package-note">
+                    One payment covers all four sessions. Nothing more to pay when you schedule the
+                    rest.
+                  </p>
+                )}
+
+                <div class="card__foot">
+                  <a class="btn btn--primary price-card__cta" href={checkoutPath(card.id)}>
+                    {card.isPackage ? 'Choose this path' : 'Book a session'}
+                  </a>
+                  <p class="btn-note">
+                    {card.isPackage
+                      ? 'Pay once, then pick your first time right away.'
+                      : 'Pay, then pick your time right away.'}
+                  </p>
+                </div>
+              </article>
+            ))}
+          </div>
+
+          {group.disclaimer && (
+            <div class="scope-callout ways__disclaimer">
+              <p>{group.disclaimer}</p>
+            </div>
+          )}
+        </div>
+      </section>
+    ))
+  }
+
+  {/* "Leading a team, not just yourself?" — no price, routes to a conversation. */}
+  <section class="section section--cream">
+    <div class="container">
+      <article class="card ways__talk">
+        <h2>Leading a team, not just yourself?</h2>
+        <p class="card__body">
+          Organization-sponsored leadership development, team work, and consulting are built around
+          your context, so they start with a conversation rather than a checkout.
+        </p>
+        <div class="card__foot">
+          <a
+            class="btn btn--primary"
+            href={calendly.organizationalDiscovery}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Let's talk
+          </a>
+        </div>
+      </article>
+
+      {/* Handoff §11 — boundary sentence on every service area. */}
+      <div class="scope-callout ways__disclaimer">
+        <p>{boundarySentence}</p>
+      </div>
+    </div>
+  </section>
+
+  {/* 5 · For organizations — formats only, no prices. */}
+  <section class="section section--sand">
+    <div class="container">
+      <p class="eyebrow">For organizations</p>
+      <h2>Workshops &amp; programs</h2>
+      <p class="t-lead ways__lead">
+        Formats we offer. Every engagement is scoped and quoted after a conversation, so you get
+        pricing built around your context rather than a menu.
+      </p>
+
+      <ul class="format-list">
+        {
+          organizationFormats.map(([label, description]) => (
+            <li>
+              <span class="format-list__label">{label}</span>
+              <span class="format-list__desc">{description}</span>
+            </li>
+          ))
+        }
+      </ul>
+
+      <div class="ways__caption">
+        <p>
+          These formats apply to healthcare teams, first responder agencies, schools, leaders, and
+          organizations. Pre-program assessment, leadership consultation, follow-up sessions, and
+          materials can be included in a proposal.
+        </p>
+        <p>
+          For work outside the local area, reasonable travel and lodging expenses are added to the
+          proposal rather than folded into the base rate. A deposit may be required to reserve the
+          date, as specified in the final proposal and agreement. Balance due as specified in the
+          agreement.
+        </p>
+      </div>
+
+      <div class="button-row ways__actions">
+        <a
+          class="btn btn--primary"
+          href={calendly.organizationalDiscovery}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Let's talk
+        </a>
+      </div>
+    </div>
+  </section>
+
+  {/* 6 · For events — Speaking. Formats only, no prices.
+      The body carries Darlene's September 2026 correction, which replaces
+      "available to travel nationally" in Master Copy §06. */}
+  <section class="section section--cream">
+    <div class="container">
+      <p class="eyebrow">For events</p>
+      <h2>Speaking</h2>
+      <p class="t-lead ways__lead">
+        Keynotes, panels, and facilitated conversations. Based in Utah and available for engagements
+        nationally and internationally.
+      </p>
+
+      <ul class="format-list">
+        {
+          speakingFormats.map(([label, description]) => (
+            <li>
+              <span class="format-list__label">{label}</span>
+              <span class="format-list__desc">{description}</span>
+            </li>
+          ))
+        }
+      </ul>
+
+      <div class="ways__caption">
+        <p>
+          Every engagement is quoted individually based on scope, audience, customization,
+          preparation, and travel. Community and nonprofit engagements may be considered
+          individually based on available resources.
+        </p>
+      </div>
+
+      <div class="button-row ways__actions">
+        {/* Routes to the Organizational Discovery Conversation. There is no
+            separate speaking Calendly event and none should be created. */}
+        <a
+          class="btn btn--primary"
+          href={calendly.organizationalDiscovery}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Inquire About Speaking
+        </a>
+        <a class="btn btn--secondary" href={routes.speaking}>See speaking topics</a>
+      </div>
+    </div>
+  </section>
+
+  {/* 7 · Closing note */}
+  <section class="section section--sand">
+    <div class="container">
+      <div class="measure">
+        <p>
+          Individual, integration, and leadership sessions are paid securely at purchase, and you
+          choose your time immediately afterward. Packages are paid once and cover every session in
+          them. Workshops, speaking, and organizational partnerships are scoped in a conversation
+          and quoted individually, so you have clear pricing in writing before any work begins.
+          Because our services are educational and non-clinical, they are not billed through
+          insurance.
+        </p>
+        <p class="ways__questions">Questions?</p>
+        <div class="button-row">
+          <a class="btn btn--secondary" href={routes.contact}>Get in touch</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .ways__lead {
+    margin-top: 12px;
+  }
+
+  .ways__cards {
+    margin-top: 44px;
+  }
+
+  .ways__disclaimer {
+    margin-top: 32px;
+    max-width: var(--measure-lead);
+  }
+
+  .price-card__badge {
+    align-self: flex-start;
+    padding: 5px 12px;
+    border-radius: var(--radius-pill);
+    background: var(--gold-500);
+    color: var(--ink-900);
+    font-family: var(--heading-font);
+    font-weight: var(--fw-medium);
+    font-size: var(--text-xs);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .price-card__qualifier {
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+    margin-top: -6px;
+  }
+
+  .price-card__price {
+    font-family: var(--lead-font);
+    font-size: var(--text-2xl);
+    line-height: 1.1;
+    color: var(--text-strong);
+  }
+
+  .price-card__features {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 4px;
+    font-size: var(--text-base);
+  }
+
+  .price-card__features li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .price-card__features :global(svg) {
+    color: var(--gold-700);
+    flex: none;
+    margin-top: 4px;
+  }
+
+  .price-card__package-note {
+    font-size: var(--text-sm);
+    line-height: 1.55;
+    color: var(--text-muted);
+  }
+
+  /* Blueprints Page 04 mobile: "the CTA and its micro-line stay together at
+     the bottom of each card". */
+  .price-card__cta {
+    width: 100%;
+  }
+
+  .ways__talk {
+    max-width: var(--measure-lead);
+    gap: 14px;
+  }
+
+  .format-list {
+    display: flex;
+    flex-direction: column;
+    margin-top: 32px;
+    max-width: var(--measure-lead);
+  }
+
+  .format-list li {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: 16px;
+    padding: 18px 0;
+    border-top: 1px solid var(--hairline);
+  }
+
+  .format-list li:last-child {
+    border-bottom: 1px solid var(--hairline);
+  }
+
+  .format-list__label {
+    font-family: var(--heading-font);
+    font-weight: var(--fw-semibold);
+    color: var(--text-strong);
+  }
+
+  .format-list__desc {
+    color: var(--text-muted);
+  }
+
+  .ways__caption {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 24px;
+    max-width: var(--measure-lead);
+    font-size: var(--text-sm);
+    line-height: 1.6;
+    color: var(--text-muted);
+  }
+
+  .ways__caption p {
+    max-width: none;
+  }
+
+  .ways__actions {
+    margin-top: 28px;
+  }
+
+  .ways__questions {
+    margin-top: 24px;
+    font-family: var(--heading-font);
+    font-weight: var(--fw-semibold);
+    font-size: var(--text-lg);
+    color: var(--text-strong);
+  }
+
+  .ways__questions + .button-row {
+    margin-top: 14px;
+  }
+
+  @media (max-width: 768px) {
+    .ways__cards {
+      margin-top: 28px;
+    }
+
+    /* Blueprints Page 04 mobile: format lists become stacked rows with the
+       label bold and the description beneath. */
+    .format-list li {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 4px;
+    }
+  }
+</style>

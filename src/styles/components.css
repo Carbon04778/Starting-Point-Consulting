@@ -1,0 +1,493 @@
+/* Starting Point Consulting — component library.
+ *
+ * Source: Handoff §06 "Component library", Page Blueprints Global 05
+ * "Interaction intentions". Where the two disagree, the Blueprints govern —
+ * they describe the approved prototype ("Where the two ever disagree, the
+ * prototype is correct").
+ *
+ * Motion principle (Blueprints Global 05): transitions are 150–200ms ease-out
+ * and confined to colour, border, shadow, and height. No transforms, no lift,
+ * no scale, no scroll-triggered reveals anywhere on this site.
+ */
+
+/* ------------------------------------------------------------------ */
+/* Eyebrow — Handoff §06                                               */
+/* 20px gold rule, then uppercase tracked Jost in gold-700.            */
+/* Every major section opens with one.                                 */
+/* ------------------------------------------------------------------ */
+
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--eyebrow-font);
+  font-weight: var(--fw-medium);          /* Jost 500 */
+  font-size: var(--text-2xs);             /* 11–12px */
+  letter-spacing: var(--ls-eyebrow);      /* 0.22em */
+  text-transform: uppercase;
+  color: var(--text-accent);              /* gold-700 — accessible on cream */
+  margin-bottom: 14px;                    /* Blueprints Global 01 */
+}
+
+.eyebrow::before {
+  content: '';
+  width: 20px;
+  height: 2px;
+  flex: none;
+  background: var(--gold-500);
+}
+
+/* Handoff §03: on dark surfaces use gold-300, never gold-500 type. */
+.section--dark .eyebrow,
+.on-dark .eyebrow {
+  color: var(--gold-300);
+}
+
+/* Sage tone. The prototype opens the "Who we serve" and "What grounds the
+   work" groups with <Eyebrow tone="sage"> (Services.jsx, Approach.jsx). The
+   Eyebrow component itself is not in the bundle, so the tone is mapped onto the
+   same 700/300 pairing the gold eyebrow uses. */
+.eyebrow--sage {
+  color: var(--sage-700);
+}
+
+.eyebrow--sage::before {
+  background: var(--sage-300);
+}
+
+@media (max-width: 768px) {
+  .eyebrow { margin-bottom: 12px; }
+}
+
+/* ------------------------------------------------------------------ */
+/* Buttons — Handoff §06, Blueprints Global 05                         */
+/* Button type: Jost 500, 15–16px, ls 0.01em, sentence case,           */
+/* never all-caps. Minimum 44px tap height everywhere.                 */
+/* ------------------------------------------------------------------ */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: var(--tap-min);
+  padding: 14px 26px;
+  border-radius: var(--radius-button);   /* 12px, consistently — not pills too */
+  border: 1px solid transparent;
+  font-family: var(--heading-font);
+  font-weight: var(--fw-medium);
+  font-size: var(--text-base);
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background-color var(--t-fast) var(--ease-out),
+    border-color var(--t-fast) var(--ease-out),
+    color var(--t-fast) var(--ease-out),
+    box-shadow var(--t-fast) var(--ease-out);
+}
+
+.btn:hover {
+  text-decoration: none;
+}
+
+/* Primary — gold-500 fill.
+ *
+ * DEVIATION FROM SPEC, approved: Handoff §03 specifies a WHITE label here
+ * ("acceptable at button sizes and weights"). It measures 2.81:1, which fails
+ * WCAG AA for the 15–16px Jost 500 button type this site uses, and fails the
+ * 3:1 large-text floor too. Handoff §14 sets AA as the working standard and
+ * the Accessibility Statement must reflect what the site actually does.
+ *
+ * The label is ink-900 instead: 6.31:1 at rest, 4.55:1 on hover. The approved
+ * brand colour #C8902F is untouched as the fill — only the label changed,
+ * which is the smallest deviation that reaches AA. See docs/OPEN-QUESTIONS.md.
+ */
+.btn--primary {
+  background: var(--gold-500);
+  color: var(--ink-900);
+}
+
+.btn--primary:hover {
+  background: var(--gold-600);           /* #A9781F — 4.55:1 with ink-900 */
+}
+
+/* Blueprints Global 05: "Active: no scale, 1px optical press."
+   The press is an inset shadow rather than a darker fill — gold-700 under
+   ink-900 drops to 3.01:1 and would fail AA in the pressed state. */
+.btn--primary:active {
+  background: var(--gold-600);
+  box-shadow: inset 0 2px 4px rgba(20, 25, 29, 0.22);
+}
+
+/* Secondary — white/transparent fill, 1px sand-300 border, ink-900 text.
+   Used beside a primary, never two primaries together. */
+.btn--secondary {
+  background: var(--white);
+  border-color: var(--border-subtle);    /* sand-300 */
+  color: var(--text-strong);
+}
+
+.btn--secondary:hover {
+  background: var(--sand-100);
+  border-color: var(--ink-900);
+}
+
+/* On a dark band the secondary needs a light outline instead. */
+.section--dark .btn--secondary,
+.on-dark .btn--secondary {
+  background: transparent;
+  border-color: rgba(247, 242, 232, 0.35);
+  color: var(--text-on-dark);
+}
+
+.section--dark .btn--secondary:hover,
+.on-dark .btn--secondary:hover {
+  background: rgba(247, 242, 232, 0.10);
+  border-color: var(--sand-100);
+}
+
+/* Text link with a trailing arrow — "Read article", "Open the document".
+   Descriptive wording always, never "click here" or a bare "learn more". */
+.btn--text {
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text-link);
+  font-family: var(--heading-font);
+  font-weight: var(--fw-medium);
+}
+
+.btn--text:hover {
+  color: var(--gold-600);
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
+/* Micro-line under a CTA — e.g. "Pay, then pick your time right away." */
+.btn-note {
+  margin-top: 10px;
+  font-size: var(--text-sm);
+  line-height: 1.45;
+  color: var(--text-muted);
+}
+
+/* ------------------------------------------------------------------ */
+/* Cards — Handoff §06, Blueprints Page 02 "Card hover"                */
+/* White surface, 1px sand-300, 20px radius, soft shadow.              */
+/* Hover: border sand-300 → gold-300, shadow deepens, 180ms.           */
+/* No lift, no scale, no colour flood.                                 */
+/* ------------------------------------------------------------------ */
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  padding: var(--card-pad);
+  box-shadow: var(--shadow-card);
+  transition:
+    border-color var(--t-base) var(--ease-out),
+    box-shadow var(--t-base) var(--ease-out);
+}
+
+.card:hover,
+.card:focus-within {
+  border-color: var(--border-accent);    /* gold-300 */
+  box-shadow: var(--shadow-card-hover);
+}
+
+/* Cards whose CTA must sit on the baseline regardless of body length. */
+.card--equal {
+  height: 100%;
+}
+
+.card--equal > .card__foot {
+  margin-top: auto;
+  padding-top: 4px;
+}
+
+.card__body {
+  color: var(--text-body);
+}
+
+/* Icon plate — Handoff §06: "Icon in a tinted plate top-left".
+   Blueprints Page 01: 52px gold-50 plate. */
+.icon-plate {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: var(--gold-50);
+  color: var(--gold-700);
+  flex: none;
+}
+
+/* The prototype gives each service card a tone: gold, sage or ink
+   (Services.jsx). The ServiceCard component that renders the tone is not in the
+   bundle, so sage and ink follow the gold plate's own 50/700 pairing — ink has
+   no 50, so its lightest step, ink-100, carries ink-700. */
+.icon-plate--sage {
+  background: var(--sage-50);
+  color: var(--sage-700);
+}
+
+.icon-plate--ink {
+  background: var(--ink-100);
+  color: var(--ink-700);
+}
+
+@media (max-width: 768px) {
+  .card { padding: var(--card-pad-mobile); }
+}
+
+/* ------------------------------------------------------------------ */
+/* Chips — Handoff §06 "Audience cards / chips"                        */
+/* Sage-tinted pills, Jost 500, 10px gaps, wrapping freely.            */
+/* ------------------------------------------------------------------ */
+
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--chip-gap);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-min);
+  padding: 10px 18px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--sage-100);
+  background: var(--sage-50);
+  color: var(--sage-700);
+  font-family: var(--heading-font);
+  font-weight: var(--fw-medium);
+  font-size: var(--text-sm);
+  text-decoration: none;
+  transition:
+    background-color var(--t-fast) var(--ease-out),
+    border-color var(--t-fast) var(--ease-out),
+    color var(--t-fast) var(--ease-out);
+}
+
+a.chip:hover {
+  background: var(--sage-100);
+  text-decoration: none;
+}
+
+/* Blueprints Global 05: "Selected: gold fill, white text." */
+.chip[aria-pressed='true'],
+.chip[aria-current='true'],
+.chip--selected {
+  background: var(--gold-500);
+  border-color: var(--gold-500);
+  color: var(--white);
+}
+
+/* Non-interactive chips (audience lists that lead nowhere real). */
+.chip--static {
+  cursor: default;
+}
+
+/* ------------------------------------------------------------------ */
+/* Scope / disclaimer callout — Handoff §06                            */
+/* gold-50 fill, 3px gold left border, 10px radius, 12–13px text.      */
+/* "Appears on every service area, not only the legal pages."          */
+/* ------------------------------------------------------------------ */
+
+.scope-callout {
+  background: var(--gold-50);
+  border-left: 3px solid var(--gold-500);
+  border-radius: 10px;
+  padding: 16px 20px;
+  font-size: var(--text-sm);
+  line-height: 1.6;
+  color: var(--text-body);
+}
+
+.scope-callout p {
+  max-width: none;
+}
+
+.scope-callout + .scope-callout {
+  margin-top: 12px;
+}
+
+/* ------------------------------------------------------------------ */
+/* Forms — Handoff §06 and §14                                         */
+/* Visible labels above every field, never placeholder-only. Required   */
+/* marked in text. 12px radius, gold focus ring. Errors in words.       */
+/* ------------------------------------------------------------------ */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.field__label {
+  font-weight: var(--fw-medium);
+  font-size: var(--text-base);
+  color: var(--text-strong);
+}
+
+.field__required {
+  color: var(--text-muted);
+  font-weight: var(--fw-regular);
+  font-size: var(--text-sm);
+}
+
+.field__hint {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+
+.field__control {
+  width: 100%;
+  min-height: var(--tap-min);
+  padding: 12px 14px;
+  border-radius: var(--radius-button);
+  border: 1px solid var(--border-default);   /* ink-200 at rest */
+  background: var(--white);
+  color: var(--text-body);
+  transition:
+    border-color var(--t-fast) var(--ease-out),
+    box-shadow var(--t-fast) var(--ease-out);
+}
+
+.field__control:focus {
+  outline: none;
+  border-color: var(--gold-300);
+  box-shadow: 0 0 0 2px var(--gold-50);      /* gold-50 halo */
+}
+
+textarea.field__control {
+  min-height: 120px;
+  resize: vertical;
+}
+
+/* Error — danger border with the message beneath in 13px. */
+.field--error .field__control {
+  border-color: var(--danger-500);
+}
+
+.field__error {
+  font-size: var(--text-sm);
+  color: var(--danger-500);
+}
+
+/* Handoff §06 Forms: "Success message replaces the form in place
+   without a page reload." */
+.form-success {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: var(--card-pad);
+  border-radius: var(--radius-card);
+  background: var(--gold-50);
+  border: 1px solid var(--gold-100);
+}
+
+/* ------------------------------------------------------------------ */
+/* Accordion — Handoff §06 and §14                                     */
+/* Real buttons with aria-expanded, 44px tap targets. Chevron rotates   */
+/* 180° over 200ms; panel height animates. No bounce.                   */
+/* ------------------------------------------------------------------ */
+
+.accordion__item {
+  border-top: 1px solid var(--hairline);
+}
+
+.accordion__trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  min-height: var(--tap-min);
+  padding: 18px 0;
+  text-align: left;
+  font-family: var(--heading-font);
+  font-weight: var(--fw-semibold);
+  font-size: var(--text-md);
+  color: var(--text-strong);
+}
+
+.accordion__chevron {
+  flex: none;
+  transition: transform var(--t-slow) var(--ease-out);
+}
+
+.accordion__trigger[aria-expanded='true'] .accordion__chevron {
+  transform: rotate(180deg);
+}
+
+.accordion__panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows var(--t-slow) var(--ease-out);
+}
+
+.accordion__trigger[aria-expanded='true'] + .accordion__panel {
+  grid-template-rows: 1fr;
+}
+
+.accordion__panel > div {
+  overflow: hidden;
+}
+
+.accordion__panel-inner {
+  padding-bottom: 18px;
+}
+
+/* No JS: every panel stays open, so no answer is ever unreachable and the
+   chevron does not imply a control that cannot work. */
+html.no-js .accordion__panel {
+  grid-template-rows: 1fr;
+}
+
+html.no-js .accordion__chevron {
+  display: none;
+}
+
+/* ------------------------------------------------------------------ */
+/* Placeholder frame — for a photograph that has not arrived.          */
+/* Pending Items: "use the approved brand-colour editorial treatment,   */
+/* never generic wellness stock", and never a broken image.             */
+/* ------------------------------------------------------------------ */
+
+.photo-pending {
+  position: relative;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-card);
+  background:
+    radial-gradient(120% 90% at 78% 12%, var(--gold-50) 0%, transparent 60%),
+    linear-gradient(165deg, var(--sand-100) 0%, var(--sand-200) 100%);
+  border: 1px solid var(--hairline);
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  text-align: center;
+  padding: 24px;
+}
+
+.photo-pending[data-ratio='4:5'] { aspect-ratio: 4 / 5; }
+.photo-pending[data-ratio='3:2'] { aspect-ratio: 3 / 2; }
+.photo-pending[data-ratio='16:9'] { aspect-ratio: 16 / 9; }
+.photo-pending[data-ratio='1:1'] { aspect-ratio: 1 / 1; }
+
+/* Handoff §06 Image treatment: 20px radius, no filters, no heavy overlays. */
+.photo {
+  border-radius: var(--radius-card);
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}

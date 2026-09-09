@@ -1,0 +1,229 @@
+---
+/**
+ * FAQ — "Questions & answers".
+ * Blueprints Page 12, Master Website Copy §13.
+ *
+ * SIXTEEN questions, not eighteen. Master Copy §13 says "All eighteen
+ * questions" and Blueprints Page 12 says "18 questions as an accordion list",
+ * but the actual list is 16 — and the approved prototype's FAQ module has
+ * exactly the same 16 in the same order. The count is stale; the content is
+ * not. See docs/OPEN-QUESTIONS.md.
+ *
+ * ANSWER ORDER IS FIXED: scope and safety questions first, pricing and
+ * logistics last (Blueprints Page 12).
+ *
+ * The prototype's own FAQ answers carry the note "drafted in-brand… review &
+ * edit before publishing" — these are the approved Master Copy §13 answers,
+ * which supersede them.
+ *
+ * DO NOT EDIT the psychedelic-assisted-sessions answer. Legal Pages Index §03
+ * lists it among the lines that must not change.
+ *
+ * The "Do you offer in-person services and travel for events?" answer carries
+ * Darlene's September 2026 correction, which supersedes Master Copy §13.
+ *
+ * Handoff §13: FAQPage markup is "the highest return of anything here", and the
+ * questions must be real H2s with direct first sentences.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import { routes } from '../config/site.js';
+
+const faqs = [
+  {
+    q: 'Is this therapy?',
+    a: 'No. Our work is educational and supportive, not psychotherapy. We help you understand stress, build resilience, and develop practical tools, but we do not diagnose or treat mental health conditions.',
+  },
+  {
+    q: 'Do you provide counseling?',
+    a: 'We provide coaching, education, and consulting, not licensed counseling or psychotherapy. If you are looking for clinical mental health treatment, we encourage you to connect with a licensed professional, and our work can complement that care.',
+  },
+  {
+    q: 'Is this a substitute for medical or mental health care?',
+    a: 'No. Our services complement, but do not replace, care from licensed medical and mental health professionals. If you are experiencing a medical or mental health emergency, please seek care from a qualified provider.',
+  },
+  {
+    q: 'What is integration support?',
+    a: 'Integration is the work of making sense of a significant or altered-state experience after it happens, and translating what surfaced into self, everyday life, and relationships. Using nervous system education and somatic practices, we help you settle, reflect, and take small, practical steps at your own pace.',
+  },
+  {
+    // Legal Pages Index §03 — must not change.
+    q: 'Do you offer psychedelic-assisted sessions or preparation for them?',
+    a: 'No. We offer integration support only, and psychedelics remain illegal in Utah. We work with people only after their experiences. We do not supply, administer, or recommend any substance, we neither encourage nor discourage its use, and we do not help plan or prepare for it. Integration support is non-clinical education and somatic practice. It is not psychotherapy or medical treatment, and it never replaces care from licensed medical and mental health professionals.',
+  },
+  {
+    q: 'Do you accept insurance?',
+    a: 'No. Because our services are educational rather than medical or therapeutic, they are not billed through insurance. Individual session and package pricing is listed with each individual service.',
+  },
+  {
+    q: 'Do I need a referral or a diagnosis to work with you?',
+    a: "No. Whether you found us on your own or were referred by a therapist or provider, you are welcome here, no diagnosis or referral required, and you don't need to be in crisis for this work to matter.",
+  },
+  {
+    q: 'Do you work with individuals or only organizations?',
+    a: 'Both. Much of our work begins with one person. We support individuals and families directly, and we also partner with teams, schools, healthcare systems, first-responder organizations, and communities.',
+  },
+  {
+    q: 'Do you offer virtual services?',
+    a: 'Yes. Many of our offerings are available virtually, so you can take part from wherever you are. Individual, integration, and leadership sessions are held virtually by default.',
+  },
+  {
+    // Darlene's September 2026 correction — supersedes Master Copy §13.
+    q: 'Do you offer in-person services and travel for events?',
+    a: 'Yes. We offer in-person workshops, training, and speaking, and we travel for engagements, including internationally. Starting Point Consulting is based in Utah and works nationwide. For work outside the local area, reasonable travel and lodging expenses are added to the engagement proposal rather than folded into the base rate.',
+  },
+  {
+    q: 'Can you customize workshops for our organization?',
+    a: "Yes. We tailor workshops and programs to your team's goals, context, and challenges, from a single session to an ongoing partnership.",
+  },
+  {
+    q: 'Do you speak at conferences and events?',
+    a: 'Yes. We offer keynotes and talks for conferences, organizations, and community events on topics such as stress, resilience, leadership, and well-being.',
+  },
+  {
+    q: 'Who do you typically work with?',
+    a: 'Individuals and families, students and educators, healthcare professionals and first responders, leaders and teams, organizations, and communities, anyone carrying more than they were meant to carry alone.',
+  },
+  {
+    q: 'How does pricing work?',
+    a: 'Individual session and package pricing is listed with each individual service. Workshops, speaking, leadership programs, and organizational partnerships are customized based on the scope of the engagement, audience size, preparation, travel, and program needs. We provide clear pricing before any work begins.',
+  },
+  {
+    q: 'What is your cancellation policy?',
+    a: "Individual sessions may be rescheduled or cancelled with at least 24 hours' notice. Sessions cancelled with less notice, or missed, may be charged in full, and within a package may be considered a used session. For organizational engagements, workshops, and speaking, deposit and rescheduling terms are set out in your proposal. Full terms are in our Terms & Conditions and Client Service Agreement.",
+  },
+  {
+    q: 'How do we get started?',
+    a: 'Reach out through our contact page. We read every note personally and will help you find the right place to begin.',
+  },
+];
+
+/* Handoff §13 — FAQPage structured data. */
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map((item) => ({
+    '@type': 'Question',
+    name: item.q,
+    acceptedAnswer: { '@type': 'Answer', text: item.a },
+  })),
+};
+---
+
+<BaseLayout
+  title="Frequently Asked Questions | Starting Point Consulting"
+  description="Is this therapy? Do you take insurance? Do you work with individuals? Straight answers about what we do, what we don't, and how to begin."
+>
+  <script slot="head" is:inline set:html={JSON.stringify(faqSchema)} type="application/ld+json" />
+
+  <section class="section section--hero section--cream">
+    <div class="container">
+      {/* Master Copy §13 titles this section "FAQ — Questions & answers";
+          Blueprints Page 12 wants eyebrow → H1. Split accordingly rather than
+          printing the same words twice. */}
+      <p class="eyebrow">FAQ</p>
+      <h1>Questions &amp; answers</h1>
+    </div>
+  </section>
+
+  <section class="section section--cream">
+    <div class="container">
+      {/* Real buttons with aria-expanded, 44px tap targets, first item closed
+          on load (Blueprints Page 12, Handoff §14). */}
+      <div class="accordion faq" data-accordion>
+        {
+          faqs.map((item, index) => (
+            <div class="accordion__item">
+              <h2>
+                <button
+                  type="button"
+                  class="accordion__trigger"
+                  aria-expanded="false"
+                  aria-controls={`faq-panel-${index}`}
+                  id={`faq-trigger-${index}`}
+                >
+                  <span>{item.q}</span>
+                  <Icon name="chevron-down" size={20} class="accordion__chevron" />
+                </button>
+              </h2>
+              <div
+                class="accordion__panel"
+                id={`faq-panel-${index}`}
+                role="region"
+                aria-labelledby={`faq-trigger-${index}`}
+              >
+                <div>
+                  <p class="accordion__panel-inner">{item.a}</p>
+                </div>
+              </div>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  {/* Closing card */}
+  <section class="section section--sand">
+    <div class="container">
+      <article class="card faq__closing">
+        <h2>Still have a question?</h2>
+        <p class="card__body">We read every note personally.</p>
+        <div class="card__foot">
+          <a class="btn btn--primary" href={routes.contact}>Let's begin the conversation</a>
+        </div>
+      </article>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .faq {
+    max-width: var(--measure-lead);
+  }
+
+  .faq .accordion__item:last-child {
+    border-bottom: 1px solid var(--hairline);
+  }
+
+  .faq h2 {
+    /* The question is a real H2 for structure; its size comes from the
+       trigger, not the heading level (Handoff §04). */
+    font-size: inherit;
+    letter-spacing: normal;
+    line-height: inherit;
+    margin: 0;
+  }
+
+  .accordion__panel-inner {
+    max-width: none;
+    color: var(--text-body);
+  }
+
+  .faq__closing {
+    max-width: var(--measure-lead);
+    gap: 14px;
+  }
+</style>
+
+<script>
+  // Progressive enhancement: panels are collapsed by CSS only once this runs,
+  // so with JS disabled every answer stays readable.
+  const accordion = document.querySelector('[data-accordion]');
+
+  if (accordion instanceof HTMLElement) {
+    accordion.addEventListener('click', (event) => {
+      const trigger = event.target.closest?.('.accordion__trigger');
+      if (!trigger) return;
+
+      const isOpen = trigger.getAttribute('aria-expanded') === 'true';
+
+      // Blueprints Page 12: one open at a time.
+      for (const other of accordion.querySelectorAll('.accordion__trigger')) {
+        other.setAttribute('aria-expanded', 'false');
+      }
+
+      trigger.setAttribute('aria-expanded', String(!isOpen));
+    });
+  }
+</script>

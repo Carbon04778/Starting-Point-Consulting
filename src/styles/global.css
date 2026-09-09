@@ -1,0 +1,15 @@
+/* Starting Point Consulting — global stylesheet entry point.
+ *
+ * The four token files are imported straight out of docs/tokens/ rather than
+ * copied, so there is exactly one definition of every colour, size, and space
+ * and it is the client's own (CLAUDE.md "Design tokens"). Do not duplicate a
+ * token value into base.css or components.css — reference the variable.
+ */
+
+@import '../../docs/tokens/fonts.css';
+@import '../../docs/tokens/colors.css';
+@import '../../docs/tokens/typography.css';
+@import '../../docs/tokens/spacing.css';
+
+@import './base.css';
+@import './components.css';

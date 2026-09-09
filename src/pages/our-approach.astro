@@ -1,0 +1,120 @@
+---
+/**
+ * Our approach — Blueprints Page 11, Master Website Copy §04.
+ *
+ * Section order:
+ *   1 Header  2 What grounds the work (six cards, 3×2)
+ *   3 Supporting image  4 Closing CTAs
+ *
+ * Slug is a proposal — no reference document specifies one. See
+ * docs/OPEN-QUESTIONS.md.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import { routes, pending } from '../config/site.js';
+
+/* Master Copy §04 — "What grounds the work". */
+const grounding = [
+  ['Neuroscience', 'How the brain and body respond to stress, safety, and connection.'],
+  ['Somatic practices', 'Body-based awareness that builds capacity and resilience.'],
+  ['Polyvagal Theory', 'How safety and connection shape health, relationships, and learning.'],
+  ['Leadership development', 'Self-awareness, communication, and healthier cultures.'],
+  ['Adult learning principles', 'Practical, experiential learning that sticks.'],
+  [
+    'Decades in healthcare & education',
+    'Lived experience walking alongside people through change.',
+  ],
+];
+---
+
+<BaseLayout
+  title="Our Approach | Starting Point Consulting"
+  description="Grounded in neuroscience, somatic practices, Polyvagal Theory, leadership development, adult learning, and decades in healthcare and education."
+>
+  {/* 1 · Header */}
+  <section class="section section--hero section--cream">
+    <div class="container">
+      <p class="eyebrow">Our approach</p>
+      <h1>Where science meets humanity.</h1>
+      <div class="approach__lead">
+        <p class="t-lead">
+          Our work is grounded in neuroscience, somatic practices, Polyvagal Theory, leadership
+          development, adult learning principles, and decades of experience in healthcare and
+          education.
+        </p>
+        <p class="t-lead">
+          We translate evidence-informed concepts into practical, accessible tools that help
+          individuals, teams, organizations, and communities navigate stress, strengthen resilience,
+          and create meaningful, lasting change.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  {/* 2 · What grounds the work */}
+  <section class="section section--sand">
+    <div class="container">
+      <h2>What grounds the work</h2>
+      <div class="grid grid--3 approach__grid">
+        {
+          grounding.map(([title, body]) => (
+            <article class="card card--equal">
+              <span class="icon-plate">
+                <Icon name="check" size={22} />
+              </span>
+              <h3>{title}</h3>
+              <p class="card__body">{body}</p>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  {/* 3 · Supporting image — 3:2 landscape, Image Map APR-01.
+      Photography is a pending item, so the brand-colour treatment stands in
+      rather than stock. Decorative, so the alt text is empty. */}
+  <section class="section section--cream">
+    <div class="container">
+      {
+        pending.heroPhoto ? (
+          <img class="photo" src={pending.heroPhoto} alt="" />
+        ) : (
+          <div class="photo-pending" data-ratio="3:2">
+            Supporting photograph, 3:2 — horizon, still water, or morning light. Awaiting
+            photography from Darlene.
+          </div>
+        )
+      }
+    </div>
+  </section>
+
+  {/* 4 · Closing CTAs */}
+  <section class="section section--sand">
+    <div class="container">
+      <div class="button-row">
+        <a class="btn btn--primary" href={routes.individualSessions}>Start where you are</a>
+        <a class="btn btn--secondary" href={routes.services}>Explore our work</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .approach__lead {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 18px;
+  }
+
+  .approach__grid {
+    margin-top: 44px;
+  }
+
+  @media (max-width: 768px) {
+    .approach__grid {
+      margin-top: 28px;
+    }
+  }
+</style>

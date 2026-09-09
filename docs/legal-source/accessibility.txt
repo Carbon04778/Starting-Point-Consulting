@@ -1,0 +1,43 @@
+EYEBROW: Inclusive by design
+TITLE: Accessibility Statement
+LAST UPDATED: [Effective date]
+
+INTRO: Starting Point Consulting is committed to creating an accessible and inclusive experience for all visitors.
+
+---
+
+## Our commitment
+
+Accessibility is part of how we live our values. We want everyone, regardless of ability, device, or circumstance, to be able to access our content, learn from our work, and connect with us. We are continually working to improve the accessibility and usability of our website and digital resources.
+
+## Standards we aim for
+
+We strive to align our website with the Web Content Accessibility Guidelines (WCAG) 2.1, Level AA. These internationally recognized guidelines help make web content more accessible to people with a wide range of abilities, including visual, auditory, motor, and cognitive differences.
+
+## Steps we take
+
+To support an accessible experience, we work to:
+
+  - Use clear, readable language and a logical content structure
+  - Maintain sufficient color contrast and legible type sizes
+  - Provide text alternatives for meaningful images
+  - Support keyboard navigation and visible focus states
+  - Design forms and links with descriptive, accessible labels
+  - Test our site across common browsers and devices
+
+## Ongoing effort
+
+Accessibility is an ongoing process rather than a one-time effort. As we add new content and features, we review them with accessibility in mind and address issues as we become aware of them. We also consider accessibility in the materials and resources we share through our programs.
+
+## Third-party content
+
+Some content or tools on our website may be provided by third parties (for example, scheduling, payment, or embedded media). While we choose our partners thoughtfully, we may not have full control over the accessibility of third-party content. If you encounter difficulty with any such element, please let us know and we will do our best to help.
+
+## We welcome your feedback
+
+If you experience difficulty accessing any part of this website or need information in an alternative format, please contact us. We welcome your feedback and are continually working to improve accessibility. When possible, please include the page or content you were trying to access and the difficulty you experienced, so we can respond effectively.
+
+  - Email: darlene@startingpointconsulting.com
+  - Mailing address: 8850 S 700 E #493, Sandy, UT 84070
+
+[CALLOUT] If you need information or assistance right away and are unable to access it through the website, email us and we will provide the information in an alternative format or help you directly.

@@ -1,0 +1,537 @@
+---
+/**
+ * For Therapists & Providers.
+ *
+ * Structure: Blueprints Page 14 (seven sections). Copy: Master Copy §15, with
+ * the prototype's `ReferringProfessionals` module supplying the three "Sharing
+ * Starting Point" steps, which Master Copy does not contain.
+ *
+ * NO REFERRAL FORM. Confirmed mockup gap (CLAUDE.md, Known Gaps §12): providers
+ * just get information; the individual reaches out on their own. Nothing on
+ * this page collects anything about a client.
+ *
+ * THREE THINGS DIVERGE FROM A SOURCE, each recorded in OPEN-QUESTIONS:
+ *
+ *  1. "View the Provider Resource" (Blueprints §1, prototype) is NOT built. The
+ *     PDF is not in assets/ — Pending Items, and the established pattern of
+ *     omitting a button rather than pointing it at nothing (#9).
+ *  2. The section 4 heading is Blueprints' and the prototype's "When another
+ *     kind of support fits better", not Master Copy's "When to refer
+ *     elsewhere". Blueprints outrank Master Copy, and the two higher sources
+ *     agree with each other.
+ *  3. One approved sentence about the intake form is deliberately NOT rendered
+ *     — see the note in section 7. This is the one thing on the page worth a
+ *     decision before launch (#33).
+ *
+ * Credentials are the shared approved five (Handoff §01), not the prototype's
+ * two — see src/copy/shared.js.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import { business, routes } from '../config/site.js';
+import { credentialBadges } from '../copy/shared.js';
+
+/* Master Copy §15 "Scope of practice". */
+const whatWeDo = [
+  'Nervous system education in plain language',
+  'Polyvagal-informed state awareness and mapping',
+  'Somatic and regulation skill-building',
+  'Co-regulation and reconnection after protective states',
+  'Capacity and recovery work for chronic stress',
+  'Integration support after significant experiences',
+];
+
+const whatWeDoNot = [
+  'Diagnose or treat any condition',
+  'Provide psychotherapy or counseling',
+  'Trauma processing or memory work',
+  'Supply, administer, or recommend any substance',
+  'Replace the care of a licensed provider',
+  'Crisis or emergency services',
+];
+
+/* Master Copy §15 "Who this tends to help" — seven items. */
+const goodFit = [
+  'Clients who understand their stress intellectually but not in their body',
+  'Clients in talk therapy who would benefit from body-based regulation skills alongside cognitive insight',
+  'Clients living with the effects of trauma or chronic stress who want body-based regulation skills alongside clinical care',
+  'People carrying chronic stress from caregiving, clinical, or first-responder work',
+  'Clients who feel safe in their thinking mind while their body stays braced',
+  'Clients integrating a significant or altered-state experience',
+  'People who want practical, everyday tools between sessions',
+];
+
+/* Master Copy §15 — six items. Blueprints §4: "presented plainly and without
+   alarm styling — this is a professional-to-professional page." */
+const otherSupport = [
+  'Anyone in acute crisis, or experiencing suicidal ideation or self-harm',
+  'Active psychosis, mania, or acute substance withdrawal',
+  'Eating disorders requiring medical monitoring',
+  'Clients seeking trauma processing or memory work',
+  'Anyone seeking diagnosis, treatment, or medication guidance',
+  'Clients who would be better served by clinical care alone',
+];
+
+/* Prototype `ReferringProfessionals`, the only source for these. Blueprints §5:
+   "No referral language — the provider shares information, the individual
+   decides and schedules directly." */
+const steps = [
+  {
+    n: '01',
+    title: 'Share our information',
+    body: 'Give your client or patient the Provider Resource, or send them to startingpointconsulting.com. No referral, form, or paperwork is required from you.',
+  },
+  {
+    n: '02',
+    title: 'They decide, and contact us',
+    body: 'The individual decides whether to reach out, then books directly. We say plainly if we are not the right support.',
+  },
+  {
+    n: '03',
+    title: 'We work alongside you',
+    body: 'With the client’s written consent, we’re glad to coordinate with you, confirming they connected and sharing what we’re focusing on, at whatever level of detail your client authorizes.',
+  },
+];
+---
+
+<BaseLayout
+  title={`For Therapists & Healthcare Providers | ${business.name}`}
+  description="Information for providers: nervous system education and practical regulation practices that may complement the care you already provide. Educational and supportive, never clinical treatment."
+>
+  {/* 1 · Header */}
+  <section class="section section--hero providers-hero">
+    <div class="container">
+      <p class="eyebrow">For therapists &amp; providers</p>
+      <h1>Nervous system education your client or patient can use between visits.</h1>
+      <p class="t-lead providers-hero__lead">
+        You have done the harder work. Sometimes a client understands their story clearly and still
+        cannot settle, because the nervous system learned to stay braced long before words were
+        involved.
+      </p>
+      <p class="providers-hero__body">
+        Drawing on Polyvagal Theory, we help clients recognize their own states, mobilized and
+        protective or withdrawn and shut down, and notice the cues of safety and threat their body is
+        responding to. From there they practice small, repeatable ways to steady themselves and
+        return to connection. It is skills practice in the body, offered alongside the work you are
+        already doing.
+      </p>
+      <div class="button-row providers-hero__actions">
+        <a class="btn btn--primary btn--lg" href={routes.contact}>Ask a question first</a>
+        {/* "View the Provider Resource" is omitted until the PDF exists. */}
+      </div>
+    </div>
+  </section>
+
+  {/* 2 · Scope of practice */}
+  <section class="section section--cream">
+    <div class="container">
+      <h2 class="eyebrow eyebrow--sage">Scope of practice</h2>
+
+      <div class="grid grid--2 providers-scope">
+        <article class="card card--equal">
+          <h3>What we do</h3>
+          <ul class="marked-list">
+            {
+              whatWeDo.map((item) => (
+                <li>
+                  <span class="marked-list__mark marked-list__mark--do">
+                    <Icon name="check" size={17} />
+                  </span>
+                  <span>{item}</span>
+                </li>
+              ))
+            }
+          </ul>
+        </article>
+
+        <article class="card card--equal">
+          <h3>What we do not do</h3>
+          {/* Blueprints §2: neutral ink markers — not red, not X's in an alarm
+              colour. The prototype uses an X at ink-400; kept, but at ink-500
+              so it clears the 3:1 non-text contrast minimum. */}
+          <ul class="marked-list">
+            {
+              whatWeDoNot.map((item) => (
+                <li>
+                  <span class="marked-list__mark marked-list__mark--dont">
+                    <Icon name="close" size={17} />
+                  </span>
+                  <span>{item}</span>
+                </li>
+              ))
+            }
+          </ul>
+        </article>
+      </div>
+
+      {/* Protected scope language — Legal Pages Index §03. */}
+      <p class="providers-scope__note">
+        Our work is educational and supportive. It complements clinical care, it never replaces it,
+        and we say so to every client.
+      </p>
+    </div>
+  </section>
+
+  {/* 3 + 4 · Fit */}
+  <section class="section">
+    <div class="container providers-fit">
+      <div>
+        <h2 class="eyebrow">Who this tends to help</h2>
+        <ul class="dot-list">
+          {goodFit.map((item) => <li>{item}</li>)}
+        </ul>
+      </div>
+
+      <div>
+        <h2 class="eyebrow eyebrow--sage">When another kind of support fits better</h2>
+        <ul class="dot-list dot-list--muted">
+          {otherSupport.map((item) => <li>{item}</li>)}
+        </ul>
+        <p class="providers-fit__note">
+          If someone arrives who needs clinical care, we say so directly and encourage them back to
+          you.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  {/* 5 · Sharing Starting Point */}
+  <section class="section section--cream">
+    <div class="container">
+      <h2 class="eyebrow">Sharing Starting Point with a client or patient</h2>
+      <ol class="grid grid--3 providers-steps">
+        {
+          steps.map((step) => (
+            <li class="card card--equal">
+              <span class="providers-steps__n">{step.n}</span>
+              <h3>{step.title}</h3>
+              <p class="card__body">{step.body}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  {/* 6 + 7 · Background, then communication & confidentiality */}
+  <section class="section">
+    <div class="container providers-close">
+      <div>
+        <h2 class="eyebrow eyebrow--sage">Background &amp; training</h2>
+
+        <div class="providers-bio">
+          <img
+            class="providers-bio__portrait"
+            src="/assets/photos/darlene-erich-portrait.jpg"
+            alt="Darlene Erich, MBA, BSN, RN"
+            width="96"
+            height="96"
+            loading="lazy"
+            decoding="async"
+          />
+          <div>
+            <p class="providers-bio__name">Darlene Erich, MBA, BSN, RN</p>
+            <p class="providers-bio__role">
+              Healthcare Executive · Nervous System Leadership Educator
+            </p>
+          </div>
+        </div>
+
+        <p class="providers-bio__body">
+          Decades in critical care, palliative care, and hospice nursing; healthcare executive
+          leadership; pilates teacher trainer and educator; trauma-informed education and nervous
+          system regulation.
+        </p>
+
+        <div class="providers-training">
+          <p class="providers-training__label">Training</p>
+          <ul>
+            {credentialBadges.map((badge) => <li>{badge}</li>)}
+          </ul>
+        </div>
+      </div>
+
+      <div>
+        <h2 class="eyebrow">Communication &amp; confidentiality</h2>
+
+        {/* Protected language — Legal Pages Index §03 names "the confidentiality
+            paragraph on For referring professionals" as text that must not
+            change. Verbatim. */}
+        <p class="providers-close__body">
+          We hold what clients share in confidence. With their written consent, we can confirm they
+          connected with us and share the focus of our work at whatever level of detail they
+          authorize. Without that consent, we will not confirm or discuss anyone’s participation.
+        </p>
+
+        {/*
+          DELIBERATELY NOT RENDERED — OPEN-QUESTIONS #33.
+
+          Master Copy §15 and the prototype both carry a second paragraph here:
+            "Our intake asks whether a client is working with a provider and who
+             referred them, so we know from the start that you're part of their
+             support."
+
+          That is no longer true. The New Client Intake implementation note
+          (docs/reference/10, September 2026) removed those exact fields "by
+          decision" and forbids restoring them, naming "referral source with a
+          therapist/provider option", "referring-provider name", and
+          "current-provider information" specifically.
+
+          Publishing it would tell healthcare providers we collect information
+          about them that we deliberately do not collect. Since it is a factual
+          claim about personal data made to professionals who may rely on it, it
+          is withheld rather than shipped-and-flagged. Darlene decides the
+          replacement wording; restoring or replacing it is one paragraph here.
+        */}
+
+        <div class="button-row providers-close__actions">
+          <a class="btn btn--primary" href={routes.contact}>Get in touch</a>
+          <a class="btn btn--text" href={routes.faq}>Read the FAQ</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  /* Prototype: 160deg sand-100 → gold-50 65% → sand-200. */
+  .providers-hero {
+    background: linear-gradient(160deg, var(--sand-100) 0%, var(--gold-50) 65%, var(--sand-200) 100%);
+    padding-block: 72px 56px;
+  }
+
+  /* Prototype: clamp(32px, 3.8vw, 50px), 19ch measure so it breaks well. */
+  .providers-hero h1 {
+    font-size: clamp(2rem, 3.8vw, 3.125rem);
+    line-height: 1.08;
+    margin-top: 18px;
+    max-width: 19ch;
+  }
+
+  .providers-hero .eyebrow {
+    margin-bottom: 0;
+  }
+
+  .providers-hero__lead {
+    max-width: 640px;
+    margin-top: 18px;
+    font-size: var(--text-lg);
+    line-height: 1.5;
+    color: var(--ink-700);
+  }
+
+  .providers-hero__body {
+    max-width: 640px;
+    margin-top: 16px;
+    line-height: 1.7;
+    color: var(--text-body);
+  }
+
+  .providers-hero__actions {
+    margin-top: 28px;
+  }
+
+  /* Scope cards -------------------------------------------------------- */
+
+  .providers-scope {
+    margin-top: 22px;
+  }
+
+  .marked-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 4px;
+  }
+
+  .marked-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+    line-height: 1.5;
+    color: var(--text-body);
+  }
+
+  .marked-list__mark {
+    display: inline-flex;
+    flex: none;
+    margin-top: 1px;
+  }
+
+  .marked-list__mark--do {
+    color: var(--gold-600);
+  }
+
+  /* ink-500, not the prototype's ink-400: a marker carrying meaning needs 3:1
+     (WCAG 1.4.11) and ink-400 on white is 2.99:1. ink-500 is 6.05:1 and still
+     reads as the neutral, non-alarm tone Blueprints §2 asks for. */
+  .marked-list__mark--dont {
+    color: var(--ink-500);
+  }
+
+  .providers-scope__note {
+    max-width: 70ch;
+    margin-top: 22px;
+    font-family: var(--lead-font);
+    font-style: italic;
+    font-size: var(--text-md);
+    line-height: 1.55;
+    color: var(--sage-700);
+  }
+
+  /* Fit lists ---------------------------------------------------------- */
+
+  .providers-fit {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 44px;
+  }
+
+  .dot-list {
+    display: flex;
+    flex-direction: column;
+    gap: 13px;
+    margin-top: 20px;
+  }
+
+  .dot-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    line-height: 1.55;
+    color: var(--text-body);
+  }
+
+  .dot-list li::before {
+    content: '';
+    flex: none;
+    width: 10px;
+    height: 10px;
+    margin-top: 7px;
+    border-radius: 50%;
+    background: var(--gold-500);
+  }
+
+  .dot-list--muted li {
+    color: var(--text-muted);
+  }
+
+  .dot-list--muted li::before {
+    background: var(--ink-300);
+  }
+
+  .providers-fit__note {
+    margin-top: 18px;
+    font-size: 0.84375rem; /* prototype: 13.5px */
+    line-height: 1.6;
+    color: var(--text-muted);
+  }
+
+  /* Steps -------------------------------------------------------------- */
+
+  .providers-steps {
+    margin-top: 22px;
+  }
+
+  .providers-steps__n {
+    font-family: var(--heading-font);
+    font-weight: var(--fw-semibold);
+    font-size: 0.8125rem;
+    letter-spacing: 0.06em;
+    color: var(--gold-600);
+  }
+
+  /* Background + confidentiality --------------------------------------- */
+
+  .providers-close {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 44px;
+  }
+
+  .providers-bio {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    margin-top: 18px;
+  }
+
+  .providers-bio__portrait {
+    flex: none;
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: 50% 18%;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .providers-bio__name {
+    font-family: var(--heading-font);
+    font-weight: var(--fw-semibold);
+    font-size: var(--text-lg);
+    color: var(--text-strong);
+    margin-bottom: 4px;
+  }
+
+  .providers-bio__role {
+    font-size: 0.84375rem;
+    color: var(--text-muted);
+  }
+
+  .providers-bio__body {
+    margin-top: 10px;
+    line-height: 1.65;
+    color: var(--text-body);
+  }
+
+  .providers-training {
+    margin-top: 16px;
+    padding: 14px 16px;
+    border-radius: var(--radius-md);
+    background: var(--gold-50);
+    border: 1px solid var(--gold-200);
+  }
+
+  .providers-training__label {
+    font-family: var(--heading-font);
+    font-size: 0.6875rem;
+    font-weight: var(--fw-semibold);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--gold-700);
+    margin-bottom: 10px;
+  }
+
+  .providers-training ul {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    line-height: 1.5;
+    color: var(--text-body);
+  }
+
+  .providers-close__body {
+    margin-top: 18px;
+    line-height: 1.65;
+    color: var(--text-body);
+  }
+
+  .providers-close__actions {
+    margin-top: 22px;
+  }
+
+  @media (max-width: 900px) {
+    .providers-fit,
+    .providers-close {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 40px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .providers-hero {
+      padding-block: 48px 40px;
+    }
+  }
+</style>
