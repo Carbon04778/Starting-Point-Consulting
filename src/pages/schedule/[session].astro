@@ -6,30 +6,58 @@
  * reachable via a successful Stripe redirect." They are the step between
  * paying and having a time booked.
  *
- * WHY THREE AND NOT FIVE. Blueprints Page 06 contradicts itself — it says
- * "one per scheduling destination, five total" in §3 and then "Three private
- * post-payment scheduling pages are required, covering all seven live Stripe
- * links" at the end. Master Copy §08 settles it by supplying approved copy for
- * exactly three, and by labelling the 60-minute one "approved, neutral for all
- * four 60-minute purchases". CLAUDE.md lists the same three URLs. So: three,
- * and the copy below is §08 verbatim.
+ * WHY THREE AND NOT FIVE. Blueprints Page 06 contradicts itself — "one per
+ * scheduling destination, five total" in §3, then "Three private post-payment
+ * scheduling pages are required, covering all seven live Stripe links" at the
+ * end. Master Copy §08 settles it by supplying approved copy for exactly
+ * three, and labelling the 60-minute one "approved, neutral for all four
+ * 60-minute purchases". CLAUDE.md lists the same three URLs.
  *
- * Every string here is approved. The package paragraphs are conditional in
- * §08's own words ("If you purchased a multi-session package or path:"), which
- * is what lets one page serve singles and packages without naming a product.
+ * WHY THE ?p= PARAMETER.
  *
- * AFTER DEPLOYMENT: send Darlene the three live URLs so she can repoint each
- * Stripe Payment Link's "After payment" redirect (CLAUDE.md).
+ * Four products share the 60-minute page and two share the leadership page, so
+ * §08's copy had to be neutral — a shared page must never name the wrong
+ * product. But neutral left two real problems:
+ *
+ *   1. A £640 four-session buyer saw only "Now let's schedule your session",
+ *      and had to decide for themselves whether a paragraph beginning "If you
+ *      purchased a multi-session package or path" was about them.
+ *   2. Darlene's calendar showed a 60-minute booking with no way to tell a
+ *      one-off client from session 1 of a package, short of cross-referencing
+ *      every booking against Stripe by hand.
+ *
+ * Stripe allows a query string on the redirect URL, so each Payment Link now
+ * carries its own product id. Still three pages; the page simply knows which
+ * of its products it is serving. §08's neutral copy is kept EXACTLY as the
+ * fallback for a missing or unrecognised id, so a mistyped Stripe redirect
+ * degrades to the approved wording rather than breaking.
+ *
+ * The id is validated against this page's own product list, so ?p= cannot make
+ * a page announce a product that does not schedule here.
+ *
+ * NO PRICE IS SHOWN. Stripe's receipt already carries the amount, and if a
+ * discount code is ever used a hard-coded price here would contradict the
+ * actual charge. Being wrong about money on a payment confirmation is worse
+ * than saying nothing.
+ *
+ * AFTER DEPLOYMENT: send Darlene the seven redirect URLs (three pages ×
+ * their product ids) so she can set each Stripe Payment Link's "After
+ * payment" redirect.
  */
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ProgressSteps from '../../components/ProgressSteps.astro';
 import Icon from '../../components/Icon.astro';
-import { business, routes, calendly } from '../../config/site.js';
+import { business, routes, calendly, stripeLinks } from '../../config/site.js';
+
+/* Rendered per request so ?p= is readable. A prerendered page evaluates
+   searchParams at build time, where it is always empty. */
+export const prerender = false;
 
 /* Master Copy §08, verbatim. `packageNote` is null where §08 says
    "no package language". */
 const PAGES = {
   '60-minute-session': {
+    route: routes.schedule60,
     calendlyUrl: calendly.session60,
     heading: "Your payment is complete. Now let's schedule your session.",
     body: 'Choose a time below that works for you.',
@@ -39,6 +67,7 @@ const PAGES = {
     title: '60-Minute Session Scheduling',
   },
   '90-minute-session': {
+    route: routes.schedule90,
     calendlyUrl: calendly.session90,
     heading: "Your payment is complete. Now let's schedule your session.",
     body: 'Choose a time below that works for you.',
@@ -47,6 +76,7 @@ const PAGES = {
     title: '90-Minute Session Scheduling',
   },
   'leadership-session': {
+    route: routes.scheduleLeadership,
     calendlyUrl: calendly.leadership75,
     heading: "Your payment is complete. Now let's schedule your leadership session.",
     body: 'Choose a time below that works for you.',
@@ -57,13 +87,25 @@ const PAGES = {
   },
 };
 
-export function getStaticPaths() {
-  return ['60-minute-session', '90-minute-session', 'leadership-session'].map((session) => ({
-    params: { session },
-  }));
-}
+const key = Astro.params.session;
+const page = PAGES[key];
 
-const page = PAGES[Astro.params.session];
+if (!page) return Astro.redirect(routes.individualSessions, 303);
+
+/* Only products that actually schedule on THIS page may be named by ?p=. */
+const product =
+  stripeLinks.find(
+    (s) => s.id === Astro.url.searchParams.get('p') && s.scheduling === page.route,
+  ) ?? null;
+
+const isPackage = product?.isPackage ?? false;
+
+/* Tag the booking so Darlene's Calendly notification says which product it is,
+   instead of an anonymous 60-minute slot. Calendly stores UTM parameters
+   against the booking and includes them in exports and webhooks. */
+const embedUrl = product
+  ? `${page.calendlyUrl}?utm_source=starting-point&utm_medium=post-payment&utm_content=${encodeURIComponent(product.name)}`
+  : page.calendlyUrl;
 ---
 
 <BaseLayout
@@ -73,7 +115,7 @@ const page = PAGES[Astro.params.session];
 >
   <section class="section schedule">
     <div class="container schedule__inner">
-      <ProgressSteps current={2} />
+      <ProgressSteps current={2} packageLabel={isPackage} />
 
       {/* Blueprints Page 06 §3: the confirmation block. */}
       <div class="schedule__confirm">
@@ -81,21 +123,46 @@ const page = PAGES[Astro.params.session];
           <Icon name="check" size={30} />
         </span>
         <h1>{page.heading}</h1>
+
+        {
+          product && (
+            <p class="schedule__product">
+              {product.name}
+              {isPackage && product.sessions && (
+                <span class="schedule__of"> · scheduling session 1 of {product.sessions}</span>
+              )}
+            </p>
+          )
+        }
+
         <p class="t-lead schedule__body">{page.body}</p>
       </div>
 
       {
-        page.packageNote && (
-          <div class="schedule__package">
-            <p>{page.packageNote}</p>
-          </div>
+        /* Known package: say it plainly, in §08's words minus the conditional.
+           Known single session: nothing to say. Unknown: §08 verbatim. */
+        product ? (
+          isPackage && (
+            <div class="schedule__package">
+              <p>
+                Use this page to schedule your first session. We’ll provide simple instructions for
+                scheduling your remaining sessions without additional payment.
+              </p>
+            </div>
+          )
+        ) : (
+          page.packageNote && (
+            <div class="schedule__package">
+              <p>{page.packageNote}</p>
+            </div>
+          )
         )
       }
 
       {/* Calendly owns the calendar itself. */}
       <div
         class="calendly-inline-widget schedule__embed"
-        data-url={page.calendlyUrl}
+        data-url={embedUrl}
         data-auto-load="false"
       >
       </div>
@@ -103,15 +170,13 @@ const page = PAGES[Astro.params.session];
       <noscript>
         <p class="schedule__fallback">
           Scheduling runs on Calendly, which needs JavaScript.
-          <a href={page.calendlyUrl} target="_blank" rel="noopener noreferrer">
-            {page.fallbackLabel}
-          </a>
-          , or <a href={routes.contact}>send us a message</a> and we’ll arrange a time.
+          <a href={embedUrl} target="_blank" rel="noopener noreferrer">{page.fallbackLabel}</a>, or
+          <a href={routes.contact}>send us a message</a> and we’ll arrange a time.
         </p>
       </noscript>
 
       <p class="schedule__fallback">
-        <a href={page.calendlyUrl} target="_blank" rel="noopener noreferrer">
+        <a href={embedUrl} target="_blank" rel="noopener noreferrer">
           Trouble with the calendar? {page.fallbackLabel}
         </a>
       </p>
@@ -149,6 +214,20 @@ const page = PAGES[Astro.params.session];
     font-size: var(--text-2xl);
     letter-spacing: -0.01em;
     text-wrap: balance;
+  }
+
+  /* What they bought, so a package buyer is never left guessing. */
+  .schedule__product {
+    margin-top: 14px;
+    font-family: var(--heading-font);
+    font-weight: var(--fw-semibold);
+    font-size: var(--text-md);
+    color: var(--text-strong);
+  }
+
+  .schedule__of {
+    font-weight: var(--fw-regular);
+    color: var(--text-muted);
   }
 
   .schedule__body {

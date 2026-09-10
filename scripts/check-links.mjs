@@ -17,7 +17,7 @@
  * Exit code 1 on any broken internal link so this can gate a commit.
  */
 import { readdir, readFile, stat } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join, relative, dirname, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { distDir } from './dist-dir.mjs';
@@ -40,6 +40,30 @@ if (!existsSync(DIST)) {
   console.error('check-links: no dist/ — run `npm run build` first.');
   process.exit(1);
 }
+
+
+/**
+ * Routes rendered on demand rather than written to disk.
+ *
+ * Since the purchase flow arrived, /checkout/<id> and /schedule/<id> are
+ * server routes: they exist, but there is no HTML file to find, so a
+ * file-based crawl would call every link to them broken. The adapter records
+ * the authoritative patterns in .vercel/output/config.json, so they are read
+ * from there rather than kept as a second list here that could drift.
+ */
+const onDemand = (() => {
+  const config = join(root, '.vercel', 'output', 'config.json');
+  if (!existsSync(config)) return [];
+  try {
+    return JSON.parse(readFileSync(config, 'utf8'))
+      .routes.filter((r) => r.dest === '_render' && r.src)
+      .map((r) => new RegExp(r.src));
+  } catch {
+    return [];
+  }
+})();
+
+const isOnDemand = (route) => onDemand.some((re) => re.test(route));
 
 async function walk(dir) {
   const out = [];
@@ -121,8 +145,9 @@ for (const [route, file] of routeToFile) {
 
     if (kind === 'link') {
       if (!routeToFile.has(clean)) {
-        // An <a> may legitimately point at a file (a PDF), not a page.
-        if (!assetPaths.has(path)) {
+        // An <a> may legitimately point at a file (a PDF), not a page, or at a
+        // route the adapter renders on demand rather than writing to disk.
+        if (!assetPaths.has(path) && !isOnDemand(clean)) {
           broken.push({ route, kind, value, reason: 'no such page or file in dist/' });
         }
         continue;

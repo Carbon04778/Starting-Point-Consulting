@@ -29,14 +29,24 @@ import { business, routes, stripeLinks } from '../../config/site.js';
 import { getLegalPage } from '../../lib/legal.js';
 import { AGREEMENT_VERSION } from '../../lib/agreement.js';
 
-export function getStaticPaths() {
-  return stripeLinks.map((service) => ({
-    params: { service: service.id },
-    props: { service },
-  }));
-}
+/**
+ * RENDERED PER REQUEST, not prerendered.
+ *
+ * This page reads ?error= to tell someone what went wrong. On a prerendered
+ * page `Astro.url.searchParams` is evaluated at BUILD time, so it is always
+ * empty and the error can never display — a visitor bounced back here after a
+ * failed write would see the form again with no explanation, including in the
+ * one case that matters most ("nothing has been charged"). These are noindex
+ * pages behind a purchase, so there is no SEO or traffic cost.
+ */
+export const prerender = false;
 
-const { service } = Astro.props;
+/* With prerender = false the route is matched at request time, so the
+   service comes from the URL and getStaticPaths would be ignored. An id that
+   is not a real offering redirects rather than rendering an empty page. */
+const service = stripeLinks.find((s) => s.id === Astro.params.service);
+
+if (!service) return Astro.redirect(routes.individualSessions, 303);
 const agreement = getLegalPage('client-service-agreement');
 
 /* Surfaced by the endpoint on the way back when something went wrong. Each

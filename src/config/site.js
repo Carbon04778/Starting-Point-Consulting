@@ -242,6 +242,7 @@ export const stripeLinks = [
     url: 'https://buy.stripe.com/8x29ANe544JxbvTas14ow06',
     scheduling: routes.schedule60,
     isPackage: true,
+    sessions: 4,
   },
   {
     id: 'extended-individual-session',
@@ -257,6 +258,7 @@ export const stripeLinks = [
     url: 'https://buy.stripe.com/eVqeV77GG8ZN57vfMl4ow01',
     scheduling: routes.schedule60,
     isPackage: true,
+    sessions: 4,
   },
   {
     id: 'individual-leadership-session',
@@ -272,6 +274,7 @@ export const stripeLinks = [
     url: 'https://buy.stripe.com/dRm3cp1iiek7gQdgQp4ow04',
     scheduling: routes.scheduleLeadership,
     isPackage: true,
+    sessions: 3,
   },
   {
     id: 'integration-support-session',
