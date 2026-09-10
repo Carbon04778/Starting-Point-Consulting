@@ -18,6 +18,9 @@ import { readFile } from 'node:fs/promises';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { assertLegalSetIntact, EFFECTIVE_DATE } from '../src/lib/legal.js';
+import { distDir } from './dist-dir.mjs';
+
+const DIST = distDir();
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -57,7 +60,7 @@ try {
 }
 
 for (const page of pages) {
-  const built = join(root, 'dist', page.slug, 'index.html');
+  const built = join(DIST, page.slug, 'index.html');
 
   let rendered;
   try {

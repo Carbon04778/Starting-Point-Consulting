@@ -16,9 +16,10 @@ import { readdir, readFile, stat } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { join, relative, dirname, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { distDir } from './dist-dir.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-const DIST = join(root, 'dist');
+const DIST = distDir();
 
 /**
  * Pages whose title and/or description are given VERBATIM by Handoff §13 and
