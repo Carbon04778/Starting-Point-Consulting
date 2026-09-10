@@ -1,0 +1,108 @@
+---
+/**
+ * The purchase-flow progress row.
+ *
+ * Blueprints Page 06 §2: "shown on every step. Completed steps carry a gold
+ * Check; the current step is gold-filled; upcoming steps are ink 300."
+ *
+ * FOUR STEPS, NOT THREE. Master Copy §08 and Blueprints Page 06 both give
+ * "Pay → Choose your time → Confirmed", because both were written for a flow
+ * where a service button opened Stripe directly. CLAUDE.md then puts an
+ * affirmative Client Service Agreement acceptance before payment, which is a
+ * real step the visitor has to complete. Leaving it out of the row would tell
+ * someone on the agreement page that they are already at step one of three
+ * when they have not paid yet. The three approved labels are unchanged; one is
+ * added ahead of them. Recorded in OPEN-QUESTIONS.
+ *
+ * The middle label differs by product — Master Copy §08: "Single sessions:
+ * Pay → Choose your time → Confirmed. Packages: Pay → Schedule session 1 →
+ * Confirmed." On the shared scheduling pages, which serve singles and packages
+ * at once, `packageLabel` is left false: §08 requires those pages to be
+ * "neutral for all four 60-minute purchases", and "Choose your time" is true
+ * for both, where "Schedule session 1" would not be.
+ */
+import Icon from './Icon.astro';
+
+interface Props {
+  /** Zero-based index of the step the visitor is on now. */
+  current: number;
+  /** Use the package wording for the scheduling step. */
+  packageLabel?: boolean;
+}
+
+const { current, packageLabel = false } = Astro.props;
+
+const steps = ['Agree', 'Pay', packageLabel ? 'Schedule session 1' : 'Choose your time', 'Confirmed'];
+---
+
+<ol class="steps" aria-label="Progress">
+  {
+    steps.map((label, i) => (
+      <li
+        class:list={[
+          'steps__item',
+          { 'steps__item--done': i < current, 'steps__item--now': i === current },
+        ]}
+        aria-current={i === current ? 'step' : undefined}
+      >
+        <span class="steps__mark">
+          {i < current ? <Icon name="check" size={13} title={`${label}: done`} /> : i + 1}
+        </span>
+        <span class="steps__label">{label}</span>
+      </li>
+    ))
+  }
+</ol>
+
+<style>
+  .steps {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px 18px;
+    margin-bottom: 36px;
+  }
+
+  .steps__item {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--heading-font);
+    font-size: 0.8125rem;
+    color: var(--text-subtle);
+  }
+
+  .steps__mark {
+    display: inline-grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    flex: none;
+    border-radius: 50%;
+    border: 1.5px solid var(--border-default);
+    font-size: 0.6875rem;
+    font-weight: var(--fw-semibold);
+  }
+
+  /* Completed: gold fill with ink-900 on it. Not white — white on gold-500 is
+     2.81:1, the pairing the design system forbids (Handoff §14). */
+  .steps__item--done .steps__mark {
+    background: var(--gold-500);
+    border-color: var(--gold-500);
+    color: var(--ink-900);
+  }
+
+  .steps__item--done .steps__label,
+  .steps__item--now .steps__label {
+    color: var(--text-strong);
+  }
+
+  .steps__item--now .steps__mark {
+    border-color: var(--gold-500);
+    color: var(--gold-700);
+  }
+
+  .steps__item--now .steps__label {
+    font-weight: var(--fw-semibold);
+  }
+</style>

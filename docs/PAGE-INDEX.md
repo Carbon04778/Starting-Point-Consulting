@@ -17,7 +17,7 @@ a human looking at them.
 
 - [x] Home
 - [x] Services (overview, "How We Partner")
-- [~] Individual Sessions — "Ways to Work Together" (pricing/session cards live here, not on a separate Pricing page) — the seven purchase CTAs point at `/checkout/<id>`, the CSA acceptance step, which is Phase 4
+- [x] Individual Sessions — "Ways to Work Together" (pricing/session cards live here, not on a separate Pricing page) — the seven purchase CTAs reach `/checkout/<id>`, now built
 - [x] Speaking (includes the corrected "nationally and internationally" line) — Speaker Kit button omitted, the file is not in `assets/`
 - [x] Booking (public — Organizational Discovery Conversation only, 30 min, no payment) — Calendly embed, not a rebuilt calendar; see OPEN-QUESTIONS #35
 - [ ] Starting Points (articles index)
@@ -56,12 +56,27 @@ Index §02.
 
 (Cookie preferences is a footer link that opens a consent manager, not a real page, no separate build item.)
 
+## Purchase flow (7 routes) — noindex, not in nav
+
+Not previously tracked here, though Individual Sessions has referenced them
+throughout. One dynamic route, `/checkout/[service]`, generating one page per
+paid offering. Reached only from a service button; the Stripe URL is resolved
+server-side so the page cannot be repointed.
+
+- [x] /checkout/individual-nervous-system-session
+- [x] /checkout/extended-individual-session
+- [x] /checkout/individual-leadership-session
+- [x] /checkout/integration-support-session
+- [x] /checkout/4-session-package
+- [x] /checkout/4-session-integration-path
+- [x] /checkout/3-session-leadership-package
+
 ## Private / hidden pages (4) — noindex, not in nav
 
 - [ ] New Client Intake form (post-booking, non-blocking, linked from the Calendly welcome email)
-- [ ] /schedule/60-minute-session
-- [ ] /schedule/90-minute-session
-- [ ] /schedule/leadership-session
+- [x] /schedule/60-minute-session — Master Copy §08 copy, neutral for all four 60-minute purchases
+- [x] /schedule/90-minute-session — no package language, per §08
+- [x] /schedule/leadership-session
 
 ## Admin / CMS (2 screens, not part of the public site count)
 

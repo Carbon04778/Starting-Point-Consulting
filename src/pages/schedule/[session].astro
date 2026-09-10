@@ -1,0 +1,227 @@
+---
+/**
+ * The three private post-payment scheduling pages.
+ *
+ * CLAUDE.md: "The three private scheduling pages are noindex, not in nav, only
+ * reachable via a successful Stripe redirect." They are the step between
+ * paying and having a time booked.
+ *
+ * WHY THREE AND NOT FIVE. Blueprints Page 06 contradicts itself — it says
+ * "one per scheduling destination, five total" in §3 and then "Three private
+ * post-payment scheduling pages are required, covering all seven live Stripe
+ * links" at the end. Master Copy §08 settles it by supplying approved copy for
+ * exactly three, and by labelling the 60-minute one "approved, neutral for all
+ * four 60-minute purchases". CLAUDE.md lists the same three URLs. So: three,
+ * and the copy below is §08 verbatim.
+ *
+ * Every string here is approved. The package paragraphs are conditional in
+ * §08's own words ("If you purchased a multi-session package or path:"), which
+ * is what lets one page serve singles and packages without naming a product.
+ *
+ * AFTER DEPLOYMENT: send Darlene the three live URLs so she can repoint each
+ * Stripe Payment Link's "After payment" redirect (CLAUDE.md).
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProgressSteps from '../../components/ProgressSteps.astro';
+import Icon from '../../components/Icon.astro';
+import { business, routes, calendly } from '../../config/site.js';
+
+/* Master Copy §08, verbatim. `packageNote` is null where §08 says
+   "no package language". */
+const PAGES = {
+  '60-minute-session': {
+    calendlyUrl: calendly.session60,
+    heading: "Your payment is complete. Now let's schedule your session.",
+    body: 'Choose a time below that works for you.',
+    packageNote:
+      'If you purchased a multi-session package or path: use this page to schedule your first session. We’ll provide simple instructions for scheduling your remaining sessions without additional payment.',
+    fallbackLabel: 'Schedule Your 60-Minute Session',
+    title: '60-Minute Session Scheduling',
+  },
+  '90-minute-session': {
+    calendlyUrl: calendly.session90,
+    heading: "Your payment is complete. Now let's schedule your session.",
+    body: 'Choose a time below that works for you.',
+    packageNote: null, // §08: "no package language"
+    fallbackLabel: 'Schedule Your 90-Minute Session',
+    title: '90-Minute Session Scheduling',
+  },
+  'leadership-session': {
+    calendlyUrl: calendly.leadership75,
+    heading: "Your payment is complete. Now let's schedule your leadership session.",
+    body: 'Choose a time below that works for you.',
+    packageNote:
+      'If you purchased the 3-Session Leadership Package: use this page to schedule your first session. We’ll provide simple instructions for scheduling your remaining sessions without additional payment.',
+    fallbackLabel: 'Schedule Your Leadership Session',
+    title: 'Leadership Session Scheduling',
+  },
+};
+
+export function getStaticPaths() {
+  return ['60-minute-session', '90-minute-session', 'leadership-session'].map((session) => ({
+    params: { session },
+  }));
+}
+
+const page = PAGES[Astro.params.session];
+---
+
+<BaseLayout
+  title={`${page.title} | ${business.name}`}
+  description="Schedule your session."
+  noindex
+>
+  <section class="section schedule">
+    <div class="container schedule__inner">
+      <ProgressSteps current={2} />
+
+      {/* Blueprints Page 06 §3: the confirmation block. */}
+      <div class="schedule__confirm">
+        <span class="schedule__mark" aria-hidden="true">
+          <Icon name="check" size={30} />
+        </span>
+        <h1>{page.heading}</h1>
+        <p class="t-lead schedule__body">{page.body}</p>
+      </div>
+
+      {
+        page.packageNote && (
+          <div class="schedule__package">
+            <p>{page.packageNote}</p>
+          </div>
+        )
+      }
+
+      {/* Calendly owns the calendar itself. */}
+      <div
+        class="calendly-inline-widget schedule__embed"
+        data-url={page.calendlyUrl}
+        data-auto-load="false"
+      >
+      </div>
+
+      <noscript>
+        <p class="schedule__fallback">
+          Scheduling runs on Calendly, which needs JavaScript.
+          <a href={page.calendlyUrl} target="_blank" rel="noopener noreferrer">
+            {page.fallbackLabel}
+          </a>
+          , or <a href={routes.contact}>send us a message</a> and we’ll arrange a time.
+        </p>
+      </noscript>
+
+      <p class="schedule__fallback">
+        <a href={page.calendlyUrl} target="_blank" rel="noopener noreferrer">
+          Trouble with the calendar? {page.fallbackLabel}
+        </a>
+      </p>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .schedule {
+    background: var(--surface-page);
+  }
+
+  .schedule__inner {
+    max-width: 860px;
+  }
+
+  .schedule__confirm {
+    text-align: center;
+  }
+
+  /* Blueprints Page 06 §4: "Gold Check plate". */
+  .schedule__mark {
+    display: inline-grid;
+    place-items: center;
+    width: 64px;
+    height: 64px;
+    margin-bottom: 20px;
+    border-radius: 50%;
+    background: var(--gold-50);
+    color: var(--gold-700);
+    border: 1px solid var(--gold-200);
+  }
+
+  .schedule__confirm h1 {
+    font-size: var(--text-2xl);
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+
+  .schedule__body {
+    margin: 12px auto 0;
+    max-width: 46ch;
+  }
+
+  .schedule__package {
+    margin-top: 28px;
+    padding: 18px 20px;
+    border-radius: var(--radius-md);
+    background: var(--gold-50);
+    border: 1px solid var(--gold-200);
+    line-height: 1.6;
+    color: var(--text-body);
+  }
+
+  .schedule__embed {
+    margin-top: 28px;
+    min-width: 0;
+    height: 700px;
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    border: 1px solid var(--border-subtle);
+    background: var(--surface-card);
+  }
+
+  .schedule__fallback {
+    margin-top: 12px;
+    text-align: center;
+    font-size: var(--text-sm);
+    line-height: 1.55;
+    color: var(--text-muted);
+  }
+
+  @media (max-width: 768px) {
+    .schedule__embed {
+      height: 640px;
+    }
+  }
+</style>
+
+<script>
+  // Same pattern as the booking page: Calendly's script is loaded here so it
+  // only runs on this page, and a failure leaves a usable link rather than an
+  // empty frame. Someone who has just paid must never be stranded.
+  const container = document.querySelector<HTMLElement>('.calendly-inline-widget');
+
+  if (container) {
+    const styles = document.createElement('link');
+    styles.rel = 'stylesheet';
+    styles.href = 'https://assets.calendly.com/assets/external/widget.css';
+    document.head.append(styles);
+
+    const script = document.createElement('script');
+    script.src = 'https://assets.calendly.com/assets/external/widget.js';
+    script.async = true;
+
+    script.addEventListener('load', () => {
+      const calendly = (window as unknown as { Calendly?: { initInlineWidget(o: object): void } })
+        .Calendly;
+      calendly?.initInlineWidget({ url: container.dataset.url, parentElement: container });
+    });
+
+    script.addEventListener('error', () => {
+      container.innerHTML = '';
+      container.style.display = 'grid';
+      container.style.placeItems = 'center';
+      container.style.padding = '24px';
+      container.textContent =
+        'The scheduling calendar could not load. Use the link below to book your time.';
+    });
+
+    document.head.append(script);
+  }
+</script>
