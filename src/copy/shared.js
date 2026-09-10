@@ -136,7 +136,7 @@ export const contactPanel = {
   heading: "Let's begin",
   body: "Tell us a little about where you are today, whether that's your own goals, your team, or your organization. Together we'll find the right place to begin.",
   iconRows: [
-    'Individuals welcome, whether self-referred or referred by a therapist or provider',
+    'Individuals welcome',
     'darlene@startingpointconsulting.com',
     'Organizational discovery conversations, Monday through Thursday',
   ],
@@ -164,13 +164,12 @@ export const contactPanel = {
           'Other',
         ],
       },
-      {
-        name: 'referrer',
-        label: 'Who referred you? (optional)',
-        placeholder: 'Name of your therapist, provider, or friend',
-        type: 'text',
-        required: false,
-      },
+      /* "Who referred you?" was here. Removed on Darlene's instruction,
+         10 September 2026: "We intentionally decided not to collect
+         referring-provider/person names as part of routine intake or
+         inquiry." Do not restore it. The "I am a..." options still include
+         "Therapist or provider referring a client", which is a category and
+         collects no name. */
       {
         name: 'message',
         label: 'What brings you here?',

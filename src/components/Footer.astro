@@ -28,17 +28,10 @@
  *      language (Legal Pages Index §03). The prototype's *styling* of the
  *      baseline is applied.
  *
- * The newsletter signup IS rendered, on Hadley's instruction, even though the
- * platform is still unchosen — see OPEN-QUESTIONS #29. The social icons are
- * built to the prototype but stay hidden until the profile URLs arrive
- * (Pending Items §04: omit the icon rather than link nowhere).
- *
- * The wordmark is TYPE-SET, not an image — there is no reversed (light-on-dark)
- * logo file yet (Brand Specs §01). The emblem above it is the approved emblem
- * asset, which the prototype places here at 64px.
- *
- * The full mailing address deliberately does NOT appear here (Handoff §11) —
- * it belongs on the legal pages.
+ * The newsletter signup is hidden until a platform is chosen. Darlene,
+ * 10 September 2026: "If the newsletter platform isn't selected by launch,
+ * I'd prefer the newsletter signup be hidden rather than holding up the
+ * build." Flip `pending.newsletter` when Beehiiv or Kit is picked.
  */
 import Icon from './Icon.astro';
 import NewsletterSignup from './NewsletterSignup.astro';
@@ -147,13 +140,17 @@ const legalGroups = [
       }
 
       {/* The prototype's <NewsletterSignup variant="footer" />, in the position
-          the prototype puts it. Built on Hadley's instruction, over the Pending
-          Items §01 default of hiding signup components until a platform is
-          chosen. It has no destination yet and follows the contact form's
-          pattern instead — see OPEN-QUESTIONS #29. */}
-      <div class="site-footer__newsletter">
-        <NewsletterSignup />
-      </div>
+          the prototype puts it. Hidden until a platform is chosen — Darlene,
+          10 Sept 2026: "If the newsletter platform isn't selected by launch,
+          I'd prefer the newsletter signup be hidden rather than holding up
+          the build." Flip pending.newsletter when Beehiiv or Kit is picked. */}
+      {
+        pending.newsletter && (
+          <div class="site-footer__newsletter">
+            <NewsletterSignup />
+          </div>
+        )
+      }
     </div>
 
     {

@@ -19,7 +19,7 @@ export const business = {
 
   // Handoff §01 "Approved brand language"
   positioningLine: 'Nervous System Regulation. Well-Being. Lasting Change.',
-  serviceArea: 'Based in Utah. Working virtually and on site nationwide.',
+  serviceArea: 'Based in Utah, working virtually and on site across the U.S. and internationally.',
 
   // Pending items §01 — "Settled". Contact, organizational and speaking forms.
   email: 'darlene@startingpointconsulting.com',
@@ -194,7 +194,7 @@ export const footerDocuments = [
 
 /** Blueprints Global 03, Row 3. */
 export const footerBaseline =
-  'educational and supportive, not therapy or medical care · Utah, working nationwide';
+  'educational and supportive, not therapy or medical care · Utah, working across the U.S. and internationally';
 
 /* ------------------------------------------------------------------ */
 /* Third-party URLs — Handoff §10. Paste exactly, never invent.        */
@@ -281,6 +281,35 @@ export const stripeLinks = [
     scheduling: routes.schedule60,
   },
 ];
+
+/* ------------------------------------------------------------------ */
+/* Data retention — Darlene, 10 September 2026                         */
+/* ------------------------------------------------------------------ */
+
+/**
+ * "Please make retention configurable rather than hard-coded. I am confirming
+ *  the appropriate retention period as part of my attorney/insurer review.
+ *  Until then, please do not implement automatic deletion."
+ *
+ * So: this is a SETTING, and nothing acts on it yet. There is deliberately no
+ * cron job, no database TTL, and no cleanup task anywhere in the codebase —
+ * and no DELETE policy exists on either table, so nothing could delete a row
+ * even if it tried.
+ *
+ * When her attorney confirms a period, set `intakeRetentionDays` and build the
+ * deletion path deliberately, as its own reviewed change.
+ *
+ * CSA acceptances are NOT covered by this. They are evidence that a person
+ * agreed to specific terms, and deleting them would destroy the record the
+ * whole pre-payment acceptance step exists to create.
+ */
+export const retention = {
+  /** Days to keep an intake submission. `null` = keep indefinitely, delete nothing. */
+  intakeRetentionDays: null,
+
+  /** Guard rail: automatic deletion stays off until Darlene says otherwise. */
+  automaticDeletionEnabled: false,
+};
 
 /* ------------------------------------------------------------------ */
 /* Pending inputs — Pending Items doc                                  */

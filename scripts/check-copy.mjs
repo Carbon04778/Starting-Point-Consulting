@@ -127,10 +127,12 @@ const required = [
     ['/faq'],
   ],
 
-  // Handoff §01 — service area wording, and §13 lists the places it must appear.
+  // Service area wording. Handoff §01 gave "Based in Utah. Working virtually
+  // and on site nationwide."; Darlene replaced it on 10 September 2026 with the
+  // line below, which adds international work. §13 still fixes where it appears.
   [
     'Service area line',
-    'Based in Utah. Working virtually and on site nationwide.',
+    'Based in Utah, working virtually and on site across the U.S. and internationally.',
     ['/', '/contact'],
   ],
 

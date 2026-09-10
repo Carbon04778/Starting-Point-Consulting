@@ -30,7 +30,7 @@ When two sources conflict, higher wins:
 - "For Therapists & Providers" page has no referral form. Providers just get information; the individual reaches out on their own.
 - No standalone Integration Support page. It's a section inside Individual Sessions.
 
-## Two late copy corrections from Darlene (apply exactly, do not paraphrase)
+## Late copy corrections from Darlene, round 1 (apply exactly, do not paraphrase)
 
 These came in after the Master Website Copy doc was finalized, so they override it wherever they overlap.
 
@@ -40,6 +40,49 @@ New: "Keynotes, panels, and facilitated conversations. Based in Utah and availab
 
 **FAQ page, "Do you offer in-person services and travel for events?":**
 New answer: "Yes. We offer in-person workshops, training, and speaking, and we travel for engagements, including internationally. Starting Point Consulting is based in Utah and works nationwide. For work outside the local area, reasonable travel and lodging expenses are added to the engagement proposal rather than folded into the base rate."
+
+## Darlene's decisions, round 2 — 10 September 2026 (NEWEST; overrides everything above)
+
+These came by email after every reference document and after round 1. Where
+they touch anything in `docs/reference/`, the Master Copy, or the corrections
+above, **these win.** Do not re-apply the superseded wording.
+
+**Data decisions (these close RLS proposal Decisions 2, 3 and 4):**
+
+- **CSA records** — record IP address and user agent alongside the timestamp
+  and agreement version, "provided this is handled consistently with the
+  Privacy Policy." Implemented in `csa_acceptances`.
+- **Intake access** — at launch, **Darlene only.** The `admins` table is the
+  explicit allow-list; do not widen it to "any authenticated user."
+- **Intake retention** — retention must be **configurable, not hard-coded**,
+  and **no automatic deletion may be implemented** until her attorney/insurer
+  review concludes. Do not add a cron, a TTL, or a cleanup job.
+
+**Copy corrections:**
+
+- **Homepage**, replacing the "Whether you found us on your own or were
+  referred by a therapist or provider..." sentence, exactly:
+  "You are welcome here. We offer one-to-one learning and resilience work that
+  meets you where you are, with no diagnosis or referral required."
+- **Contact form** — remove the "Who referred you?" field entirely. "We
+  intentionally decided not to collect referring-provider/person names as part
+  of routine intake or inquiry."
+- **Referral wording generally** — remove self-referred / referred phrasing
+  elsewhere "where it doesn't add anything."
+- **General location wording**, replacing "Based in Utah. Working virtually and
+  on site nationwide.":
+  "Based in Utah, working virtually and on site across the U.S. and
+  internationally."
+- **Speaking section** keeps the round-1 wording, unchanged.
+- **For Therapists & Providers** — the stale sentence about the intake asking
+  who referred a client stays **removed, with no replacement.**
+
+**Newsletter** — if the platform is not chosen by launch, the signup is
+**hidden**, not shown inert. It must not hold up the build.
+
+**Still coming from Darlene:** Toolkit PDF, Client Resources documents,
+Provider Resource, social links. The FINAL New Client Intake PDF has been sent
+and is the **only** version to build the web form from.
 
 ## Client workflow (confirmed by Darlene, build exactly this sequence)
 
