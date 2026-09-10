@@ -1,0 +1,320 @@
+---
+/**
+ * New Client Intake.
+ *
+ * Built from `docs/reference/new-client-intake-FINAL.pdf`, the FINAL version
+ * Darlene sent on 10 September 2026, via `src/copy/intake.js` where every
+ * string is held verbatim. The older HTML named in the implementation note is
+ * superseded by that PDF.
+ *
+ * WHAT THIS PAGE IS NOT:
+ *
+ *  - Not part of the purchase flow. It is emailed to a client AFTER they have
+ *    paid and scheduled. Nothing here gates an appointment — CLAUDE.md: "If
+ *    someone books and never completes intake, that's fine, the session still
+ *    happens." So there is no progress row and no mention of payment.
+ *  - Not an agreement. The implementation note: "DO NOT USE IT AS AN
+ *    AGREEMENT… Do not add a signature block or a second agreement
+ *    acceptance." The closing checkbox acknowledges the scope note, nothing
+ *    more, and the fine print says so in Darlene's own words.
+ *  - Not public. noindex, absent from every menu, reachable only by the link
+ *    in the booking confirmation email.
+ *
+ * NOTHING IS REQUIRED, deliberately. The PDF's introduction says "nothing here
+ * is required", so no field carries the attribute. The implementation note
+ * says "Content is settled; raise a question rather than editing it", so this
+ * is raised in OPEN-QUESTIONS rather than quietly overridden — the practical
+ * consequence is that a completely empty submission is possible.
+ *
+ * AFTER DEPLOYMENT: send Darlene the live URL. She inserts it into Client
+ * Email Template 02, where the placeholder reads "[intake form URL — pending
+ * developer implementation]".
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import { business, routes } from '../config/site.js';
+import { intakeHeader, intakeSections, intakeNote, intakeSuccess } from '../copy/intake.js';
+
+/* Rendered per request so ?sent and ?error can be read. A prerendered page
+   evaluates searchParams at build time, where they are always empty. */
+export const prerender = false;
+
+const submitted = Astro.url.searchParams.has('sent');
+const failed = Astro.url.searchParams.get('error') === 'not-saved';
+---
+
+<BaseLayout
+  title={`New Client Intake | ${business.name}`}
+  description="A few questions before your session."
+  noindex
+>
+  <section class="section intake">
+    <div class="container intake__inner">
+      <p class="eyebrow">{intakeHeader.eyebrow}</p>
+      <h1>{intakeHeader.heading}</h1>
+      <p class="t-lead intake__intro">{intakeHeader.intro}</p>
+
+      {
+        submitted ? (
+          /* Handoff §06: the success message replaces the form in place. */
+          <div class="form-success intake__success" role="status">
+            <span class="intake__mark" aria-hidden="true">
+              <Icon name="check" size={28} />
+            </span>
+            <h2>{intakeSuccess.heading}</h2>
+            <p>{intakeSuccess.body}</p>
+          </div>
+        ) : (
+          <form class="intake__form" method="POST" action="/api/intake">
+            {failed && (
+              <p class="intake__error" role="alert">
+                We could not save that just now. Please try again — and if it keeps happening, reply
+                to your confirmation email and we will take it from there. Nothing about your
+                session is affected.
+              </p>
+            )}
+
+            {intakeSections.map((section) => (
+              <fieldset class="intake__section">
+                <legend class="eyebrow eyebrow--sage">{section.legend}</legend>
+
+                <div class="intake__grid">
+                  {section.fields.map((field) => (
+                    <div class:list={['field', { 'field--full': field.full }]}>
+                      {field.type === 'radio' || field.type === 'checkbox' ? (
+                        /* A group of choices is a fieldset with a legend, so a
+                           screen reader announces the question before each
+                           option rather than reading six bare labels. */
+                        <fieldset class="choices">
+                          <legend class="field__label">{field.label}</legend>
+                          {field.help && <p class="field__hint">{field.help}</p>}
+                          <div class="choices__grid">
+                            {field.options.map((option, i) => (
+                              <label class="choice">
+                                <input
+                                  type={field.type}
+                                  name={field.type === 'checkbox' ? `${field.name}[]` : field.name}
+                                  value={option}
+                                  id={`${field.name}-${i}`}
+                                />
+                                <span>{option}</span>
+                              </label>
+                            ))}
+                          </div>
+                        </fieldset>
+                      ) : (
+                        <>
+                          <label class="field__label" for={field.name}>
+                            {field.label}
+                          </label>
+                          {field.help && <p class="field__hint">{field.help}</p>}
+                          {field.type === 'textarea' ? (
+                            <textarea
+                              class="field__control"
+                              id={field.name}
+                              name={field.name}
+                              rows="4"
+                            />
+                          ) : (
+                            <input
+                              class="field__control"
+                              type={field.type}
+                              id={field.name}
+                              name={field.name}
+                              autocomplete={field.autocomplete}
+                            />
+                          )}
+                        </>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </fieldset>
+            ))}
+
+            {/* Closing scope note. Protected language — Legal Pages Index §03. */}
+            <fieldset class="intake__section">
+              <legend class="eyebrow eyebrow--sage">{intakeNote.legend}</legend>
+
+              <div class="intake__note">
+                <p>{intakeNote.body}</p>
+              </div>
+
+              <div class="field field--check">
+                <input type="checkbox" id="acknowledged" name="acknowledged" value="yes" />
+                <label for="acknowledged">{intakeNote.acknowledgement}</label>
+              </div>
+
+              <p class="intake__fine">
+                Your Client Service Agreement was accepted at the time of purchase — there is
+                nothing further to sign here. Your information is handled according to our{' '}
+                <a href={routes.privacyPolicy}>Privacy Policy</a>. If coordination with a provider
+                you already work with would ever be helpful, that happens only if you ask and only
+                with your written permission.
+              </p>
+            </fieldset>
+
+            <button class="btn btn--primary intake__submit" type="submit">Send</button>
+          </form>
+        )
+      }
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .intake {
+    background: var(--surface-page);
+  }
+
+  .intake__inner {
+    max-width: 780px;
+  }
+
+  .intake__intro {
+    margin-top: 14px;
+  }
+
+  .intake__form {
+    margin-top: 36px;
+  }
+
+  .intake__section {
+    padding: 26px 28px;
+    margin-bottom: 20px;
+    background: var(--surface-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-card);
+  }
+
+  .intake__section > legend {
+    /* A legend is not a flex container by default, so the eyebrow rule needs
+       the element to lay out as one. */
+    display: flex;
+    padding: 0;
+  }
+
+  .intake__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 20px;
+  }
+
+  .field--full {
+    grid-column: 1 / -1;
+  }
+
+  /* Choice groups ------------------------------------------------------ */
+
+  .choices {
+    border: 0;
+    padding: 0;
+    margin: 0;
+  }
+
+  .choices__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 10px 20px;
+    margin-top: 10px;
+  }
+
+  .choice {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 10px;
+    align-items: start;
+    line-height: 1.45;
+    color: var(--text-body);
+    /* 44px tap target without visually spacing the options apart. */
+    padding-block: 10px;
+    margin-block: -6px;
+    cursor: pointer;
+  }
+
+  .choice input {
+    width: 20px;
+    height: 20px;
+    margin-top: 1px;
+    accent-color: var(--gold-500);
+  }
+
+  .field--check {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 10px;
+    align-items: start;
+    margin-top: 18px;
+  }
+
+  .field--check input {
+    width: 20px;
+    height: 20px;
+    margin-top: 2px;
+    accent-color: var(--gold-500);
+  }
+
+  .field--check label {
+    line-height: 1.5;
+    color: var(--text-body);
+  }
+
+  /* Scope note --------------------------------------------------------- */
+
+  .intake__note {
+    padding: 16px 18px;
+    border-radius: var(--radius-md);
+    background: var(--gold-50);
+    border-left: 3px solid var(--gold-500);
+    line-height: 1.6;
+    color: var(--text-body);
+  }
+
+  .intake__fine {
+    margin-top: 16px;
+    font-size: var(--text-sm);
+    line-height: 1.6;
+    color: var(--text-muted);
+  }
+
+  .intake__error {
+    margin-bottom: 20px;
+    padding: 14px 16px;
+    border-radius: var(--radius-md);
+    background: var(--danger-50);
+    border: 1px solid var(--danger-500);
+    line-height: 1.55;
+    color: var(--ink-800);
+  }
+
+  .intake__submit {
+    width: 100%;
+  }
+
+  /* Success ------------------------------------------------------------ */
+
+  .intake__success {
+    margin-top: 36px;
+    align-items: flex-start;
+  }
+
+  .intake__mark {
+    display: grid;
+    place-items: center;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--success-50);
+    color: var(--success-500);
+  }
+
+  @media (max-width: 640px) {
+    .intake__grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .intake__section {
+      padding: 20px;
+    }
+  }
+</style>

@@ -73,7 +73,7 @@ server-side so the page cannot be repointed.
 
 ## Private / hidden pages (4) — noindex, not in nav
 
-- [ ] New Client Intake form (post-booking, non-blocking, linked from the Calendly welcome email)
+- [x] New Client Intake form (post-booking, non-blocking, linked from the Calendly welcome email) — built from docs/reference/new-client-intake-FINAL.pdf; nothing is required, per the PDF's own intro (see OPEN-QUESTIONS)
 - [x] /schedule/60-minute-session — Master Copy §08 copy, neutral for all four 60-minute purchases
 - [x] /schedule/90-minute-session — no package language, per §08
 - [x] /schedule/leadership-session

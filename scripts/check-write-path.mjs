@@ -17,6 +17,13 @@
  * Then it confirms the same token cannot read, which is the property that
  * makes this path safer than the service-role key.
  *
+ * WHAT THIS DOES NOT PROVE. It reads .env itself, so it confirms the database
+ * accepts the credentials — not that the running app can SEE them. Astro
+ * serves .env through import.meta.env, not process.env, and this script
+ * masked that difference until an end-to-end form submission failed. If you
+ * change how src/lib/supabase-write.js reads configuration, test through a
+ * real request, not through this.
+ *
  *   node scripts/check-write-path.mjs
  */
 import { readFileSync, existsSync } from 'node:fs';

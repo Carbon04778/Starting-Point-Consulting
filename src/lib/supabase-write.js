@@ -49,11 +49,25 @@ function mintWriterToken({ secret, projectRef }) {
   return `${header}.${payload}.${signature}`;
 }
 
+/**
+ * Read one variable from either place Astro might hold it.
+ *
+ * `import.meta.env` is where Astro puts the contents of `.env`, so that is the
+ * only source that works in dev — `process.env` is empty there, which silently
+ * broke every write until an end-to-end test caught it.
+ *
+ * `process.env` is where a host puts variables configured in its dashboard, so
+ * that is the source that works on Vercel at runtime.
+ *
+ * Both are needed. Checking only one works in exactly one environment.
+ */
+const read = (name) => import.meta.env?.[name] || process.env?.[name] || '';
+
 /** Read config at call time, not import time, so a missing var fails loudly. */
 function config() {
-  const url = process.env.PUBLIC_SUPABASE_URL;
-  const anonKey = process.env.PUBLIC_SUPABASE_ANON_KEY;
-  const secret = process.env.SUPABASE_JWT_SECRET;
+  const url = read('PUBLIC_SUPABASE_URL');
+  const anonKey = read('PUBLIC_SUPABASE_ANON_KEY');
+  const secret = read('SUPABASE_JWT_SECRET');
 
   const missing = [
     !url && 'PUBLIC_SUPABASE_URL',
