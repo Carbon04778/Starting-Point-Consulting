@@ -232,10 +232,7 @@ export const stripeLinks = [
     id: 'individual-nervous-system-session',
     name: 'Individual Nervous System Session',
     price: 175,
-    // TEMPORARY — Stripe TEST MODE link for an end-to-end check on Vercel,
-    // 11 Sept 2026. REVERT THIS COMMIT BEFORE LAUNCH. Live link:
-    // https://buy.stripe.com/28E9AN4uu0th8jHgQp4ow00
-    url: 'https://buy.stripe.com/test_28E9AN4uu0th8jHgQp4ow00',
+    url: 'https://buy.stripe.com/28E9AN4uu0th8jHgQp4ow00',
     scheduling: routes.schedule60,
   },
   {
