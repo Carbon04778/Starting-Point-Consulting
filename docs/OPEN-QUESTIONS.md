@@ -105,7 +105,7 @@ Handoff §14 requires exactly one h1 per page. Two pages had none:
 ### 9. Buttons with no destination — omitted, not invented — H
 
 - **"Read the full story"** (Master Copy §12, About). On the About page it would link to itself. No other destination is given. Omitted.
-- **"Speaker kit"** (Blueprints Page 03, Speaking hero). The Speaker Kit file is not in `assets/`. Omitted rather than shipping a button that downloads nothing.
+- **"Speaker kit"** (Blueprints Page 03, Speaking hero). ~~The Speaker Kit file is not in `assets/`. Omitted rather than shipping a button that downloads nothing.~~ **Built 10 Sept 2026** from the September package — but see #37, the kit is not final.
 - **Feature card "link through to Speaking"** (Blueprints Page 02 §3). The card is about Integration Support, so a Speaking link doesn't follow, and Master Copy §03 gives it no button. Omitted. See #10.
 
 ### 10. Blueprints mislabels the feature card — H
@@ -170,13 +170,17 @@ the business, but Darlene has not seen it.
 source, and Handoff §11 requires the mailing address on legal pages. All 22
 other substantive paragraphs are identical.
 
-### 17. Client Resources is effectively blocked — H
+### 17. Client Resources is still blocked, but less so — H
 
-Master Copy §14 lists eight documents. **None are in `assets/`** — Provider
-Resource, Start Where You Are, Speaker Kit, the one-pagers, the intake HTML,
-the Toolkit. Handoff §15 places them in a `06 DOWNLOADABLE RESOURCES` folder
-that did not come across in this handoff. Building the page now means eight
-dead links.
+Master Copy §14 lists eight documents. ~~None are in `assets/`~~ **Update, 10
+Sept 2026:** the "DOWNLOADABLE RESOURCES - CURRENT - September 2026" package
+supplied three of them — Provider Resource, Speaker Kit, Overview One-Pager —
+now exported to PDF in `assets/downloadable-resources/`. Its DISTRIBUTION
+STATUS also clears the *Program One-Pager* for public download but the file
+is **not in the package**. Still missing: Program One-Pager, the intake HTML
+(now a web form, see #10 note), the Toolkit. *Start Where You Are* is a
+client resource and will **never** be on this page. Building the page now
+still means dead links, so it stays unbuilt.
 
 Master Copy §14 also still lists two **retired** items — "Referral One-Pager"
 and "For Referring Professionals" — replaced by the Provider Resource and "For
@@ -538,6 +542,64 @@ Two things worth knowing:
 
 One of the five proposed slugs from #2. The page is built at `/booking`;
 changing it is a filename and one line in `routes`.
+
+## Raised placing the September 2026 Downloadable Resources
+
+### 37. The Speaker Kit is live with placeholders in it — H, then D
+
+Hadley's instruction (10 Sept 2026): *"Use it as the current version for now.
+A finalized Speaker Kit will be provided separately once the remaining
+placeholders are completed."* Built as instructed — the "Speaker kit" button
+on the Speaking hero opens `starting-point-speaker-kit.pdf` in a new tab.
+
+**What a visitor sees in that PDF today:**
+
+- **"[Speaker Name], RN, BSN, MBA"** — a bracketed placeholder, and the
+  credential order contradicts the same-day instruction to use *"Darlene
+  Erich, MBA, BSN, RN"* everywhere. The site itself is consistent; the PDF is
+  the only public-facing place the old order survives.
+- "HEADSHOT HERE" and a "SPEAKER PHOTO · PLACEHOLDER" frame.
+- A **draft testimonial** attributed to *"[ADD A REAL TESTIMONIAL FROM A PAST
+  EVENT]"*. Pending Items forbids publishing any testimonial without a signed
+  release; this one is invented.
+- A yellow **"Draft for review"** callout addressed to Darlene.
+
+**Recommendation:** hide the button until the finalised kit arrives. It is one
+line — set `downloads.speakerKit` to `null` in `src/config/site.js`. The rest
+of the wiring stays. When the final HTML lands, drop it into
+`docs/reference/downloadable-resources/`, run `npm run export:resources`, and
+set the value back.
+
+### 38. Start Where You Are QR code — nothing to build on the site — H
+
+The QR code lives on the *Start Where You Are* handout, which is Darlene's
+direct-to-client document and not part of the website. The website has no QR
+element and needs none. Darlene will generate the code against the permanent
+`startingpointconsulting.com` URL once it is live; the only site-side
+requirement is that the permanent URL is final before she does.
+
+## Raised after the Stripe redirects went live
+
+### 39. Should the post-payment scheduling pages expire? — D, asked 11 Sept 2026
+
+The three `/schedule/*` pages are unlisted and `noindex`, but a client who
+bookmarks one after paying can return and book again without paying, or
+forward the link. **This is the design Handoff §10 chose**: package clients
+"reuse the same private Calendly event link" for sessions 2–4, and there is to
+be "no membership system, login, or client portal." The safeguard is the `?p=`
+product tag every redirect adds to the Calendly booking, which Darlene
+cross-checks against Stripe.
+
+A real lock-down needs both halves: verify `{CHECKOUT_SESSION_ID}` with
+Stripe server-side and record it as redeemed in Supabase, **and** issue
+one-time Calendly links via the Calendly API — otherwise the permanent
+Calendly URL inside the page is still reusable. That also changes how package
+clients book their remaining sessions.
+
+Hadley put three options to Darlene on 11 Sept 2026: (1) launch as designed,
+recommended; (2) lock down before launch; (3) lock down after launch.
+**Awaiting her answer.** Options 2 and 3 are a new data structure and need a
+plan approved first (rule 5).
 
 ---
 

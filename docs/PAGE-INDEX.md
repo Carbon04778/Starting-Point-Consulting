@@ -18,7 +18,7 @@ a human looking at them.
 - [x] Home
 - [x] Services (overview, "How We Partner")
 - [x] Individual Sessions — "Ways to Work Together" (pricing/session cards live here, not on a separate Pricing page) — the seven purchase CTAs reach `/checkout/<id>`, now built
-- [x] Speaking (includes the corrected "nationally and internationally" line) — Speaker Kit button omitted, the file is not in `assets/`
+- [~] Speaking (includes the corrected "nationally and internationally" line) — "Speaker kit" button opens the September 2026 kit PDF; that kit still carries placeholders, see OPEN-QUESTIONS #37
 - [x] Booking (public — Organizational Discovery Conversation only, 30 min, no payment) — Calendly embed, not a rebuilt calendar; see OPEN-QUESTIONS #35
 - [ ] Starting Points (articles index)
 - [ ] Article template (single template, reused per post published through the admin CMS)
@@ -26,8 +26,8 @@ a human looking at them.
 - [x] About — testimonials hidden until signed releases are confirmed
 - [x] Our Approach
 - [x] FAQ (includes the corrected "including internationally" line) — 16 questions, not 18; see OPEN-QUESTIONS.md
-- [ ] Client Resources — blocked, none of the eight linked documents are in `assets/`
-- [~] For Therapists & Providers (no referral form, per known mockup gap) — one approved paragraph about the intake is withheld as factually stale; needs Darlene, see OPEN-QUESTIONS #33
+- [ ] Client Resources — still blocked; three of the linked documents now exist as PDFs (Provider Resource, Speaker Kit, Overview One-Pager), the rest do not, see OPEN-QUESTIONS #17
+- [~] For Therapists & Providers (no referral form, per known mockup gap) — "View the Provider Resource" opens the public PDF; one approved paragraph about the intake is withheld as factually stale; needs Darlene, see OPEN-QUESTIONS #33
 - [~] Contact — the form validates and shows the approved success state, but is not yet wired to an inbox
 
 **Note on the corrected travel line.** This index puts it on the Speaking page.

@@ -13,13 +13,14 @@
  * Every CTA routes to the Organizational Discovery Conversation. There is no
  * separate speaking Calendly event and none should be created (Handoff §10).
  *
- * The "Speaker kit" secondary button from Blueprints Page 03 §1 is NOT built:
- * the Speaker Kit file is not in assets/, and Pending Items forbids shipping a
- * button that downloads nothing. See docs/OPEN-QUESTIONS.md.
+ * The "Speaker kit" secondary button (Blueprints Page 03 §1, Master Copy §05)
+ * opens the PDF from the September 2026 Downloadable Resources package in a
+ * new tab. That kit is the current version but not the final one; the button
+ * disappears if `downloads.speakerKit` is set to null. See OPEN-QUESTIONS.
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Icon from '../components/Icon.astro';
-import { business, calendly, pending } from '../config/site.js';
+import { business, calendly, downloads, pending } from '../config/site.js';
 import { boundarySentence } from '../copy/shared.js';
 
 /* Master Copy §05 — "Signature talks".
@@ -94,6 +95,18 @@ const audiences = [
           >
             Start a conversation
           </a>
+          {
+            downloads.speakerKit && (
+              <a
+                class="btn btn--secondary"
+                href={downloads.speakerKit}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Speaker kit
+              </a>
+            )
+          }
         </div>
       </div>
 

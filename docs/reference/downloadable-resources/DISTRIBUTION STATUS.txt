@@ -1,0 +1,38 @@
+DISTRIBUTION STATUS - DOWNLOADABLE RESOURCES
+Starting Point Consulting - September 2026
+
+Every document in this folder is CURRENT and APPROVED as a document.
+Distribution decisions are now FINAL for all resources included here.
+
+CLEARED FOR PUBLIC DOWNLOAD
+  Starting Point - Overview One-Pager.html
+  Starting Point - Program One-Pager - Regulate and Recharge.html
+  Starting Point - Speaker Kit.html
+  Starting Point - Provider Resource.html
+
+  Provider Resource implementation: make this available as a public PDF
+  download from the For Therapists & Providers page.
+
+CLIENT RESOURCE - DO NOT PUBLISH AS A PUBLIC DOWNLOAD
+  Starting Point - Start Where You Are - client handout.html
+
+  Start Where You Are will be provided directly to clients by Darlene as
+  appropriate. Do not add a public download button, request form, or CTA
+  for this resource.
+
+NOT IN THIS PACKAGE
+  The retired Referral One-Pager (superseded by the Provider Resource),
+  the retired Proposal & Pricing Sheet, older Overview One-Pager
+  versions, the Internal Pricing Guide, and the internal intake forms,
+  email templates, certificate, and organizational proposal template.
+  None of those are website build inputs.
+
+  The Everyday Regulation Toolkit PDF is pending and may not launch
+  with the site. If it does not, remove the download prompts entirely -
+  no placeholder download.
+
+FORMAT NOTE
+These are HTML documents that print cleanly to PDF. Export each resource
+that is cleared for public download to PDF before publishing it on the
+website. Start Where You Are remains a direct-to-client resource and
+should not be published publicly.

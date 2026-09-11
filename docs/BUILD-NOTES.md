@@ -58,6 +58,18 @@ filenames, which Handoff §17 explicitly calls for ("Image filenames renamed
 before upload"). `public/assets/MANIFEST.txt` maps every served URL back to its
 source filename, and `public/assets/` is gitignored because it is generated.
 
+**One exception to "never edited": `assets/downloadable-resources/`.** The
+client delivers the downloadable resources as JS-rendered HTML documents
+(the "DOWNLOADABLE RESOURCES - CURRENT - September 2026" package, kept
+verbatim with its DISTRIBUTION STATUS in `docs/reference/downloadable-resources/`),
+and its own instructions say to export each publicly cleared document to PDF
+before publishing. `npm run export:resources` does that with headless Chrome
+and writes the PDFs into `assets/downloadable-resources/`, from where
+`sync:assets` serves them. The PDFs are committed so the Vercel build never
+needs a browser. Only the documents cleared for public download are exported;
+*Start Where You Are* is a direct-to-client handout and is never exported,
+served, or linked. Served URLs live in `downloads` in `src/config/site.js`.
+
 ## Design tokens
 
 `src/styles/global.css` imports the four files in `docs/tokens/` directly

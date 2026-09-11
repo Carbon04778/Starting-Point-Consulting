@@ -340,8 +340,35 @@ export const pending = {
   heroPhoto: null,
   /** Speaking photograph not supplied. */
   speakingPhoto: null,
-  /** Provider Resource / Speaker Kit / one-pagers not present in assets/. */
+  /**
+   * Client Resources page needs the full Master Copy §14 document set. Three
+   * of them arrived in the September 2026 package (see `downloads`); the
+   * intake HTML, the Toolkit and the Program One-Pager have not.
+   */
   clientResourceDocuments: false,
+};
+
+/**
+ * Public PDF downloads — the "DOWNLOADABLE RESOURCES - CURRENT - September
+ * 2026" package, DISTRIBUTION STATUS.txt: "CLEARED FOR PUBLIC DOWNLOAD".
+ * Exported from the client's HTML by `npm run export:resources`, served by
+ * `npm run sync:assets`. Every download opens in a new tab (Handoff §06).
+ *
+ * "Start Where You Are" is deliberately absent: it is a client resource given
+ * directly by Darlene, never a public download, request form, or CTA.
+ */
+export const downloads = {
+  /** For Therapists & Providers hero, "View the Provider Resource". */
+  providerResource: '/assets/downloadable-resources/starting-point-provider-resource.pdf',
+  /**
+   * Speaking hero, "Speaker kit". The package version is the current one
+   * (Hadley, 10 Sept 2026) but still carries placeholders — "[Speaker Name]",
+   * a headshot frame, and a draft testimonial. Set to null to hide the button
+   * until the finalised kit replaces it. See docs/OPEN-QUESTIONS.md.
+   */
+  speakerKit: '/assets/downloadable-resources/starting-point-speaker-kit.pdf',
+  /** Not placed on any built page yet — Client Resources, when it exists. */
+  overviewOnePager: '/assets/downloadable-resources/starting-point-overview-one-pager.pdf',
 };
 
 /** True when at least one social profile URL exists (Pending Items §04). */

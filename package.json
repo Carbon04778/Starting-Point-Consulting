@@ -11,6 +11,7 @@
     "build": "npm run sync:assets && astro build",
     "preview": "astro preview",
     "sync:assets": "node scripts/sync-assets.mjs",
+    "export:resources": "node scripts/export-resources.mjs",
     "check": "astro check",
     "check:links": "node scripts/check-links.mjs",
     "qa": "node scripts/qa.mjs",

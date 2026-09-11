@@ -12,9 +12,10 @@
  *
  * THREE THINGS DIVERGE FROM A SOURCE, each recorded in OPEN-QUESTIONS:
  *
- *  1. "View the Provider Resource" (Blueprints §1, prototype) is NOT built. The
- *     PDF is not in assets/ — Pending Items, and the established pattern of
- *     omitting a button rather than pointing it at nothing (#9).
+ *  1. (Resolved 10 Sept 2026.) "View the Provider Resource" is built: the
+ *     Provider Resource arrived in the September 2026 Downloadable Resources
+ *     package, cleared for public download from this page. It is a plain PDF
+ *     link — no referral form, request form, or gate of any kind.
  *  2. The section 4 heading is Blueprints' and the prototype's "When another
  *     kind of support fits better", not Master Copy's "When to refer
  *     elsewhere". Blueprints outrank Master Copy, and the two higher sources
@@ -28,7 +29,7 @@
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Icon from '../components/Icon.astro';
-import { business, routes } from '../config/site.js';
+import { business, downloads, routes } from '../config/site.js';
 import { credentialBadges } from '../copy/shared.js';
 
 /* Master Copy §15 "Scope of practice". */
@@ -117,7 +118,15 @@ const steps = [
       </p>
       <div class="button-row providers-hero__actions">
         <a class="btn btn--primary btn--lg" href={routes.contact}>Ask a question first</a>
-        {/* "View the Provider Resource" is omitted until the PDF exists. */}
+        {/* Blueprints Page 14 §1: secondary, opens the PDF. New tab per Handoff §06. */}
+        <a
+          class="btn btn--secondary btn--lg"
+          href={downloads.providerResource}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          View the Provider Resource
+        </a>
       </div>
     </div>
   </section>
