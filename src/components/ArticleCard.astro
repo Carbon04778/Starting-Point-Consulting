@@ -1,0 +1,146 @@
+---
+/**
+ * One card in the Starting Points grid, and in an article's "Keep reading".
+ *
+ * Built to the prototype's Resources.jsx grid card: 16:10 image, category ·
+ * read time, H3 title, italic serif summary. The whole card is one link, so
+ * there is a single tab stop per article.
+ *
+ * Image: the article's lead image when it has one; otherwise the prototype's
+ * brand-colour treatment for that category (toneFor: Leadership/Healthcare
+ * → ink, Resilience/For Individuals → sage, Nervous System → gold). That is
+ * the approved editorial placeholder, not stock imagery (Pending Items §03).
+ */
+import { mediaUrl } from '../lib/supabase.js';
+
+interface Props {
+  article: {
+    slug: string;
+    title: string;
+    category: string;
+    summary?: string;
+    read_minutes: number;
+    lead_image_path?: string | null;
+    lead_image_alt?: string | null;
+  };
+  /** "Keep reading" cards omit the summary (Article.jsx). */
+  compact?: boolean;
+}
+
+const { article, compact = false } = Astro.props;
+
+const tone =
+  article.category === 'Leadership' || article.category === 'Healthcare'
+    ? 'ink'
+    : article.category === 'Resilience' || article.category === 'For Individuals'
+      ? 'sage'
+      : 'gold';
+
+const src = mediaUrl(article.lead_image_path ?? null);
+---
+
+<a class="article-card" href={`/starting-points/${article.slug}`}>
+  {
+    src ? (
+      <img class="article-card__img" src={src} alt={article.lead_image_alt ?? ''} loading="lazy" decoding="async" />
+    ) : (
+      <span class={`article-card__img article-card__img--${tone}`} aria-hidden="true" />
+    )
+  }
+  <span class="article-card__meta">
+    <span class="article-card__tag">{article.category}</span>
+    <span class="article-card__read">· {article.read_minutes} min</span>
+  </span>
+  <h3 class="article-card__title">{article.title}</h3>
+  {!compact && article.summary && <p class="article-card__summary">{article.summary}</p>}
+</a>
+
+<style>
+  .article-card {
+    display: flex;
+    flex-direction: column;
+    color: inherit;
+    text-decoration: none;
+    border-radius: var(--radius-lg);
+  }
+
+  .article-card:hover,
+  .article-card:focus-visible {
+    text-decoration: none;
+  }
+
+  .article-card:hover .article-card__title {
+    color: var(--gold-700);
+  }
+
+  .article-card__img {
+    display: block;
+    aspect-ratio: 16 / 10;
+    width: 100%;
+    border-radius: var(--radius-lg);
+    margin-bottom: 16px;
+    object-fit: cover;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Resources.jsx cardImg(): the three tone gradients, with its gold radial. */
+  .article-card__img--gold {
+    background:
+      radial-gradient(circle at 85% 10%, rgba(222, 175, 80, 0.28), transparent 55%),
+      linear-gradient(150deg, var(--gold-200), var(--gold-500));
+  }
+  .article-card__img--sage {
+    background:
+      radial-gradient(circle at 85% 10%, rgba(222, 175, 80, 0.28), transparent 55%),
+      linear-gradient(150deg, var(--sage-200), var(--sage-500));
+  }
+  .article-card__img--ink {
+    background:
+      radial-gradient(circle at 85% 10%, rgba(222, 175, 80, 0.28), transparent 55%),
+      linear-gradient(150deg, var(--ink-400), var(--ink-700));
+  }
+
+  .article-card__meta {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .article-card__tag {
+    font-family: var(--font-display);
+    font-size: var(--text-2xs);
+    font-weight: var(--fw-semibold);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--gold-700);
+  }
+
+  .article-card__read {
+    font-family: var(--font-body);
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+  }
+
+  .article-card__title {
+    font-size: var(--text-lg);
+    line-height: 1.2;
+    margin: 0 0 8px;
+    transition: color var(--t-fast) var(--ease-out);
+  }
+
+  .article-card--compact .article-card__title,
+  .article-card__title:last-child {
+    margin-bottom: 0;
+  }
+
+  .article-card__summary {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: var(--text-base);
+    line-height: 1.6;
+    color: var(--sage-700);
+    margin: 0;
+  }
+</style>

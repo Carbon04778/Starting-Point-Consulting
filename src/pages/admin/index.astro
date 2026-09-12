@@ -1,0 +1,109 @@
+---
+/**
+ * Admin dashboard — screen 2 of the private admin area. Panel 1: articles.
+ *
+ * Lists every article, draft or published, newest-edited first. Everything
+ * else (photos, intake, acceptances) is one click away in the bar.
+ *
+ * Reads through `locals.supabase`, the client bound to Darlene's session, so
+ * RLS shows drafts here and hides them everywhere else.
+ */
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { formatDate } from '../../lib/articles.js';
+
+export const prerender = false;
+
+const { supabase, admin } = Astro.locals;
+
+const { data: articles, error } = await supabase
+  .from('articles')
+  .select('id, slug, title, category, status, read_minutes, published_at, updated_at')
+  .order('updated_at', { ascending: false });
+
+const flash = Astro.url.searchParams.get('done');
+const notices = {
+  saved: 'Draft saved.',
+  published: 'Published. It is live on Starting Points now.',
+  unpublished: 'Unpublished. It is no longer visible on the site.',
+  deleted: 'Article deleted.',
+};
+---
+
+<AdminLayout title="Articles" section="articles" adminEmail={admin.email}>
+  <div class="admin-head">
+    <div>
+      <h1>Articles</h1>
+      <p>
+        Drafts are visible only here. Publishing puts an article on Starting Points immediately;
+        unpublishing removes it just as fast.
+      </p>
+    </div>
+    <a class="btn btn--primary" href="/admin/articles/new">New article</a>
+  </div>
+
+  {flash && notices[flash] && <p class="admin-notice admin-notice--ok" role="status">{notices[flash]}</p>}
+  {error && <p class="admin-notice admin-notice--error" role="alert">Could not load articles: {error.message}</p>}
+
+  {
+    articles && articles.length > 0 ? (
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th scope="col">Title</th>
+              <th scope="col">Category</th>
+              <th scope="col">Status</th>
+              <th scope="col">Published</th>
+              <th scope="col">Last edited</th>
+              <th scope="col"><span class="sr-only">Actions</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            {articles.map((a) => (
+              <tr>
+                <td>
+                  <a href={`/admin/articles/${a.id}`}>
+                    <strong>{a.title}</strong>
+                  </a>
+                  <div class="slug">/starting-points/{a.slug}</div>
+                </td>
+                <td>{a.category}</td>
+                <td>
+                  <span class={`status-pill status-pill--${a.status}`}>{a.status}</span>
+                </td>
+                <td>{a.status === 'published' ? formatDate(a.published_at) : '—'}</td>
+                <td>{formatDate(a.updated_at)}</td>
+                <td class="actions">
+                  <a href={`/admin/articles/${a.id}`}>Edit</a>
+                  {a.status === 'published' && (
+                    <a href={`/starting-points/${a.slug}`} target="_blank" rel="noopener">
+                      View
+                    </a>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    ) : (
+      !error && <p class="admin-card">No articles yet. Start with “New article”.</p>
+    )
+  }
+</AdminLayout>
+
+<style>
+  .slug {
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  .actions {
+    white-space: nowrap;
+  }
+
+  .actions a + a {
+    margin-left: 12px;
+  }
+</style>

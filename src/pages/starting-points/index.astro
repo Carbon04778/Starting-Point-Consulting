@@ -1,0 +1,283 @@
+---
+/**
+ * Starting Points — the articles index.
+ *
+ * Structure: Blueprints Page 07 (header + filter row, featured article,
+ * three-column grid, newsletter band, empty state). Copy: Master Copy §09.
+ * Metadata: Handoff §13, verbatim.
+ *
+ * RENDERED PER REQUEST, not at build: CLAUDE.md says the admin CMS "publishes
+ * immediately", so this page reads the database on every visit (cached for a
+ * minute at the edge) rather than waiting for a deploy.
+ *
+ * Filters work without JavaScript: each chip is a link carrying ?topic=, and
+ * the server does the filtering. The featured card is always the newest
+ * published article, as in the prototype; the filter applies to the grid.
+ *
+ * What is deliberately NOT here yet:
+ *   - The Everyday Regulation Toolkit "Download" card — the PDF has not
+ *     arrived (pending.toolkitPdf), and Pending Items says hide, never
+ *     placeholder. The Free Guide page must exist before that flag flips.
+ *   - The newsletter band (Blueprints §4) — no platform chosen
+ *     (pending.newsletter). Darlene's round-2 decision: hidden, not inert.
+ *     The band variant is built when the platform is picked.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ArticleCard from '../../components/ArticleCard.astro';
+import Icon from '../../components/Icon.astro';
+import { FILTERS, categoryFromFilter, listPublished } from '../../lib/articles.js';
+import { mediaUrl } from '../../lib/supabase.js';
+
+export const prerender = false;
+
+const topic = Astro.url.searchParams.get('topic') ?? '';
+const category = categoryFromFilter(topic);
+
+// An unknown ?topic= is treated as "All" rather than a 404 — it is a filter,
+// not a resource.
+// If the database cannot be reached, a visitor sees the approved empty state
+// rather than an error page; the cause is logged where Hadley can see it.
+let all = [];
+try {
+  all = await listPublished();
+} catch (error) {
+  console.error('[starting-points]', error);
+}
+const featured = all[0] ?? null;
+const rest = all.slice(1);
+const visible = category ? rest.filter((a) => a.category === category) : rest;
+
+const featuredSrc = featured ? mediaUrl(featured.lead_image_path) : null;
+
+Astro.response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
+---
+
+<BaseLayout
+  title="Starting Points | Nervous System Education & Reflections"
+  description="Practical, science-informed writing on stress, resilience, leadership, and the everyday work of caring for ourselves and one another."
+>
+  {/* 1 · Header */}
+  <section class="section section--hero section--cream">
+    <div class="container">
+      <p class="eyebrow">Starting Points</p>
+      <h1>Tools, reflections &amp; ideas for lasting change.</h1>
+      <p class="t-lead sp__lead">
+        Practical, science-informed writing on regulation, resilience, leadership, and well-being,
+        translated into tools you can use in everyday life.
+      </p>
+    </div>
+  </section>
+
+  {/* 2 · Featured article — the newest published post */}
+  {
+    featured && (
+      <section class="section sp__featured-section">
+        <div class="container">
+          <a class="sp-featured" href={`/starting-points/${featured.slug}`}>
+            {featuredSrc ? (
+              <img class="sp-featured__img" src={featuredSrc} alt={featured.lead_image_alt ?? ''} decoding="async" />
+            ) : (
+              <span class="sp-featured__img sp-featured__img--tone" aria-hidden="true" />
+            )}
+            <span class="sp-featured__body">
+              <span class="sp-featured__meta">
+                <span class="sp-featured__badge">Featured</span>
+                <span class="sp-featured__kicker">
+                  {featured.category} · {featured.read_minutes} min read
+                </span>
+              </span>
+              <h2 class="sp-featured__title">{featured.title}</h2>
+              {featured.summary && <p class="sp-featured__summary">{featured.summary}</p>}
+              <span class="sp-featured__cta">
+                Read article <Icon name="arrow-right" size={17} />
+              </span>
+            </span>
+          </a>
+        </div>
+      </section>
+    )
+  }
+
+  {/* 1b + 3 · Filter row and article grid */}
+  <section class={`section ${featured ? 'sp__grid-section' : ''}`}>
+    <div class="container">
+      <nav class="chip-row sp__filters" aria-label="Filter articles by topic">
+        {
+          FILTERS.map((f) => (
+            <a
+              class="chip"
+              href={f.value ? `/starting-points?topic=${f.value}` : '/starting-points'}
+              aria-current={f.value === topic || (!f.value && !category) ? 'true' : undefined}
+            >
+              {f.label}
+            </a>
+          ))
+        }
+      </nav>
+
+      {
+        visible.length > 0 ? (
+          <div class="grid grid--3 sp__grid">
+            {visible.map((article) => (
+              <ArticleCard article={article} />
+            ))}
+          </div>
+        ) : (
+          /* Blueprints §5 / Master Copy §09 empty state, verbatim. Also what the
+             page shows before the first article is published. */
+          <p class="sp__empty">More on this topic coming soon.</p>
+        )
+      }
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .sp__lead {
+    margin-top: 20px;
+  }
+
+  .sp__featured-section {
+    padding-bottom: 28px;
+  }
+
+  .sp__grid-section {
+    border-top: 0;
+    padding-top: 28px;
+  }
+
+  /* Featured — Resources.jsx: 1.1fr / 0.9fr, surface-raised, 28px radius. */
+  .sp-featured {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 36px;
+    align-items: center;
+    background: var(--surface-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    color: inherit;
+    text-decoration: none;
+    transition:
+      border-color var(--t-base) var(--ease-out),
+      box-shadow var(--t-base) var(--ease-out);
+  }
+
+  .sp-featured:hover,
+  .sp-featured:focus-visible {
+    text-decoration: none;
+    border-color: var(--border-accent);
+    box-shadow: var(--shadow-card-hover);
+  }
+
+  .sp-featured__img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 11;
+    object-fit: cover;
+  }
+
+  .sp-featured__img--tone {
+    background:
+      radial-gradient(circle at 90% 5%, rgba(255, 255, 255, 0.35), transparent 60%),
+      linear-gradient(150deg, var(--gold-200), var(--gold-500) 70%, var(--gold-700));
+  }
+
+  .sp-featured__body {
+    display: block;
+    padding: 40px 44px 40px 8px;
+  }
+
+  .sp-featured__meta {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 14px;
+  }
+
+  .sp-featured__badge {
+    display: inline-flex;
+    padding: 4px 10px;
+    border-radius: var(--radius-pill);
+    background: var(--gold-50);
+    color: var(--gold-700);
+    font-family: var(--font-display);
+    font-size: var(--text-xs);
+    font-weight: var(--fw-semibold);
+  }
+
+  .sp-featured__kicker {
+    font-family: var(--font-display);
+    font-size: var(--text-xs);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .sp-featured__title {
+    font-size: var(--text-2xl);
+    line-height: 1.15;
+    margin: 0 0 12px;
+  }
+
+  .sp-featured__summary {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: var(--text-md);
+    line-height: 1.55;
+    color: var(--sage-700);
+    margin: 0 0 20px;
+  }
+
+  .sp-featured__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-display);
+    font-weight: var(--fw-medium);
+    color: var(--gold-700);
+  }
+
+  .sp__filters {
+    margin-bottom: 32px;
+  }
+
+  .sp__empty {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 40px 0;
+    margin: 0;
+  }
+
+  @media (max-width: 900px) {
+    .sp-featured {
+      grid-template-columns: 1fr;
+      gap: 0;
+    }
+
+    .sp-featured__body {
+      padding: 28px 28px 32px;
+    }
+  }
+
+  /* Blueprints Page 07 mobile: chips scroll horizontally with no scrollbar. */
+  @media (max-width: 640px) {
+    .sp__filters {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      scrollbar-width: none;
+      margin-inline: calc(-1 * var(--gutter-mobile));
+      padding-inline: var(--gutter-mobile);
+    }
+
+    .sp__filters::-webkit-scrollbar {
+      display: none;
+    }
+
+    .sp__filters .chip {
+      flex: none;
+    }
+
+  }
+</style>

@@ -126,10 +126,85 @@ await attemptForge('intake_submissions', {
   email: 'rls-test@example.invalid',
 });
 
+/* ------------------------------------------------------------------ */
+/* Migration 0002 — articles, site_photos, site-media                  */
+/* ------------------------------------------------------------------ */
+// These are PUBLIC-READ by design, so the tests differ: anon must be able to
+// read, must see NO drafts, and must not be able to write anything at all.
+
+console.log('\nCMS tables — public may read, never write, never see a draft\n');
+
+async function expectRead(table, query, label) {
+  const res = await fetch(`${URL_BASE}/rest/v1/${table}?${query}`, { headers });
+  const text = await res.text();
+  if (!res.ok) {
+    let code = '';
+    try {
+      code = JSON.parse(text).code ?? '';
+    } catch {
+      /* ignore */
+    }
+    // A missing table means 0002 has not been applied yet. Say so; neither a
+    // pass nor a leak.
+    if (code === 'PGRST205' || res.status === 404) {
+      console.log(`  SKIPPED  ${label.padEnd(46)} table not found — apply supabase/migrations/0002_articles_and_photos.sql`);
+      return null;
+    }
+    failures++;
+    console.log(`  BROKEN   ${label.padEnd(46)} HTTP ${res.status} ${code} — the public read should work`);
+    return null;
+  }
+  return JSON.parse(text);
+}
+
+const published = await expectRead('articles', 'select=status&limit=200', 'anon reads articles');
+if (published) {
+  const drafts = published.filter((r) => r.status !== 'published').length;
+  report(
+    drafts === 0,
+    'anon sees no drafts',
+    drafts ? `${drafts} DRAFT ROW(S) VISIBLE` : `${published.length} published row(s), 0 drafts`,
+  );
+
+  // Ask for drafts by name. Under the policy this is an empty array.
+  const asked = await expectRead('articles', 'select=id&status=eq.draft', 'anon asks for drafts explicitly');
+  if (asked) report(asked.length === 0, 'anon asks for drafts explicitly', asked.length ? `${asked.length} RETURNED` : 'empty');
+
+  await attemptForge('articles', {
+    slug: 'rls-test-should-never-be-written',
+    title: 'RLS test',
+    category: 'Resilience',
+    status: 'published',
+  });
+
+  const patch = await fetch(`${URL_BASE}/rest/v1/articles?status=eq.published`, {
+    method: 'PATCH',
+    headers: { ...headers, Prefer: 'return=minimal' },
+    body: JSON.stringify({ title: 'RLS test — should never be written' }),
+  });
+  report(!patch.ok, 'anon edits a published article', `HTTP ${patch.status}`);
+
+  const del = await fetch(`${URL_BASE}/rest/v1/articles?status=eq.published`, { method: 'DELETE', headers });
+  report(!del.ok, 'anon deletes articles', `HTTP ${del.status}`);
+}
+
+const slots = await expectRead('site_photos', 'select=slot', 'anon reads site_photos');
+if (slots) {
+  await attemptForge('site_photos', { slot: 'home-hero', storage_path: 'rls-test', alt: 'rls-test' });
+}
+
+// Storage: anon may not put anything into the bucket.
+const upload = await fetch(`${URL_BASE}/storage/v1/object/site-media/rls-test/should-never-exist.png`, {
+  method: 'POST',
+  headers: { apikey: ANON, Authorization: `Bearer ${ANON}`, 'Content-Type': 'image/png' },
+  body: new Uint8Array([137, 80, 78, 71]),
+});
+report(!upload.ok, 'anon uploads to site-media', `HTTP ${upload.status}`);
+
 console.log(
   failures
-    ? `\n${failures} EXPOSURE(S). Do not ship. Re-check supabase/migrations/0001_initial_schema.sql.`
-    : '\nEvery attempt blocked. The public key cannot read or write these tables.',
+    ? `\n${failures} EXPOSURE(S). Do not ship. Re-check supabase/migrations/.`
+    : '\nEvery attempt blocked. The public key cannot write anywhere and cannot read anything private.',
 );
 
 process.exit(failures ? 1 : 0);

@@ -336,10 +336,12 @@ export const pending = {
   toolkitPdf: null,
   /** No signed Testimonial & Media Release confirmed on file yet. */
   testimonials: false,
-  /** Homepage hero photograph not supplied — brand-colour treatment stands in. */
-  heroPhoto: null,
-  /** Speaking photograph not supplied. */
-  speakingPhoto: null,
+  /*
+   * The homepage hero, Speaking, and Our Approach photographs are no longer
+   * flags here. They are the three `site_photos` slots Darlene fills from the
+   * admin dashboard (src/lib/photos.js); each page keeps its approved stand-in
+   * until its slot has a photo.
+   */
   /**
    * Client Resources page needs the full Master Copy §14 document set. Three
    * of them arrived in the September 2026 package (see `downloads`); the

@@ -11,7 +11,11 @@
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Icon from '../components/Icon.astro';
-import { routes, pending } from '../config/site.js';
+import { routes } from '../config/site.js';
+import { loadSlot } from '../lib/photos.js';
+
+/* Image Map APR-01 — read from the site_photos slot at build time. */
+const supportingPhoto = await loadSlot('our-approach');
 
 /* Master Copy §04 — "What grounds the work". */
 const grounding = [
@@ -77,8 +81,8 @@ const grounding = [
   <section class="section section--cream">
     <div class="container">
       {
-        pending.heroPhoto ? (
-          <img class="photo" src={pending.heroPhoto} alt="" />
+        supportingPhoto ? (
+          <img class="photo" src={supportingPhoto.src} alt={supportingPhoto.alt} decoding="async" />
         ) : (
           <div class="photo-pending" data-ratio="3:2">
             Supporting photograph, 3:2 — horizon, still water, or morning light. Awaiting

@@ -18,12 +18,17 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Icon from '../components/Icon.astro';
 import ContactPanel from '../components/ContactPanel.astro';
 import { routes } from '../config/site.js';
+import { loadSlot } from '../lib/photos.js';
 import {
   serviceCards,
   integrationFeature,
   integrationScopeDisclaimer,
   whoWeServe,
 } from '../copy/shared.js';
+
+/* Image Map HOME-01. Read from the site_photos slot at build time; null until
+   Darlene uploads one from the admin dashboard (docs/ADMIN-CMS-PLAN.md). */
+const heroPhoto = await loadSlot('home-hero');
 
 /* Master Copy §02 — "Our approach band". */
 const pillars = [
@@ -76,25 +81,35 @@ const paths = [
         </div>
       </div>
 
-      {/* Image Map HOME-01. The hero photograph is a pending item, so the
-          emblem medallion stands in — Blueprints Page 01 §1 specifies exactly
-          this, and Pending Items forbids filling the slot with stock.
+      {/* Image Map HOME-01. Until Darlene uploads the hero photograph from the
+          admin dashboard, the emblem medallion stands in — Blueprints Page 01
+          §1 specifies exactly this, and Pending Items forbids filling the slot
+          with stock. Once a photo is set it renders at 4:5 (Blueprints Page
+          01, mobile note: "the medallion/photo sits below the buttons at 4:5").
 
           The medallion is the prototype's: a blurred gold-200 radial glow
           behind a 340px white disc with shadow-lg and a hairline border,
           holding the emblem at 250px. */}
-      <div class="hero__medallion">
-        <span class="hero__glow" aria-hidden="true"></span>
-        <span class="hero__disc">
-          <img
-            src="/assets/logo/starting-point-emblem-940x1000.svg"
-            alt=""
-            width="250"
-            height="266"
-            decoding="async"
-          />
-        </span>
-      </div>
+      {
+        heroPhoto ? (
+          <div class="hero__photo">
+            <img class="photo" src={heroPhoto.src} alt={heroPhoto.alt} decoding="async" />
+          </div>
+        ) : (
+          <div class="hero__medallion">
+            <span class="hero__glow" aria-hidden="true" />
+            <span class="hero__disc">
+              <img
+                src="/assets/logo/starting-point-emblem-940x1000.svg"
+                alt=""
+                width="250"
+                height="266"
+                decoding="async"
+              />
+            </span>
+          </div>
+        )
+      }
     </div>
   </section>
 
@@ -283,6 +298,12 @@ const paths = [
   .hero__actions {
     gap: 14px;
     margin-top: 32px;
+  }
+
+  .hero__photo .photo {
+    aspect-ratio: 4 / 5;
+    max-width: 480px;
+    margin-inline: auto;
   }
 
   .hero__medallion {

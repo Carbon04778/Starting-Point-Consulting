@@ -119,3 +119,31 @@ signup forms, no placeholder imagery."
 
 Every such element is behind a flag in `src/config/site.js` under `pending`.
 Flip a flag only when the real input actually lands.
+
+## Admin area and Starting Points (Phase 6)
+
+Plan and approval record: `docs/ADMIN-CMS-PLAN.md`. The shape, in one breath:
+
+- **One gate.** `src/middleware.js` runs before any `/admin/*` page. It
+  verifies the Supabase session with the auth server, then checks the
+  `admins` allow-list. Not on the list = signed out and sent to login. Pages
+  under `/admin` read `locals.admin` and `locals.supabase`; none re-derive it.
+- **Three trust levels, no service key.** `publicClient()` (anon, RLS-limited
+  reads), `sessionClient()` (the admin's own cookies, so RLS opens the write
+  policies for them and nobody else), and the pre-existing `sp_writer`
+  insert-only path for public-site forms. The service-role key exists nowhere
+  in the codebase.
+- **Plain forms.** Every admin action is a `<form method="POST">` handled in
+  the page's own frontmatter; the two API endpoints are login and logout.
+  The editor works with scripts blocked; JS only adds slug auto-fill and a
+  delete confirm.
+- **Publishing is immediate; photos are not.** `/starting-points` and
+  `/starting-points/[slug]` render per request (`prerender = false`, 60s edge
+  cache). The three page photo slots are read at build, so they change on
+  deploy — `VERCEL_DEPLOY_HOOK_URL` lets the dashboard start that deploy.
+- **Markdown in, a fixed tag set out.** `renderMarkdown()` in
+  `src/lib/articles.js` runs `marked` then `sanitize-html` with an allow-list
+  matching exactly what the article template styles. Pasted HTML, scripts
+  and inline images are stripped.
+- **Preview.** `?preview=1` on an article URL renders drafts, but only for a
+  signed-in admin; for anyone else the flag changes nothing.

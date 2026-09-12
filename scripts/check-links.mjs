@@ -31,6 +31,9 @@ const APPROVED_EXTERNAL = [
   'https://calendly.com/darlene-startingpointconsulting/',
   // Own origin: canonical and og:url tags are absolute by design.
   'https://startingpointconsulting.com',
+  // Article share buttons (Blueprints Page 08 §5: LinkedIn / Facebook / copy link).
+  'https://www.linkedin.com/sharing/share-offsite/',
+  'https://www.facebook.com/sharer/sharer.php',
   // Webfonts, loaded by docs/tokens/fonts.css.
   'https://fonts.googleapis.com',
   'https://fonts.gstatic.com',

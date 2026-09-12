@@ -20,8 +20,8 @@ a human looking at them.
 - [x] Individual Sessions — "Ways to Work Together" (pricing/session cards live here, not on a separate Pricing page) — the seven purchase CTAs reach `/checkout/<id>`, now built
 - [~] Speaking (includes the corrected "nationally and internationally" line) — "Speaker kit" button opens the September 2026 kit PDF; that kit still carries placeholders, see OPEN-QUESTIONS #37
 - [x] Booking (public — Organizational Discovery Conversation only, 30 min, no payment) — Calendly embed, not a rebuilt calendar; see OPEN-QUESTIONS #35
-- [ ] Starting Points (articles index)
-- [ ] Article template (single template, reused per post published through the admin CMS)
+- [~] Starting Points (articles index) — built, renders per request from `articles`; shows the approved empty state until Darlene publishes the first article, because no article bodies exist yet (OPEN-QUESTIONS #41)
+- [~] Article template (`/starting-points/<slug>`) — built; the end-of-article author bio is withheld, no approved text exists (OPEN-QUESTIONS #40)
 - [ ] Free guide / lead magnet page
 - [x] About — testimonials hidden until signed releases are confirmed
 - [x] Our Approach
@@ -80,8 +80,8 @@ server-side so the page cannot be repointed.
 
 ## Admin / CMS (2 screens, not part of the public site count)
 
-- [ ] Login (Supabase Auth)
-- [ ] Dashboard (write/edit article, upload/swap photo, publishes immediately)
+- [x] Login (`/admin/login` — Supabase Auth, email + password, gated by the `admins` allow-list in `src/middleware.js`)
+- [~] Dashboard — `/admin` articles list + editor (save / publish / unpublish / preview / delete), `/admin/photos` for the three page photo slots, `/admin/intake` and `/admin/acceptances` read-only. Code complete; **cannot be used until migration 0002 is applied and an admin is seeded** (`supabase/README.md`), and the editor still needs the manual 390px pass
 
 ## Footer behavior (applies globally, check on every page)
 

@@ -20,8 +20,12 @@
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Icon from '../components/Icon.astro';
-import { business, calendly, downloads, pending } from '../config/site.js';
+import { business, calendly, downloads } from '../config/site.js';
+import { loadSlot } from '../lib/photos.js';
 import { boundarySentence } from '../copy/shared.js';
+
+/* Image Map SPK-01 — read from the site_photos slot at build time. */
+const speakingPhoto = await loadSlot('speaking');
 
 /* Master Copy §05 — "Signature talks".
    The first title carries a "confirm title" marker in the copy doc, so it is
@@ -112,8 +116,8 @@ const audiences = [
 
       <figure class="speaking__portrait">
         {
-          pending.speakingPhoto ? (
-            <img class="photo" src={pending.speakingPhoto} alt="Darlene Erich speaking to an audience." />
+          speakingPhoto ? (
+            <img class="photo" src={speakingPhoto.src} alt={speakingPhoto.alt} decoding="async" />
           ) : (
             /* Image Map SPK-01. Speaking photography is pending, so the
                approved founder portrait stands in rather than staged stock. */

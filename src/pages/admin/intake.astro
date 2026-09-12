@@ -1,0 +1,170 @@
+---
+/**
+ * Panel 3 — New Client Intake submissions, read-only.
+ *
+ * This is the "authenticated/private admin side" Darlene asked for. The rows
+ * come through her own session, so the `admins read intake` policy is what
+ * authorises the read; the anon key cannot see this table at all
+ * (scripts/check-rls.mjs proves it).
+ *
+ * READ-ONLY BY DESIGN. No delete, no edit: retention is still under
+ * attorney/insurer review (CLAUDE.md, round 2 — "no automatic deletion may be
+ * implemented"), and the UI should not offer what policy has not decided.
+ *
+ * Answer labels come from src/copy/intake.js, so what Darlene reads here is
+ * the question exactly as the client saw it.
+ */
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { intakeSections } from '../../copy/intake.js';
+
+export const prerender = false;
+
+const { supabase, admin } = Astro.locals;
+
+const { data: rows, error } = await supabase
+  .from('intake_submissions')
+  .select('id, submitted_at, full_name, email, acknowledged_scope, answers')
+  .order('submitted_at', { ascending: false })
+  .limit(200);
+
+/* name → label, in the order the form asks. */
+const fields = intakeSections.flatMap((s) => s.fields ?? []);
+const labelFor = Object.fromEntries(fields.map((f) => [f.name, f.label]));
+const order = fields.map((f) => f.name);
+
+const when = (iso) =>
+  new Date(iso).toLocaleString('en-US', {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+    timeZone: 'America/Denver',
+  });
+
+const answersOf = (row) => {
+  const a = row.answers ?? {};
+  const keys = [...order.filter((k) => k in a), ...Object.keys(a).filter((k) => !order.includes(k))];
+  return keys.map((k) => ({ label: labelFor[k] ?? k, value: Array.isArray(a[k]) ? a[k].join(', ') : String(a[k]) }));
+};
+---
+
+<AdminLayout title="Intake submissions" section="intake" adminEmail={admin.email}>
+  <div class="admin-head">
+    <div>
+      <h1>Intake submissions</h1>
+      <p>
+        New Client Intake forms, newest first. Read-only: nothing here can be edited or deleted from
+        the site while retention is under review.
+      </p>
+    </div>
+  </div>
+
+  {error && <p class="admin-notice admin-notice--error" role="alert">Could not load submissions: {error.message}</p>}
+
+  {
+    rows && rows.length === 0 && !error && (
+      <p class="admin-card">No intake submissions yet.</p>
+    )
+  }
+
+  {
+    rows && rows.length > 0 && (
+      <ol class="submissions">
+        {rows.map((row) => (
+          <li class="admin-card submission">
+            <details>
+              <summary class="submission__summary">
+                <span class="submission__who">
+                  <strong>{row.full_name || 'No name given'}</strong>
+                  {row.email && <span class="submission__email">{row.email}</span>}
+                </span>
+                <span class="submission__when">{when(row.submitted_at)}</span>
+              </summary>
+              <dl class="submission__answers">
+                {answersOf(row).map(({ label, value }) => (
+                  <>
+                    <dt>{label}</dt>
+                    <dd>{value}</dd>
+                  </>
+                ))}
+                <dt>Acknowledged the scope note</dt>
+                <dd>{row.acknowledged_scope ? 'Yes' : 'No'}</dd>
+              </dl>
+            </details>
+          </li>
+        ))}
+      </ol>
+    )
+  }
+</AdminLayout>
+
+<style>
+  .submissions {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .submission {
+    padding: 0;
+  }
+
+  .submission__summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    padding: 16px 20px;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .submission__summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .submission__who {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .submission__email,
+  .submission__when {
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+  }
+
+  .submission__answers {
+    display: grid;
+    grid-template-columns: minmax(180px, 1fr) 2fr;
+    gap: 10px 20px;
+    padding: 4px 20px 20px;
+    margin: 0;
+    border-top: 1px solid var(--hairline);
+    padding-top: 16px;
+    font-size: var(--text-sm);
+  }
+
+  .submission__answers dt {
+    color: var(--text-muted);
+  }
+
+  .submission__answers dd {
+    margin: 0;
+    white-space: pre-wrap;
+  }
+
+  @media (max-width: 640px) {
+    .submission__answers {
+      grid-template-columns: 1fr;
+      gap: 2px 0;
+    }
+
+    .submission__answers dd {
+      margin-bottom: 10px;
+    }
+  }
+</style>

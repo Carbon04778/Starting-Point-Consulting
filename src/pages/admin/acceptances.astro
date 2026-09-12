@@ -1,0 +1,99 @@
+---
+/**
+ * Panel 4 — Client Service Agreement acceptances, read-only.
+ *
+ * The evidence log: who accepted which version of the CSA, when, before being
+ * sent to Stripe. Read through Darlene's session under the `admins read
+ * acceptances` policy. No edit, no delete — these are records of things that
+ * happened (migration 0001 §6), and there is no UPDATE/DELETE policy for
+ * anyone.
+ *
+ * IP address and user agent are shown because Darlene decided to record them
+ * (round 2), "provided this is handled consistently with the Privacy Policy".
+ */
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { stripeLinks } from '../../config/site.js';
+
+export const prerender = false;
+
+const { supabase, admin } = Astro.locals;
+
+const { data: rows, error } = await supabase
+  .from('csa_acceptances')
+  .select('id, accepted_at, full_name, email, service_id, agreement_version, ip_address, user_agent')
+  .order('accepted_at', { ascending: false })
+  .limit(500);
+
+const serviceName = Object.fromEntries(stripeLinks.map((s) => [s.id, s.name]));
+
+const when = (iso) =>
+  new Date(iso).toLocaleString('en-US', {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+    timeZone: 'America/Denver',
+  });
+---
+
+<AdminLayout title="Agreement acceptances" section="acceptances" adminEmail={admin.email}>
+  <div class="admin-head">
+    <div>
+      <h1>Agreement acceptances</h1>
+      <p>
+        Every Client Service Agreement acceptance, newest first. Each row was written before the
+        client was sent to Stripe; a row without a matching payment means checkout was abandoned,
+        which is normal. Read-only.
+      </p>
+    </div>
+  </div>
+
+  {error && <p class="admin-notice admin-notice--error" role="alert">Could not load acceptances: {error.message}</p>}
+
+  {rows && rows.length === 0 && !error && <p class="admin-card">No acceptances recorded yet.</p>}
+
+  {
+    rows && rows.length > 0 && (
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th scope="col">Accepted</th>
+              <th scope="col">Name</th>
+              <th scope="col">Email</th>
+              <th scope="col">Service</th>
+              <th scope="col">Agreement version</th>
+              <th scope="col">IP address</th>
+              <th scope="col">Browser</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r) => (
+              <tr>
+                <td class="nowrap">{when(r.accepted_at)}</td>
+                <td>{r.full_name}</td>
+                <td>{r.email}</td>
+                <td>{serviceName[r.service_id] ?? r.service_id}</td>
+                <td class="nowrap">{r.agreement_version}</td>
+                <td class="nowrap">{r.ip_address ?? '—'}</td>
+                <td class="ua" title={r.user_agent ?? ''}>{r.user_agent ?? '—'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    )
+  }
+</AdminLayout>
+
+<style>
+  .nowrap {
+    white-space: nowrap;
+  }
+
+  .ua {
+    max-width: 260px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--text-muted);
+  }
+</style>

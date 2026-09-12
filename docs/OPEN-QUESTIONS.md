@@ -601,6 +601,45 @@ recommended; (2) lock down before launch; (3) lock down after launch.
 **Awaiting her answer.** Options 2 and 3 are a new data structure and need a
 plan approved first (rule 5).
 
+## Raised building the admin area and Starting Points (12 Sept 2026)
+
+### 40. End-of-article author bio — no approved text — D
+
+Handoff §13: *"By Darlene Erich, MBA, BSN, RN" on every article, with an
+end-of-article bio.* The byline is built. The bio is **not**: no approved
+wording for it exists anywhere in the package, and Handoff §01 confines the
+LEAD Futures sentence to three named places, none of them articles. Options
+for Darlene: two new sentences, or approve re-using the opening of the About
+narrative bio. Once decided it is one block in
+`src/pages/starting-points/[slug].astro`.
+
+### 41. Starting Points launches empty — D, built as recommended
+
+Master Copy §09 says the featured article's body "exists as approved text".
+It is not in the Master Copy, and the mockup's article body is bracketed
+template copy. Two of the seven titles are "to be supplied". So the six real
+entries are seeded as **drafts**, with the approved titles, categories,
+summaries and read times, and the public index shows the approved empty
+state ("More on this topic coming soon.") until Darlene publishes one.
+Nothing links to a page that does not exist. Approved by Hadley, 12 Sept
+2026. The mockup's two guessed titles ("Three Breaths…", "Sustainable
+Care…") are **not** used — Master Copy outranks the mockup.
+
+### 42. Newsletter placements on Starting Points and articles — D
+
+Blueprints Page 07 §4 (index band) and Page 08 (end-of-article inline) are
+not built: the platform is unchosen and Darlene's round-2 decision is hidden,
+not inert. When Beehiiv or Kit is picked, build the `band` and `inline`
+variants of `NewsletterSignup` and place them; the footer variant exists.
+
+### 43. Page photo slots update on deploy, not instantly — H
+
+Home, Speaking and Our Approach are prerendered, so a photo Darlene sets at
+`/admin/photos` appears on the **next deploy**. Set `VERCEL_DEPLOY_HOOK_URL`
+in Vercel and the dashboard triggers that deploy itself; the dashboard says
+which case applies after every save. Articles are unaffected — their pages
+render per request, so publishing is immediate.
+
 ---
 
 ## Pending inputs from Darlene — element hidden until they arrive
@@ -614,9 +653,9 @@ Each is one flag in `src/config/site.js`.
 | LinkedIn / Instagram URLs | Footer social icons, `sameAs` in structured data |
 | Everyday Regulation Toolkit PDF | Free guide delivery, the Starting Points download card |
 | Signed testimonial releases | The two About-page quotes |
-| Homepage hero photograph | Emblem medallion stands in, per Blueprints Page 01 §1 |
-| Speaking photograph | Approved founder portrait stands in |
-| Our Approach supporting image | Brand-colour placeholder frame |
+| Homepage hero photograph | Emblem medallion stands in, per Blueprints Page 01 §1 — **Darlene can now upload it herself** at `/admin/photos` (#43) |
+| Speaking photograph | Approved founder portrait stands in — same, `/admin/photos` |
+| Our Approach supporting image | Brand-colour placeholder frame — same, `/admin/photos` |
 | Open Graph 1200×630 graphic | `og:image` omitted entirely, not pointed at a stand-in |
 | Final production logo files | Reference exports in use; drop finals into `assets/`, run `npm run sync:assets` |
 

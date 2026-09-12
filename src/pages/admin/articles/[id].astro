@@ -1,0 +1,517 @@
+---
+/**
+ * Article editor — create (/admin/articles/new) and edit (/admin/articles/<id>).
+ *
+ * One plain HTML form. The same page handles the POST, so it works with
+ * scripts blocked and there is exactly one place the rules live. Four
+ * actions, one per button: save (as draft or keeping the current status),
+ * publish, unpublish, delete.
+ *
+ * Every write goes through `locals.supabase` — Darlene's own session — so the
+ * `admins insert/update/delete articles` policies are what actually authorise
+ * it. If this code were ever reached by a non-admin the database would refuse.
+ *
+ * Fields, in the order Blueprints Page 08 lays the article out:
+ *   title · slug · category · summary (card line) · lead (serif intro) ·
+ *   body (Markdown) · tags · lead image + alt
+ *
+ * Read time is computed from the body on every save (~230 wpm). The byline
+ * is not a field: every article is by Darlene (Handoff §13).
+ */
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { CATEGORIES, slugify, readMinutes, renderMarkdown } from '../../../lib/articles.js';
+import { mediaUrl } from '../../../lib/supabase.js';
+
+export const prerender = false;
+
+const { supabase, admin } = Astro.locals;
+const id = Astro.params.id ?? 'new';
+const isNew = id === 'new';
+
+const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+const IMAGE_TYPES = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'image/avif': 'avif' };
+
+/* ---------------------------------------------------------------- */
+/* Load                                                             */
+/* ---------------------------------------------------------------- */
+
+let article = null;
+if (!isNew) {
+  const { data } = await supabase.from('articles').select('*').eq('id', id).maybeSingle();
+  if (!data) return new Response(null, { status: 404 });
+  article = data;
+}
+
+/* ---------------------------------------------------------------- */
+/* Handle the POST                                                  */
+/* ---------------------------------------------------------------- */
+
+const problems = [];
+let values = article
+  ? { ...article, tags: (article.tags ?? []).join(', ') }
+  : { title: '', slug: '', category: CATEGORIES[0], summary: '', lead: '', body_md: '', tags: '', lead_image_path: null, lead_image_alt: '', status: 'draft' };
+
+if (Astro.request.method === 'POST') {
+  const form = await Astro.request.formData();
+  const action = String(form.get('action') ?? 'save');
+
+  if (action === 'delete' && article) {
+    // Remove the image too, so the bucket does not accumulate orphans.
+    if (article.lead_image_path) await supabase.storage.from('site-media').remove([article.lead_image_path]);
+    const { error } = await supabase.from('articles').delete().eq('id', article.id);
+    if (!error) return Astro.redirect('/admin?done=deleted', 303);
+    problems.push(`Could not delete: ${error.message}`);
+  } else {
+    const text = (name) => String(form.get(name) ?? '').trim();
+
+    values = {
+      ...values,
+      title: text('title'),
+      slug: slugify(text('slug') || text('title')),
+      category: text('category'),
+      summary: text('summary'),
+      lead: text('lead'),
+      body_md: String(form.get('body_md') ?? '').replace(/\r\n/g, '\n'),
+      tags: text('tags'),
+      lead_image_alt: text('lead_image_alt'),
+    };
+
+    if (!values.title) problems.push('A title is required.');
+    if (!values.slug) problems.push('The URL slug could not be built from the title — add one by hand.');
+    if (!CATEGORIES.includes(values.category)) problems.push('Choose one of the five categories.');
+    if (!values.summary) problems.push('A one-line summary is required — it is what the card shows.');
+
+    const wantsPublish = action === 'publish';
+    if (wantsPublish && !values.body_md.trim()) {
+      problems.push('An article needs a body before it can be published.');
+    }
+
+    // Lead image: replace, remove, or keep.
+    let leadImagePath = article?.lead_image_path ?? null;
+    const file = form.get('lead_image');
+    const removeImage = form.get('remove_image') === 'on';
+
+    if (file instanceof File && file.size > 0) {
+      const ext = IMAGE_TYPES[file.type];
+      if (!ext) problems.push('The image must be a JPEG, PNG, WebP or AVIF file.');
+      else if (file.size > MAX_IMAGE_BYTES) problems.push('The image must be 5 MB or smaller.');
+      else if (problems.length === 0) {
+        // Handoff §17: filenames renamed before upload.
+        const path = `articles/${values.slug}-${Date.now()}.${ext}`;
+        const { error } = await supabase.storage
+          .from('site-media')
+          .upload(path, file, { contentType: file.type, upsert: false });
+        if (error) problems.push(`Image upload failed: ${error.message}`);
+        else {
+          if (leadImagePath) await supabase.storage.from('site-media').remove([leadImagePath]);
+          leadImagePath = path;
+        }
+      }
+    } else if (removeImage && leadImagePath) {
+      await supabase.storage.from('site-media').remove([leadImagePath]);
+      leadImagePath = null;
+    }
+
+    if (problems.length === 0) {
+      const nextStatus =
+        action === 'publish' ? 'published' : action === 'unpublish' ? 'draft' : (article?.status ?? 'draft');
+
+      const row = {
+        title: values.title,
+        slug: values.slug,
+        category: values.category,
+        summary: values.summary,
+        lead: values.lead,
+        body_md: values.body_md,
+        read_minutes: values.body_md.trim() ? readMinutes(values.body_md) : (article?.read_minutes ?? 1),
+        tags: values.tags ? values.tags.split(',').map((t) => t.trim()).filter(Boolean) : [],
+        lead_image_path: leadImagePath,
+        lead_image_alt: leadImagePath ? values.lead_image_alt : '',
+        status: nextStatus,
+        // Set once, the first time it goes live; kept on unpublish so a
+        // republish keeps its original date.
+        published_at: article?.published_at ?? (nextStatus === 'published' ? new Date().toISOString() : null),
+      };
+      if (nextStatus === 'published' && !row.published_at) row.published_at = new Date().toISOString();
+
+      const query = article
+        ? supabase.from('articles').update(row).eq('id', article.id).select('id').single()
+        : supabase.from('articles').insert(row).select('id').single();
+      const { data, error } = await query;
+
+      if (error) {
+        problems.push(
+          error.code === '23505'
+            ? 'That URL slug is already used by another article — change it.'
+            : `Could not save: ${error.message}`,
+        );
+      } else {
+        const done = action === 'publish' ? 'published' : action === 'unpublish' ? 'unpublished' : 'saved';
+        return Astro.redirect(isNew ? `/admin/articles/${data.id}?done=${done}` : `/admin?done=${done}`, 303);
+      }
+    }
+
+    // Fell through with problems: keep what was typed, reflect image state.
+    values.lead_image_path = leadImagePath;
+  }
+}
+
+const done = Astro.url.searchParams.get('done');
+const notices = { saved: 'Draft saved.', published: 'Published.', unpublished: 'Unpublished.' };
+const previewHtml = values.body_md ? renderMarkdown(values.body_md) : '';
+const imageSrc = mediaUrl(values.lead_image_path);
+const isPublished = article?.status === 'published';
+---
+
+<AdminLayout title={isNew ? 'New article' : 'Edit article'} section="articles" adminEmail={admin.email}>
+  <div class="admin-head">
+    <div>
+      <p class="eyebrow"><a href="/admin">Articles</a> / {isNew ? 'New' : 'Edit'}</p>
+      <h1>{isNew ? 'New article' : values.title}</h1>
+      {
+        !isNew && (
+          <p>
+            <span class={`status-pill status-pill--${article.status}`}>{article.status}</span>
+            {isPublished && (
+              <>
+                {' '}
+                ·{' '}
+                <a href={`/starting-points/${article.slug}`} target="_blank" rel="noopener">
+                  View on the site
+                </a>
+              </>
+            )}
+            {' '}
+            ·{' '}
+            <a href={`/starting-points/${values.slug}?preview=1`} target="_blank" rel="noopener">
+              Preview
+            </a>
+          </p>
+        )
+      }
+    </div>
+  </div>
+
+  {done && notices[done] && <p class="admin-notice admin-notice--ok" role="status">{notices[done]}</p>}
+  {
+    problems.length > 0 && (
+      <div class="admin-notice admin-notice--error" role="alert">
+        <strong>Not saved.</strong>
+        <ul>
+          {problems.map((p) => (
+            <li>{p}</li>
+          ))}
+        </ul>
+      </div>
+    )
+  }
+
+  <form method="POST" enctype="multipart/form-data" class="editor" novalidate>
+    <div class="editor__main admin-card">
+      <div class="field">
+        <label class="field__label" for="title">Title <span class="field__required">required</span></label>
+        <input class="field__control" id="title" name="title" type="text" value={values.title} required />
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="slug">URL slug</label>
+        <p class="field__hint" id="slug-hint">
+          Lower-case letters, numbers and hyphens. Leave blank to build it from the title. Changing it
+          after publishing breaks any link already shared.
+        </p>
+        <div class="slug-row">
+          <span class="slug-row__prefix">/starting-points/</span>
+          <input
+            class="field__control"
+            id="slug"
+            name="slug"
+            type="text"
+            value={values.slug}
+            aria-describedby="slug-hint"
+            pattern="[a-z0-9]+(-[a-z0-9]+)*"
+          />
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="category">Category <span class="field__required">required</span></label>
+        <select class="field__control" id="category" name="category">
+          {
+            CATEGORIES.map((c) => (
+              <option value={c} selected={c === values.category}>
+                {c}
+              </option>
+            ))
+          }
+        </select>
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="summary">Summary <span class="field__required">required</span></label>
+        <p class="field__hint" id="summary-hint">One line. Shown on the card and used as the page description.</p>
+        <textarea class="field__control field__control--short" id="summary" name="summary" aria-describedby="summary-hint" rows="2">{values.summary}</textarea>
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="lead">Opening paragraph</label>
+        <p class="field__hint" id="lead-hint">
+          Optional. Set larger, in serif, before the body — the “warm, human voice” intro from the
+          template.
+        </p>
+        <textarea class="field__control" id="lead" name="lead" aria-describedby="lead-hint" rows="3">{values.lead}</textarea>
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="body_md">Body</label>
+        <details class="field__hint editor__help">
+          <summary>Formatting guide</summary>
+          <dl>
+            <dt><code>## A subheading</code></dt><dd>Section heading</dd>
+            <dt><code>&gt; A pull quote</code></dt><dd>Serif italic quote with the gold hairline — one per article</dd>
+            <dt><code>- An item</code></dt><dd>List with gold check bullets</dd>
+            <dt><code>**bold**</code> <code>*italic*</code></dt><dd>Emphasis</dd>
+            <dt><code>[text](https://…)</code></dt><dd>Link (opens in a new tab)</dd>
+          </dl>
+          <p>A blank line starts a new paragraph. Anything else, including pasted HTML, is removed.</p>
+        </details>
+        <textarea class="field__control editor__body" id="body_md" name="body_md" rows="24">{values.body_md}</textarea>
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="tags">Topic tags</label>
+        <p class="field__hint" id="tags-hint">Optional, comma-separated. Shown at the end of the article.</p>
+        <input class="field__control" id="tags" name="tags" type="text" value={values.tags} aria-describedby="tags-hint" />
+      </div>
+    </div>
+
+    <aside class="editor__side">
+      <div class="admin-card editor__actions">
+        <button class="btn btn--primary" type="submit" name="action" value="save">
+          {isPublished ? 'Save changes' : 'Save draft'}
+        </button>
+        {
+          isPublished ? (
+            <button class="btn btn--secondary" type="submit" name="action" value="unpublish">
+              Unpublish
+            </button>
+          ) : (
+            <button class="btn btn--secondary" type="submit" name="action" value="publish">
+              Publish
+            </button>
+          )
+        }
+        {
+          !isNew && (
+            <button
+              class="btn btn--text editor__delete"
+              type="submit"
+              name="action"
+              value="delete"
+              data-confirm="Delete this article permanently? This cannot be undone."
+            >
+              Delete article
+            </button>
+          )
+        }
+        <p class="field__hint">
+          Read time is worked out from the body when you save
+          {values.body_md.trim() && ` — currently ${readMinutes(values.body_md)} min`}.
+        </p>
+      </div>
+
+      <div class="admin-card">
+        <h2 class="editor__h2">Lead image</h2>
+        {
+          imageSrc ? (
+            <img class="editor__preview-img" src={imageSrc} alt={values.lead_image_alt} />
+          ) : (
+            <p class="field__hint">None yet — the brand-colour treatment shows in its place.</p>
+          )
+        }
+        <div class="field">
+          <label class="field__label" for="lead_image">{imageSrc ? 'Replace image' : 'Upload image'}</label>
+          <p class="field__hint" id="image-hint">JPEG, PNG, WebP or AVIF, up to 5 MB. Wide images (16:8) fit best.</p>
+          <input class="field__control" id="lead_image" name="lead_image" type="file" accept="image/jpeg,image/png,image/webp,image/avif" aria-describedby="image-hint" />
+        </div>
+        <div class="field">
+          <label class="field__label" for="lead_image_alt">Image description (alt text)</label>
+          <p class="field__hint" id="alt-hint">What the image shows, for people who cannot see it. Required whenever there is an image.</p>
+          <input class="field__control" id="lead_image_alt" name="lead_image_alt" type="text" value={values.lead_image_alt} aria-describedby="alt-hint" />
+        </div>
+        {
+          imageSrc && (
+            <label class="editor__check">
+              <input type="checkbox" name="remove_image" /> Remove the current image
+            </label>
+          )
+        }
+      </div>
+    </aside>
+  </form>
+
+  {
+    previewHtml && (
+      <section class="admin-card editor__render" aria-labelledby="render-h">
+        <h2 class="editor__h2" id="render-h">How the body will read</h2>
+        <div class="article-prose" set:html={previewHtml} />
+      </section>
+    )
+  }
+</AdminLayout>
+
+<script>
+  // Confirm before delete. Without JS the button still works; the confirm is
+  // a courtesy, and the database is the real guard.
+  document.querySelectorAll<HTMLButtonElement>('[data-confirm]').forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      if (!window.confirm(btn.dataset.confirm)) e.preventDefault();
+    });
+  });
+
+  // Auto-build the slug from the title while the slug field is untouched.
+  const title = document.getElementById('title') as HTMLInputElement | null;
+  const slug = document.getElementById('slug') as HTMLInputElement | null;
+  if (title && slug && !slug.value) {
+    let touched = false;
+    slug.addEventListener('input', () => (touched = true));
+    title.addEventListener('input', () => {
+      if (touched) return;
+      slug.value = title.value
+        .normalize('NFKD')
+        .replace(/[̀-ͯ]/g, '')
+        .replace(/[’']/g, '')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+    });
+  }
+</script>
+
+<style>
+  .editor {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 320px;
+    gap: 24px;
+    align-items: start;
+  }
+
+  .editor__side {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    position: sticky;
+    top: 16px;
+  }
+
+  .editor__actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .editor__delete {
+    color: var(--danger-500);
+    align-self: flex-start;
+    margin-top: 8px;
+  }
+
+  .editor__h2 {
+    font-size: var(--text-md);
+    margin: 0 0 12px;
+  }
+
+  .editor__body {
+    min-height: 480px;
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    line-height: 1.6;
+  }
+
+  .field__control--short {
+    min-height: 0;
+  }
+
+  .editor__help summary {
+    cursor: pointer;
+    color: var(--text-link);
+  }
+
+  .editor__help dl {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 6px 16px;
+    margin: 10px 0;
+  }
+
+  .editor__help dt code {
+    background: var(--sand-100);
+    padding: 1px 6px;
+    border-radius: var(--radius-xs);
+  }
+
+  .editor__help dd {
+    margin: 0;
+  }
+
+  .editor__preview-img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 8;
+    object-fit: cover;
+    border-radius: var(--radius-md);
+    margin-bottom: 16px;
+  }
+
+  .editor__check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: var(--text-sm);
+  }
+
+  .slug-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .slug-row__prefix {
+    color: var(--text-muted);
+    font-size: var(--text-sm);
+    white-space: nowrap;
+  }
+
+  .editor__render {
+    margin-top: 24px;
+    max-width: 760px;
+  }
+
+  .editor__render .article-prose {
+    font-size: var(--text-md);
+    line-height: 1.68;
+  }
+
+  .editor__render :global(blockquote) {
+    margin: 24px 0;
+    padding: 6px 0 6px 22px;
+    border-left: 3px solid var(--gold-500);
+    font-family: var(--font-serif);
+    font-style: italic;
+    color: var(--ink-700);
+  }
+
+  .editor__render :global(h2) {
+    font-size: var(--text-xl);
+    margin: 28px 0 12px;
+  }
+
+  @media (max-width: 900px) {
+    .editor {
+      grid-template-columns: 1fr;
+    }
+
+    .editor__side {
+      position: static;
+    }
+  }
+</style>

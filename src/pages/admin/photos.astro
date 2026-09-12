@@ -1,0 +1,229 @@
+---
+/**
+ * Panel 2 — the three page photo slots (Pending Items §03).
+ *
+ * Upload or replace the homepage hero, Speaking, and Our Approach photographs.
+ * Each slot is one row in `site_photos`; the file lives in the `site-media`
+ * bucket. Writes go through Darlene's session, authorised by the
+ * `admins write site photos` and bucket policies.
+ *
+ * THE PUBLIC PAGES THAT SHOW THESE ARE PRERENDERED, so a change here appears
+ * on the next deploy, not instantly. When VERCEL_DEPLOY_HOOK_URL is set, a
+ * save triggers that deploy (a minute or two); when it is not, the page says
+ * so plainly rather than implying the site changed.
+ */
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { SLOTS } from '../../lib/photos.js';
+import { mediaUrl } from '../../lib/supabase.js';
+
+export const prerender = false;
+
+const { supabase, admin } = Astro.locals;
+
+const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+const IMAGE_TYPES = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'image/avif': 'avif' };
+
+const deployHook = import.meta.env.VERCEL_DEPLOY_HOOK_URL || process.env.VERCEL_DEPLOY_HOOK_URL || '';
+
+async function triggerDeploy() {
+  if (!deployHook) return 'no-hook';
+  try {
+    const res = await fetch(deployHook, { method: 'POST' });
+    return res.ok ? 'triggered' : 'failed';
+  } catch {
+    return 'failed';
+  }
+}
+
+const problems = [];
+let notice = null;
+
+if (Astro.request.method === 'POST') {
+  const form = await Astro.request.formData();
+  const slot = String(form.get('slot') ?? '');
+  const action = String(form.get('action') ?? 'save');
+
+  if (!SLOTS[slot]) {
+    problems.push('Unknown photo slot.');
+  } else {
+    const { data: existing } = await supabase.from('site_photos').select('storage_path').eq('slot', slot).maybeSingle();
+
+    if (action === 'remove') {
+      if (existing?.storage_path) await supabase.storage.from('site-media').remove([existing.storage_path]);
+      const { error } = await supabase.from('site_photos').delete().eq('slot', slot);
+      if (error) problems.push(`Could not remove: ${error.message}`);
+      else notice = { slot, deploy: await triggerDeploy(), what: 'removed' };
+    } else {
+      const file = form.get('photo');
+      const alt = String(form.get('alt') ?? '').trim();
+
+      if (!(file instanceof File) || file.size === 0) {
+        // Alt-text-only update.
+        if (!existing) problems.push('Choose a photo to upload.');
+        else {
+          const { error } = await supabase.from('site_photos').update({ alt }).eq('slot', slot);
+          if (error) problems.push(`Could not save: ${error.message}`);
+          else notice = { slot, deploy: await triggerDeploy(), what: 'updated' };
+        }
+      } else {
+        const ext = IMAGE_TYPES[file.type];
+        if (!ext) problems.push('The photo must be a JPEG, PNG, WebP or AVIF file.');
+        else if (file.size > MAX_IMAGE_BYTES) problems.push('The photo must be 5 MB or smaller.');
+        else if (!alt) problems.push('Add a short description of the photo (alt text) — required on every meaningful image.');
+        else {
+          const path = `slots/${slot}-${Date.now()}.${ext}`;
+          const up = await supabase.storage.from('site-media').upload(path, file, { contentType: file.type });
+          if (up.error) problems.push(`Upload failed: ${up.error.message}`);
+          else {
+            const { error } = await supabase.from('site_photos').upsert({ slot, storage_path: path, alt });
+            if (error) problems.push(`Could not save: ${error.message}`);
+            else {
+              if (existing?.storage_path) await supabase.storage.from('site-media').remove([existing.storage_path]);
+              notice = { slot, deploy: await triggerDeploy(), what: 'saved' };
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+const { data: rows } = await supabase.from('site_photos').select('slot, storage_path, alt, updated_at');
+const current = Object.fromEntries((rows ?? []).map((r) => [r.slot, r]));
+
+const deployText = {
+  triggered: 'A new deploy has been started; the site will show the change in a minute or two.',
+  'no-hook': 'The site shows photo changes at its next deploy. Ask Hadley to deploy, or set VERCEL_DEPLOY_HOOK_URL so this happens automatically.',
+  failed: 'Saved, but the automatic deploy could not be started. Ask Hadley to deploy.',
+};
+---
+
+<AdminLayout title="Photos" section="photos" adminEmail={admin.email}>
+  <div class="admin-head">
+    <div>
+      <h1>Photos</h1>
+      <p>
+        The three photographs still waiting on the public site. Until a slot has a photo, its page
+        keeps the approved stand-in. Article images are set inside each article.
+      </p>
+    </div>
+  </div>
+
+  {
+    notice && (
+      <p class="admin-notice admin-notice--ok" role="status">
+        {SLOTS[notice.slot].label} photo {notice.what}. {deployText[notice.deploy]}
+      </p>
+    )
+  }
+  {
+    problems.length > 0 && (
+      <div class="admin-notice admin-notice--error" role="alert">
+        <strong>Not saved.</strong>
+        <ul>
+          {problems.map((p) => (
+            <li>{p}</li>
+          ))}
+        </ul>
+      </div>
+    )
+  }
+
+  <div class="slots">
+    {
+      Object.entries(SLOTS).map(([slot, meta]) => {
+        const row = current[slot];
+        const src = row ? mediaUrl(row.storage_path) : null;
+        return (
+          <section class="admin-card slot" aria-labelledby={`slot-${slot}`}>
+            <h2 class="slot__title" id={`slot-${slot}`}>{meta.label}</h2>
+            <p class="field__hint">{meta.where}. Shape: {meta.ratio}.</p>
+
+            {src ? (
+              <img class="slot__img" src={src} alt={row.alt} />
+            ) : (
+              <p class="slot__empty photo-pending" data-ratio={meta.ratio}>
+                No photo yet. {meta.note}
+              </p>
+            )}
+
+            <form method="POST" enctype="multipart/form-data" novalidate>
+              <input type="hidden" name="slot" value={slot} />
+              <div class="field">
+                <label class="field__label" for={`photo-${slot}`}>{src ? 'Replace photo' : 'Upload photo'}</label>
+                <input
+                  class="field__control"
+                  id={`photo-${slot}`}
+                  name="photo"
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/avif"
+                />
+                <p class="field__hint">JPEG, PNG, WebP or AVIF, up to 5 MB.</p>
+              </div>
+              <div class="field">
+                <label class="field__label" for={`alt-${slot}`}>
+                  Description (alt text) <span class="field__required">required</span>
+                </label>
+                <input class="field__control" id={`alt-${slot}`} name="alt" type="text" value={row?.alt ?? ''} />
+              </div>
+              <div class="admin-actions">
+                <button class="btn btn--primary" type="submit" name="action" value="save">
+                  Save
+                </button>
+                {src && (
+                  <button
+                    class="btn btn--text slot__remove"
+                    type="submit"
+                    name="action"
+                    value="remove"
+                    data-confirm="Remove this photo and go back to the stand-in?"
+                  >
+                    Remove photo
+                  </button>
+                )}
+              </div>
+            </form>
+          </section>
+        );
+      })
+    }
+  </div>
+</AdminLayout>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('[data-confirm]').forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      if (!window.confirm(btn.dataset.confirm)) e.preventDefault();
+    });
+  });
+</script>
+
+<style>
+  .slots {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+    align-items: start;
+  }
+
+  .slot__title {
+    font-size: var(--text-lg);
+    margin: 0 0 4px;
+  }
+
+  .slot__img {
+    display: block;
+    width: 100%;
+    border-radius: var(--radius-md);
+    margin: 16px 0 20px;
+  }
+
+  .slot__empty {
+    margin: 16px 0 20px;
+    font-size: var(--text-sm);
+  }
+
+  .slot__remove {
+    color: var(--danger-500);
+  }
+</style>

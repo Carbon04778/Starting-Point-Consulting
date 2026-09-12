@@ -1,0 +1,85 @@
+---
+/**
+ * Admin sign-in — screen 1 of the 2-screen private admin area (CLAUDE.md).
+ *
+ * Email + password through Supabase Auth. There is no sign-up link and no
+ * password-reset UI: accounts are created by hand in the Supabase dashboard
+ * (supabase/admin-seed.sql), and resets go through Supabase's own email flow.
+ * Fewer moving parts on the one door into private data.
+ *
+ * The middleware sends an already-signed-in admin straight to /admin.
+ */
+import AdminLayout from '../../layouts/AdminLayout.astro';
+
+export const prerender = false;
+
+const params = Astro.url.searchParams;
+const next = params.get('next') ?? '';
+const signedOut = params.has('signed-out');
+
+const errors = {
+  invalid: 'That email and password combination was not recognised.',
+  'not-admin': 'This account is not an administrator for this site.',
+  incomplete: 'Enter both your email address and your password.',
+  malformed: 'Something went wrong with that request. Please try again.',
+};
+const error = errors[params.get('error') ?? ''] ?? null;
+---
+
+<AdminLayout title="Sign in" bare>
+  <div class="login">
+    <div class="admin-card login__card">
+      <p class="eyebrow">Private area</p>
+      <h1>Sign in</h1>
+
+      {signedOut && <p class="admin-notice admin-notice--ok" role="status">You have been signed out.</p>}
+      {error && <p class="admin-notice admin-notice--error" role="alert">{error}</p>}
+
+      <form method="POST" action="/api/admin/login" class="login__form" novalidate>
+        <input type="hidden" name="next" value={next} />
+
+        <div class="field">
+          <label class="field__label" for="email">Email address</label>
+          <input class="field__control" id="email" name="email" type="email" autocomplete="username" required />
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="password">Password</label>
+          <input
+            class="field__control"
+            id="password"
+            name="password"
+            type="password"
+            autocomplete="current-password"
+            required
+          />
+        </div>
+
+        <button class="btn btn--primary btn--lg login__submit" type="submit">Sign in</button>
+      </form>
+    </div>
+  </div>
+</AdminLayout>
+
+<style>
+  .login {
+    display: grid;
+    place-items: start center;
+    padding-top: 6vh;
+  }
+
+  .login__card {
+    width: 100%;
+    max-width: 440px;
+  }
+
+  .login__card h1 {
+    font-size: var(--text-2xl);
+    margin: 0 0 24px;
+  }
+
+  .login__submit {
+    width: 100%;
+    margin-top: 8px;
+  }
+</style>
