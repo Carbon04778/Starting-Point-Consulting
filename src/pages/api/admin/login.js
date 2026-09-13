@@ -49,7 +49,8 @@ export async function POST(ctx) {
     return back('invalid', next);
   }
 
-  const { admin } = await currentAdmin(ctx);
+  // Same client as the sign-in, so the session it just set is visible here.
+  const { admin } = await currentAdmin(ctx, supabase);
   if (!admin) {
     await supabase.auth.signOut();
     return back('not-admin', next);

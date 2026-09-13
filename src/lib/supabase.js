@@ -53,13 +53,24 @@ export function publicClient() {
  */
 export function sessionClient({ request, cookies }) {
   const { url, anonKey } = supabaseConfig();
+
+  // Cookies set DURING this request (sign-in, token refresh) are not in the
+  // incoming Cookie header, so they are kept here as well. Without this, a
+  // lookup made right after signInWithPassword() in the same request would
+  // see no session and wrongly report "not an admin".
+  const setThisRequest = new Map();
+
   return createServerClient(url, anonKey, {
     cookies: {
       getAll() {
-        return parseCookieHeader(request.headers.get('cookie') ?? '');
+        const fromHeader = parseCookieHeader(request.headers.get('cookie') ?? '');
+        const merged = new Map(fromHeader.map((c) => [c.name, c.value]));
+        for (const [name, value] of setThisRequest) merged.set(name, value);
+        return [...merged].filter(([, value]) => value !== '').map(([name, value]) => ({ name, value }));
       },
       setAll(toSet) {
         for (const { name, value, options } of toSet) {
+          setThisRequest.set(name, value);
           cookies.set(name, value, {
             ...options,
             path: '/',
@@ -82,8 +93,7 @@ export function sessionClient({ request, cookies }) {
  *
  * @returns {Promise<{ supabase: ReturnType<typeof sessionClient>, user: import('@supabase/supabase-js').User | null, admin: { email: string } | null }>}
  */
-export async function currentAdmin(ctx) {
-  const supabase = sessionClient(ctx);
+export async function currentAdmin(ctx, supabase = sessionClient(ctx)) {
 
   // getUser() verifies the JWT with the auth server; getSession() would trust
   // the cookie as-is. For a gate on private data, verification is the point.
@@ -94,7 +104,15 @@ export async function currentAdmin(ctx) {
   if (!user) return { supabase, user: null, admin: null };
 
   // RLS on `admins` returns the caller's own row if and only if is_admin().
-  const { data } = await supabase.from('admins').select('email').eq('user_id', user.id).maybeSingle();
+  const { data, error } = await supabase
+    .from('admins')
+    .select('email')
+    .eq('user_id', user.id)
+    .maybeSingle();
+
+  // A policy or grant problem must not look like "not an admin" in the UI
+  // with no trace anywhere. It is still treated as not-admin — fail closed.
+  if (error) console.error('[admin] admins lookup failed:', error.message);
 
   return { supabase, user, admin: data ? { email: data.email } : null };
 }
