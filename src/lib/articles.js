@@ -4,8 +4,6 @@
  *
  * Everything here traces to Blueprints Page 07/08 and Master Copy §09/§10.
  */
-import { marked } from 'marked';
-import sanitizeHtml from 'sanitize-html';
 import { publicClient } from './supabase.js';
 
 /** Master Copy §09 "Filters" — "All" is a filter, never a stored category. */
@@ -45,7 +43,6 @@ export function readMinutes(markdown) {
 /* Markdown → safe HTML                                                */
 /* ------------------------------------------------------------------ */
 
-marked.setOptions({ gfm: true, breaks: false });
 
 /**
  * The only HTML an article body may contain. Matches what the prototype's
@@ -79,9 +76,37 @@ const SANITIZE = {
   },
 };
 
-export function renderMarkdown(markdown) {
-  const html = marked.parse(String(markdown ?? ''), { async: false });
-  return sanitizeHtml(html, SANITIZE);
+/**
+ * The two rendering libraries are loaded HERE, on first use, not at the top
+ * of the module. Astro imports a route's module before its middleware runs,
+ * so a top-level import that failed to load in the serverless runtime took
+ * down every page that merely imported this file — the admin list and the
+ * Starting Points index included, neither of which renders Markdown. Now a
+ * load failure is confined to the one place Markdown is rendered, and the
+ * real error reaches the server log.
+ */
+let renderers = null;
+async function loadRenderers() {
+  if (!renderers) {
+    const [{ marked }, { default: sanitizeHtml }] = await Promise.all([
+      import('marked'),
+      import('sanitize-html'),
+    ]);
+    marked.setOptions({ gfm: true, breaks: false });
+    renderers = { marked, sanitizeHtml };
+  }
+  return renderers;
+}
+
+export async function renderMarkdown(markdown) {
+  try {
+    const { marked, sanitizeHtml } = await loadRenderers();
+    const html = marked.parse(String(markdown ?? ''), { async: false });
+    return sanitizeHtml(html, SANITIZE);
+  } catch (error) {
+    console.error('[articles] Markdown rendering failed:', error);
+    throw error;
+  }
 }
 
 /* ------------------------------------------------------------------ */

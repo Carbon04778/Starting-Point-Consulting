@@ -158,7 +158,7 @@ if (Astro.request.method === 'POST') {
 
 const done = Astro.url.searchParams.get('done');
 const notices = { saved: 'Draft saved.', published: 'Published.', unpublished: 'Unpublished.' };
-const previewHtml = values.body_md ? renderMarkdown(values.body_md) : '';
+const previewHtml = values.body_md ? await renderMarkdown(values.body_md) : '';
 const imageSrc = mediaUrl(values.lead_image_path);
 const isPublished = article?.status === 'published';
 ---

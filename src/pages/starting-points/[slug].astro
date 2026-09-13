@@ -47,7 +47,7 @@ if (Astro.url.searchParams.has('preview')) {
 if (!article) article = await getPublished(slug);
 if (!article) return new Response(null, { status: 404 });
 
-const bodyHtml = renderMarkdown(article.body_md);
+const bodyHtml = await renderMarkdown(article.body_md);
 const keepReading = await related(article, 3);
 const leadSrc = mediaUrl(article.lead_image_path);
 const date = formatDate(article.published_at);
