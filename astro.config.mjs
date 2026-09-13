@@ -21,4 +21,14 @@ export default defineConfig({
   // `npm run sync:assets` copies it into public/assets/ with web-safe filenames
   // (Handoff §17: "Image filenames renamed before upload").
   publicDir: './public',
+
+  vite: {
+    ssr: {
+      // Bundle the article renderers into the server build instead of
+      // resolving them from node_modules at runtime. Left external, they
+      // loaded on Windows but failed inside the Vercel function, taking every
+      // route that imported src/lib/articles.js down with a 500.
+      noExternal: ['marked', 'sanitize-html'],
+    },
+  },
 });
