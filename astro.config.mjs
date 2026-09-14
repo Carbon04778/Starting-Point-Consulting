@@ -2,6 +2,9 @@
 import { defineConfig } from 'astro/config';
 import vercel from '@astrojs/vercel';
 
+// True under  (and therefore on Vercel); false under .
+const isBuild = process.argv.includes('build');
+
 // Starting Point Consulting — build configuration.
 //
 // Hosting model (CLAUDE.md): built on Hadley's Vercel/Supabase accounts now,
@@ -30,7 +33,11 @@ export default defineConfig({
       // the live function, fine on Windows), and every route that imported
       // src/lib/articles.js returned 500. Listing sanitize-html alone was not
       // enough: its own require() calls stayed external. /api/health checks.
-      noExternal: [
+      //
+      // Build only. In dev, Vite's module runner cannot execute these CJS
+      // packages inline ("require is not defined"); left external there, Node
+      // loads them from node_modules as normal.
+      noExternal: isBuild ? [
         'marked',
         'sanitize-html',
         // sanitize-html's dependencies
@@ -42,7 +49,7 @@ export default defineConfig({
         'nanoid', 'picocolors', 'source-map-js',
         // launder's, and domutils'
         'dayjs', 'dom-serializer',
-      ],
+      ] : [],
     },
   },
 });
