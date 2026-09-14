@@ -653,9 +653,9 @@ Each is one flag in `src/config/site.js`.
 | LinkedIn / Instagram URLs | Footer social icons, `sameAs` in structured data |
 | Everyday Regulation Toolkit PDF | Free guide delivery, the Starting Points download card |
 | Signed testimonial releases | The two About-page quotes |
-| Homepage hero photograph | Emblem medallion stands in, per Blueprints Page 01 §1 — **Darlene can now upload it herself** at `/admin/photos` (#43) |
-| Speaking photograph | Approved founder portrait stands in — same, `/admin/photos` |
-| Our Approach supporting image | Brand-colour placeholder frame — same, `/admin/photos` |
+| Homepage hero photograph | **Received 14 Sept 2026** — hero-homepage.jpg is live as the slot default (web-sized 474KB, 4:5 centre crop keeps peaks, canyon and trail). An upload at /admin/photos overrides it |
+| Speaking photograph | No speaking-to-a-room shot sent. The founder portrait, now her final export, stays; her note permits the headshot on Speaking |
+| Our Approach supporting image | **Received 14 Sept 2026** — our-approach.jpg is live as the slot default (exact 3:2, web-sized 373KB). An upload at /admin/photos overrides it |
 | Open Graph 1200×630 graphic | `og:image` omitted entirely, not pointed at a stand-in |
 | Final production logo files | Reference exports in use; drop finals into `assets/`, run `npm run sync:assets` |
 
@@ -663,27 +663,10 @@ Each is one flag in `src/config/site.js`.
 
 ### Photos received 14 September 2026 — two held
 
-Darlene sent five files (, with her
-note). Three fill the slots above; her final headshot replaces
- (same 1023×1537 frame, warm
-treatment) on About, For Therapists & Providers, and as the Speaking fallback.
-
-**Two have nowhere approved to go:**
-
--  — she suggests "the Speaking page banner". Blueprints
-  Page 03 has no banner; the Speaking page's only image is the 4:5 hero portrait.
--  — "wherever a second scenic break fits". No page
-  blueprint has a scenic break.
-
-Held, not placed. Adding a section to carry them would be a layout change
-outside the approved design — Darlene's call whether she wants one.
-
-### Photos received 14 September 2026 — two held
-
-Darlene sent five files (`Starting-Point-Consulting-Website-Photos/`, with her
-note). Three fill the slots above; her final headshot replaces
-`assets/photos/darlene-erich-portrait.jpg` (same 1023×1537 frame, warm
-treatment) on About, For Therapists & Providers, and as the Speaking fallback.
+Darlene sent five files, now in `assets/photos/` with her note
+(`photo-handoff-note-2026-09-14.txt`). Two are the slot defaults above; her
+final headshot replaces `darlene-erich-portrait.jpg` (same 1023×1537 frame,
+warm treatment) on About, For Therapists & Providers, and Speaking.
 
 **Two have nowhere approved to go:**
 
@@ -692,8 +675,9 @@ treatment) on About, For Therapists & Providers, and as the Speaking fallback.
 - `supporting-meadow.jpg` — "wherever a second scenic break fits". No page
   blueprint has a scenic break.
 
-Held, not placed. Adding a section to carry them would be a layout change
-outside the approved design — Darlene's call whether she wants one.
+Held, not placed (they are in `assets/` and served, but nothing links to them).
+Adding a section to carry them would be a layout change outside the approved
+design — Darlene's call whether she wants one.
 
 ## Stale numbers in the docs — resolved, no action needed
 

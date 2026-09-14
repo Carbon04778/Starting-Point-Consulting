@@ -8,6 +8,7 @@
 // upload". The mapping is written to public/assets/MANIFEST.txt so the original
 // filename for any served asset is always recoverable.
 import { readdir, mkdir, copyFile, stat, writeFile, rm } from 'node:fs/promises';
+import sharp from 'sharp';
 import { existsSync } from 'node:fs';
 import { join, extname, basename, relative, dirname, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -15,6 +16,34 @@ import { fileURLToPath } from 'node:url';
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const SRC = join(root, 'assets');
 const DEST = join(root, 'public', 'assets');
+
+// Handoff §17: "files under 500KB". Darlene's photographs arrive at print
+// size (1–2 MB), so a photo over the limit is served as a web-sized copy —
+// longest edge 1600px, more than 2x the widest photo slot on the site — and
+// re-encoded until it fits. The original in assets/ is never touched.
+const MAX_BYTES = 500 * 1024;
+const MAX_EDGE = 1600;
+const RASTER = new Set(['.jpg', '.jpeg', '.png', '.webp']);
+
+async function webSize(file, target) {
+  const meta = await sharp(file).metadata();
+  const resize =
+    Math.max(meta.width ?? 0, meta.height ?? 0) > MAX_EDGE
+      ? { width: MAX_EDGE, height: MAX_EDGE, fit: 'inside', withoutEnlargement: true }
+      : null;
+  let buf;
+  for (const quality of [82, 76, 70, 64]) {
+    let img = sharp(file);
+    if (resize) img = img.resize(resize);
+    buf =
+      extname(target) === '.png'
+        ? await img.png({ compressionLevel: 9, quality }).toBuffer()
+        : await img.jpeg({ quality, mozjpeg: true }).toBuffer();
+    if (buf.length <= MAX_BYTES) break;
+  }
+  await writeFile(target, buf);
+  return buf.length;
+}
 
 /** "Starting Point Horizontal 2000x771.svg" -> "starting-point-horizontal-2000x771.svg" */
 function slugify(name) {
@@ -54,6 +83,19 @@ for (const file of files) {
   const slugged = parts.map(slugify);
   const target = join(DEST, ...slugged);
   await mkdir(dirname(target), { recursive: true });
+
+  const isPhoto = parts[0] === 'photos' && RASTER.has(extname(file).toLowerCase());
+  const bytes = (await stat(file)).size;
+  if (isPhoto && bytes > MAX_BYTES) {
+    const out = await webSize(file, target);
+    const kb = (n) => Math.round(n / 1024);
+    manifest.push(
+      `/assets/${slugged.join('/')}  <-  assets/${parts.join('/')}  (web-sized: ${kb(bytes)}KB -> ${kb(out)}KB)`,
+    );
+    if (out > MAX_BYTES) console.warn(`sync-assets: ${rel} is still ${kb(out)}KB after web-sizing`);
+    continue;
+  }
+
   await copyFile(file, target);
   manifest.push(`/assets/${slugged.join('/')}  <-  assets/${parts.join('/')}`);
 }

@@ -58,6 +58,13 @@ filenames, which Handoff §17 explicitly calls for ("Image filenames renamed
 before upload"). `public/assets/MANIFEST.txt` maps every served URL back to its
 source filename, and `public/assets/` is gitignored because it is generated.
 
+**Photos are web-sized on the way through.** Handoff §17 caps files at 500KB
+and Darlene's photographs arrive at 1–2MB, so any raster in `assets/photos/`
+over the limit is resized (longest edge 1600px) and re-encoded until it fits;
+the manifest records the before/after size. The original in `assets/` is
+untouched. Slot defaults for the homepage hero and Our Approach point at these
+served copies (`src/lib/photos.js`); a dashboard upload overrides the default.
+
 **One exception to "never edited": `assets/downloadable-resources/`.** The
 client delivers the downloadable resources as JS-rendered HTML documents
 (the "DOWNLOADABLE RESOURCES - CURRENT - September 2026" package, kept
