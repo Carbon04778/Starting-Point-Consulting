@@ -640,6 +640,18 @@ in Vercel and the dashboard triggers that deploy itself; the dashboard says
 which case applies after every save. Articles are unaffected — their pages
 render per request, so publishing is immediate.
 
+### 44. Homepage approach band now links to the Our Approach page — D (label)
+
+**Hadley's request, 14 Sept 2026.** Blueprints Page 01 §2 has the band as
+four cards with no link, and Master Copy §02 gives it no link text. A centred
+text link, **"Explore our approach →"**, now sits under the four cards and
+opens `/our-approach`. It uses the same `btn--text` + arrow pattern as the
+service-card links further down the page, so nothing visual is new.
+
+The three-word label is not approved copy. It follows the page's own
+"Explore our work" / "Explore Individual Sessions" verb. **Darlene: keep,
+reword, or remove.**
+
 ---
 
 ## Pending inputs from Darlene — element hidden until they arrive

@@ -131,6 +131,15 @@ const paths = [
           ))
         }
       </div>
+
+      {/* Hadley, 14 Sept 2026: the band links through to the Our Approach
+          page. Not in Blueprints Page 01 §2; label pending Darlene's approval
+          (OPEN-QUESTIONS). Same text-link pattern as the service cards below. */}
+      <div class="approach__more">
+        <a class="btn btn--text" href={routes.ourApproach}>
+          Explore our approach <Icon name="arrow-right" size={18} />
+        </a>
+      </div>
     </div>
   </section>
 
@@ -370,6 +379,12 @@ const paths = [
 
   .section-head__after {
     margin-top: 44px;
+  }
+
+  /* Centred link out of the approach band, spaced like a card foot. */
+  .approach__more {
+    margin: 32px 0 0;
+    text-align: center;
   }
 
   .card-eyebrow {
