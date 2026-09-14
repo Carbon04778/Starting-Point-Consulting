@@ -652,6 +652,16 @@ The three-word label is not approved copy. It follows the page's own
 "Explore our work" / "Explore Individual Sessions" verb. **Darlene: keep,
 reword, or remove.**
 
+### 45. An intake submitted with no answers is not stored — D (optional message)
+
+Found by the link crawl on 14 Sept 2026: a POST to `/api/intake` with no
+fields filled was accepted and stored as a blank row. The PDF's "nothing here
+is required" is honoured — any single answer is enough — but a submission
+with zero answers is noise (bots, a stray click), so it is now discarded and
+the visitor is returned to the form with no message. If Darlene would like the
+form to say something in that case, the wording is hers; no copy exists for
+it and none has been invented.
+
 ---
 
 ## Pending inputs from Darlene — element hidden until they arrive

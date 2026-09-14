@@ -62,6 +62,12 @@ export async function POST({ request }) {
   delete answers.last_name;
   delete answers.email;
 
+  /* "Nothing is required" means any one answer is enough — not that a POST
+     with no answers at all is a submission. Storing those would fill the
+     admin view with blank rows from bots and stray clicks. Nothing to save,
+     so return to the form without a message (OPEN-QUESTIONS #45). */
+  if (!fullName && !email && Object.keys(answers).length === 0) return back('');
+
   try {
     await insertRow('intake_submissions', {
       full_name: fullName,
