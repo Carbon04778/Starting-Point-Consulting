@@ -40,6 +40,7 @@ import {
   footerHowWePartner,
   footerWhoWeServe,
   footerCompany,
+  routes,
   footerPolicies,
   footerDocuments,
   footerBaseline,
@@ -56,10 +57,16 @@ const year = new Date().getFullYear();
  * Blueprints Global 03 says "columns 2–4 collapse". The prototype disagrees and
  * wins, per its own preamble. Flipping this back is one flag per column.
  */
+/* Client Resources is blocked until Darlene's documents arrive (OPEN-QUESTIONS
+   #17). Pending Items: hide the element rather than ship a dead link. */
+const company = pending.clientResourceDocuments
+  ? footerCompany
+  : footerCompany.filter((item) => item.href !== routes.clientResources);
+
 const columns = [
   { id: 'how-we-partner', title: 'How we partner', links: footerHowWePartner, collapse: true },
   { id: 'who-we-serve', title: 'Who we serve', links: footerWhoWeServe, collapse: true },
-  { id: 'company', title: 'Company', links: footerCompany, collapse: false },
+  { id: 'company', title: 'Company', links: company, collapse: false },
 ];
 
 // See note 2 above.

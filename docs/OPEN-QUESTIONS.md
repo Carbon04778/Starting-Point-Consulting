@@ -661,6 +661,40 @@ Each is one flag in `src/config/site.js`.
 
 ---
 
+### Photos received 14 September 2026 — two held
+
+Darlene sent five files (, with her
+note). Three fill the slots above; her final headshot replaces
+ (same 1023×1537 frame, warm
+treatment) on About, For Therapists & Providers, and as the Speaking fallback.
+
+**Two have nowhere approved to go:**
+
+-  — she suggests "the Speaking page banner". Blueprints
+  Page 03 has no banner; the Speaking page's only image is the 4:5 hero portrait.
+-  — "wherever a second scenic break fits". No page
+  blueprint has a scenic break.
+
+Held, not placed. Adding a section to carry them would be a layout change
+outside the approved design — Darlene's call whether she wants one.
+
+### Photos received 14 September 2026 — two held
+
+Darlene sent five files (`Starting-Point-Consulting-Website-Photos/`, with her
+note). Three fill the slots above; her final headshot replaces
+`assets/photos/darlene-erich-portrait.jpg` (same 1023×1537 frame, warm
+treatment) on About, For Therapists & Providers, and as the Speaking fallback.
+
+**Two have nowhere approved to go:**
+
+- `supporting-arch.jpg` — she suggests "the Speaking page banner". Blueprints
+  Page 03 has no banner; the Speaking page's only image is the 4:5 hero portrait.
+- `supporting-meadow.jpg` — "wherever a second scenic break fits". No page
+  blueprint has a scenic break.
+
+Held, not placed. Adding a section to carry them would be a layout change
+outside the approved design — Darlene's call whether she wants one.
+
 ## Stale numbers in the docs — resolved, no action needed
 
 - **"All eighteen questions"** (Master Copy §13, Blueprints Page 12). The list is **16**, and the prototype's FAQ module has the same 16 in the same order. Built 16.
