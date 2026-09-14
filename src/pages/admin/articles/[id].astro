@@ -158,7 +158,17 @@ if (Astro.request.method === 'POST') {
 
 const done = Astro.url.searchParams.get('done');
 const notices = { saved: 'Draft saved.', published: 'Published.', unpublished: 'Unpublished.' };
-const previewHtml = values.body_md ? await renderMarkdown(values.body_md) : '';
+// The editor must open even if the renderer cannot — otherwise an article
+// with a body would lock its own edit page. Failure shows as a notice.
+let previewHtml = '';
+let previewError = null;
+if (values.body_md) {
+  try {
+    previewHtml = await renderMarkdown(values.body_md);
+  } catch (error) {
+    previewError = error instanceof Error ? error.message : String(error);
+  }
+}
 const imageSrc = mediaUrl(values.lead_image_path);
 const isPublished = article?.status === 'published';
 ---
@@ -349,6 +359,13 @@ const isPublished = article?.status === 'published';
     </aside>
   </form>
 
+  {
+    previewError && (
+      <p class="admin-notice admin-notice--error editor__render" role="alert">
+        The body could not be rendered for preview: {previewError}. Your text is safe to save; tell Hadley.
+      </p>
+    )
+  }
   {
     previewHtml && (
       <section class="admin-card editor__render" aria-labelledby="render-h">

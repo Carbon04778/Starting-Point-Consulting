@@ -24,11 +24,25 @@ export default defineConfig({
 
   vite: {
     ssr: {
-      // Bundle the article renderers into the server build instead of
-      // resolving them from node_modules at runtime. Left external, they
-      // loaded on Windows but failed inside the Vercel function, taking every
-      // route that imported src/lib/articles.js down with a 500.
-      noExternal: ['marked', 'sanitize-html'],
+      // Bundle the article renderers AND their dependency trees into the
+      // server build. Left external, Vercel's file tracing missed
+      // sanitize-html's dependencies ("Cannot find module 'htmlparser2'" in
+      // the live function, fine on Windows), and every route that imported
+      // src/lib/articles.js returned 500. Listing sanitize-html alone was not
+      // enough: its own require() calls stayed external. /api/health checks.
+      noExternal: [
+        'marked',
+        'sanitize-html',
+        // sanitize-html's dependencies
+        'htmlparser2', 'postcss', 'deepmerge', 'escape-string-regexp',
+        'is-plain-object', 'parse-srcset', 'launder',
+        // htmlparser2's
+        'domhandler', 'domutils', 'domelementtype', 'entities',
+        // postcss's
+        'nanoid', 'picocolors', 'source-map-js',
+        // launder's, and domutils'
+        'dayjs', 'dom-serializer',
+      ],
     },
   },
 });
