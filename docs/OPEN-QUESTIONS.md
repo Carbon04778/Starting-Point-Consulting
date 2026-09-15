@@ -545,7 +545,11 @@ changing it is a filename and one line in `routes`.
 
 ## Raised placing the September 2026 Downloadable Resources
 
-### 37. The Speaker Kit is live with placeholders in it — H, then D
+### 37. The Speaker Kit is live with placeholders in it — H, then D — RESOLVED 15 Sept 2026
+
+**Darlene: hide it.** *"The current version is not final, and I don't want the draft version published."* The button is gone (`downloads.speakerKit = null`), the draft PDF is no longer exported or served, and the export script's CLEARED list carries the note. She will send the approved final.
+
+<details><summary>Original note</summary>
 
 Hadley's instruction (10 Sept 2026): *"Use it as the current version for now.
 A finalized Speaker Kit will be provided separately once the remaining
@@ -570,6 +574,8 @@ of the wiring stays. When the final HTML lands, drop it into
 `docs/reference/downloadable-resources/`, run `npm run export:resources`, and
 set the value back.
 
+</details>
+
 ### 38. Start Where You Are QR code — nothing to build on the site — H
 
 The QR code lives on the *Start Where You Are* handout, which is Darlene's
@@ -580,7 +586,11 @@ requirement is that the permanent URL is final before she does.
 
 ## Raised after the Stripe redirects went live
 
-### 39. Should the post-payment scheduling pages expire? — D, asked 11 Sept 2026
+### 39. Should the post-payment scheduling pages expire? — D — RESOLVED 15 Sept 2026
+
+**Darlene: launch as designed.** *"Let's not add expiring links at this stage. Please keep them noindex, out of navigation, and excluded from the sitemap where possible."* All three hold: `noindex` on each page, absent from every nav and footer, and the new `/sitemap.xml` (Handoff §17) lists public pages only; `robots.txt` also disallows `/schedule/`, `/checkout/`, `/new-client-intake`, `/admin/` and `/api/`. Stronger access controls can be revisited on practical need.
+
+<details><summary>Original note</summary>
 
 The three `/schedule/*` pages are unlisted and `noindex`, but a client who
 bookmarks one after paying can return and book again without paying, or
@@ -603,7 +613,13 @@ plan approved first (rule 5).
 
 ## Raised building the admin area and Starting Points (12 Sept 2026)
 
-### 40. End-of-article author bio — no approved text — D
+</details>
+
+### 40. End-of-article author bio — no approved text — D — RESOLVED 15 Sept 2026
+
+**Text received and placed verbatim** (`business.founder.articleBio`), as an "About the author" card between the share row and "Keep reading" on every article: *"Darlene Erich, MBA, BSN, RN, is the founder of Starting Point Consulting. A critical care registered nurse, healthcare executive, somatic practitioner, and educator, she has spent her career where science meets humanity."*
+
+<details><summary>Original note</summary>
 
 Handoff §13: *"By Darlene Erich, MBA, BSN, RN" on every article, with an
 end-of-article bio.* The byline is built. The bio is **not**: no approved
@@ -612,6 +628,8 @@ LEAD Futures sentence to three named places, none of them articles. Options
 for Darlene: two new sentences, or approve re-using the opening of the About
 narrative bio. Once decided it is one block in
 `src/pages/starting-points/[slug].astro`.
+
+</details>
 
 ### 41. Starting Points launches empty — D, built as recommended
 
@@ -671,13 +689,13 @@ Each is one flag in `src/config/site.js`.
 
 | Input | Element currently hidden |
 |---|---|
-| Newsletter platform (Beehiiv vs Kit/ConvertKit) | Footer signup is now **built and visible** but unwired (#29); the other two placements are on unbuilt pages |
-| LinkedIn / Instagram URLs | Footer social icons, `sameAs` in structured data |
+| Newsletter platform | **Kit**, decided 15 Sept 2026. Signup stays **hidden** until connected. Needed from Darlene: a Kit form (its ID) and a Kit API key for Vercel; she is finishing Kit branding separately |
+| LinkedIn / Instagram URLs | **Received 15 Sept 2026** — footer icons and `sameAs` are live |
 | Everyday Regulation Toolkit PDF | Free guide delivery, the Starting Points download card |
 | Signed testimonial releases | The two About-page quotes |
 | Homepage hero photograph | **Received 14 Sept 2026** — hero-homepage.jpg is live as the slot default (web-sized 474KB, 4:5 centre crop keeps peaks, canyon and trail). An upload at /admin/photos overrides it |
 | Speaking photograph | No speaking-to-a-room shot sent. The founder portrait, now her final export, stays; her note permits the headshot on Speaking |
-| Our Approach supporting image | **Received 14 Sept 2026** — our-approach.jpg is live as the slot default (exact 3:2, web-sized 373KB). An upload at /admin/photos overrides it |
+| Our Approach supporting image | **Replaced 15 Sept 2026** with her new mountain-lake photo (1320×880, exact 3:2, 401KB, served as-is); the 14 Sept lake had a sun glare. Slot default; an upload at /admin/photos overrides it |
 | Open Graph 1200×630 graphic | `og:image` omitted entirely, not pointed at a stand-in |
 | Final production logo files | Reference exports in use; drop finals into `assets/`, run `npm run sync:assets` |
 

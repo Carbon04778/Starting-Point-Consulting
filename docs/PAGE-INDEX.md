@@ -18,7 +18,7 @@ a human looking at them.
 - [x] Home
 - [x] Services (overview, "How We Partner")
 - [x] Individual Sessions — "Ways to Work Together" (pricing/session cards live here, not on a separate Pricing page) — the seven purchase CTAs reach `/checkout/<id>`, now built
-- [~] Speaking (includes the corrected "nationally and internationally" line) — "Speaker kit" button opens the September 2026 kit PDF; that kit still carries placeholders, see OPEN-QUESTIONS #37
+- [x] Speaking (includes the corrected "nationally and internationally" line) — "Speaker kit" button hidden until Darlene sends the approved final kit (OPEN-QUESTIONS #37)
 - [x] Booking (public — Organizational Discovery Conversation only, 30 min, no payment) — Calendly embed, not a rebuilt calendar; see OPEN-QUESTIONS #35
 - [~] Starting Points (articles index) — built, renders per request from `articles`; shows the approved empty state until Darlene publishes the first article, because no article bodies exist yet (OPEN-QUESTIONS #41)
 - [~] Article template (`/starting-points/<slug>`) — built; the end-of-article author bio is withheld, no approved text exists (OPEN-QUESTIONS #40)
@@ -28,7 +28,7 @@ a human looking at them.
 - [x] FAQ (includes the corrected "including internationally" line) — 16 questions, not 18; see OPEN-QUESTIONS.md
 - [ ] Client Resources — still blocked; three of the linked documents now exist as PDFs (Provider Resource, Speaker Kit, Overview One-Pager), the rest do not, see OPEN-QUESTIONS #17
 - [~] For Therapists & Providers (no referral form, per known mockup gap) — "View the Provider Resource" opens the public PDF; one approved paragraph about the intake is withheld as factually stale; needs Darlene, see OPEN-QUESTIONS #33
-- [~] Contact — the form validates and shows the approved success state, but is not yet wired to an inbox
+- [~] Contact — the form validates and shows the approved success state; Darlene (15 Sept 2026) wants enquiries to land in the admin area, not email — build pending Hadley's approval of the `contact_enquiries` table and policy
 
 **Note on the corrected travel line.** This index puts it on the Speaking page.
 The sentence actually lives in Master Copy §06, on the Individual Sessions

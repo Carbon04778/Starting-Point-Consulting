@@ -13,9 +13,10 @@
  * handful of tags the template styles. Nothing an author types can inject
  * script or markup.
  *
+ * The end-of-article author bio Handoff §13 requires uses Darlene's text of
+ * 15 Sept 2026 (business.founder.articleBio); OPEN-QUESTIONS #40 is closed.
+ *
  * DELIBERATELY ABSENT:
- *   - The end-of-article author bio Handoff §13 requires. No approved text
- *     exists for it (OPEN-QUESTIONS #40); it is not drafted here.
  *   - The end-of-article newsletter signup — pending.newsletter (hidden, not
  *     inert, per Darlene's round-2 decision).
  */
@@ -183,6 +184,22 @@ Astro.response.headers.set(
         <span class="article-foot__copied" role="status" aria-live="polite"></span>
       </div>
     </footer>
+
+    {/* End-of-article author bio — Handoff §13. Text: Darlene, 15 Sept 2026. */}
+    <aside class="article-author" aria-label="About the author">
+      <img
+        class="article-author__avatar"
+        src="/assets/photos/darlene-erich-headshot-square.png"
+        alt=""
+        width="64"
+        height="64"
+        decoding="async"
+      />
+      <div>
+        <p class="article-author__label">About the author</p>
+        <p class="article-author__bio">{business.founder.articleBio}</p>
+      </div>
+    </aside>
   </article>
 
   {/* 5 · Keep reading */}
@@ -434,6 +451,50 @@ Astro.response.headers.set(
     margin-top: 36px;
     padding-top: 24px;
     border-top: 1px solid var(--border-subtle);
+  }
+
+  /* Author bio card: the site's card surface, avatar beside the text. */
+  .article-author {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    margin-top: 32px;
+    padding: 24px;
+    background: var(--surface-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-card);
+  }
+
+  .article-author__avatar {
+    flex: none;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .article-author__label {
+    margin: 0 0 6px;
+    font-family: var(--font-display);
+    font-size: var(--text-xs);
+    font-weight: var(--fw-medium);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--gold-700);
+  }
+
+  .article-author__bio {
+    margin: 0;
+    font-size: var(--text-sm);
+    line-height: 1.65;
+    color: var(--text-body);
+  }
+
+  @media (max-width: 640px) {
+    .article-author {
+      flex-direction: column;
+      gap: 14px;
+    }
   }
 
   .article-foot__tags {

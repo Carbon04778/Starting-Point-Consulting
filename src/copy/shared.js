@@ -160,16 +160,17 @@ export const contactPanel = {
           'Leader or team',
           'Organization',
           'Community',
-          'Therapist or provider referring a client',
+          'Therapist or provider',
           'Other',
         ],
       },
       /* "Who referred you?" was here. Removed on Darlene's instruction,
          10 September 2026: "We intentionally decided not to collect
          referring-provider/person names as part of routine intake or
-         inquiry." Do not restore it. The "I am a..." options still include
-         "Therapist or provider referring a client", which is a category and
-         collects no name. */
+         inquiry." Do not restore it. The option above read "Therapist or
+         provider referring a client" until 15 September 2026, when Darlene
+         asked for the remaining referral emphasis to go; the category stays,
+         the phrase does not. */
       {
         name: 'message',
         label: 'What brings you here?',

@@ -29,7 +29,9 @@ const DEST = join(root, 'assets', 'downloadable-resources');
 /** Source filename -> served slug. Cleared for public download per DISTRIBUTION STATUS.txt. */
 const CLEARED = {
   'Starting Point - Provider Resource.html': 'starting-point-provider-resource.pdf',
-  'Starting Point - Speaker Kit.html': 'starting-point-speaker-kit.pdf',
+  // 'Starting Point - Speaker Kit.html': 'starting-point-speaker-kit.pdf',
+  //   Withheld — Darlene, 15 Sept 2026: the current kit is a draft and must not
+  //   be published. Restore this line when the approved final version arrives.
   'Starting Point - Overview One-Pager.html': 'starting-point-overview-one-pager.pdf',
 };
 

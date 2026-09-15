@@ -33,6 +33,14 @@ export const business = {
   founder: {
     name: 'Darlene Erich, MBA, BSN, RN',
     role: 'Founder, Starting Point Consulting',
+    /**
+     * End-of-article bio — Handoff §13 requires one on every article. Text
+     * from Darlene, 15 Sept 2026, verbatim. Used ONLY on the article template;
+     * Handoff §01 limits the long narrative bio to About, the Overview
+     * One-Pager and the Speaker Kit, and this is not that bio.
+     */
+    articleBio:
+      'Darlene Erich, MBA, BSN, RN, is the founder of Starting Point Consulting. A critical care registered nurse, healthcare executive, somatic practitioner, and educator, she has spent her career where science meets humanity.',
   },
 
   // CLAUDE.md "Launch date" — becomes the Client Service Agreement effective date.
@@ -326,12 +334,16 @@ export const retention = {
  * Flip a flag to true only when the real input actually lands.
  */
 export const pending = {
-  /** Newsletter platform not chosen (Beehiiv vs Kit/ConvertKit). */
+  /**
+   * Newsletter signup. Darlene, 15 Sept 2026: Kit account created; keep the
+   * signup HIDDEN at launch until it is connected to Kit. Flip to true only
+   * once NewsletterSignup posts to Kit (needs her Kit form ID and API key).
+   */
   newsletter: false,
-  /** LinkedIn URL not supplied. */
-  linkedInUrl: null,
-  /** Instagram URL not supplied. */
-  instagramUrl: null,
+  /** Darlene, 15 Sept 2026. */
+  linkedInUrl: 'https://www.linkedin.com/company/startingpointconsulting/',
+  /** Darlene, 15 Sept 2026. */
+  instagramUrl: 'https://www.instagram.com/startingpoint.consulting/',
   /** Everyday Regulation Toolkit PDF not supplied. */
   toolkitPdf: null,
   /** No signed Testimonial & Media Release confirmed on file yet. */
@@ -363,12 +375,14 @@ export const downloads = {
   /** For Therapists & Providers hero, "View the Provider Resource". */
   providerResource: '/assets/downloadable-resources/starting-point-provider-resource.pdf',
   /**
-   * Speaking hero, "Speaker kit". The package version is the current one
-   * (Hadley, 10 Sept 2026) but still carries placeholders — "[Speaker Name]",
-   * a headshot frame, and a draft testimonial. Set to null to hide the button
-   * until the finalised kit replaces it. See docs/OPEN-QUESTIONS.md.
+   * Speaking hero, "Speaker kit". HIDDEN — Darlene, 15 Sept 2026: "The
+   * current version is not final, and I don't want the draft version
+   * published." The draft PDF is not exported or served. When the approved
+   * final arrives: drop it in the package folder, restore its line in
+   * scripts/export-resources.mjs CLEARED, run npm run export:resources, and
+   * set this to '/assets/downloadable-resources/starting-point-speaker-kit.pdf'.
    */
-  speakerKit: '/assets/downloadable-resources/starting-point-speaker-kit.pdf',
+  speakerKit: null,
   /** Not placed on any built page yet — Client Resources, when it exists. */
   overviewOnePager: '/assets/downloadable-resources/starting-point-overview-one-pager.pdf',
 };

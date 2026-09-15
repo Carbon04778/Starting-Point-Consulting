@@ -1,0 +1,13 @@
+# Starting Point Consulting
+#
+# Private utility pages (Handoff §10; Darlene, 15 Sept 2026): noindex, out of
+# navigation, out of the sitemap. Listed here as well so crawlers do not
+# fetch them at all.
+User-agent: *
+Disallow: /admin/
+Disallow: /api/
+Disallow: /checkout/
+Disallow: /schedule/
+Disallow: /new-client-intake
+
+Sitemap: https://startingpointconsulting.com/sitemap.xml
