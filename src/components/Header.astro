@@ -186,15 +186,19 @@ const isActive = (href) => (href === '/' ? path === '/' : path === href || path.
     color: var(--text-strong);
   }
 
-  .site-header__toggle-close {
+  /* The two icons are SVGs rendered by the Icon component, so they do not
+     carry this component's scope attribute — they must be reached through
+     :global() from the scoped toggle, or the rules never match and both
+     icons show at once. */
+  .site-header__toggle :global(.site-header__toggle-close) {
     display: none;
   }
 
-  .site-header__toggle[aria-expanded='true'] .site-header__toggle-open {
+  .site-header__toggle[aria-expanded='true'] :global(.site-header__toggle-open) {
     display: none;
   }
 
-  .site-header__toggle[aria-expanded='true'] .site-header__toggle-close {
+  .site-header__toggle[aria-expanded='true'] :global(.site-header__toggle-close) {
     display: block;
   }
 

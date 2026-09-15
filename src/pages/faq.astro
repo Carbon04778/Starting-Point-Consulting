@@ -220,12 +220,15 @@ const faqSchema = {
 
       const isOpen = trigger.getAttribute('aria-expanded') === 'true';
 
-      // Blueprints Page 12: one open at a time.
+      // Blueprints Page 12: one open at a time. The open state is mirrored
+      // onto the item as a class, which is what the CSS keys off.
       for (const other of accordion.querySelectorAll('.accordion__trigger')) {
         other.setAttribute('aria-expanded', 'false');
+        other.closest('.accordion__item')?.classList.remove('accordion__item--open');
       }
 
       trigger.setAttribute('aria-expanded', String(!isOpen));
+      trigger.closest('.accordion__item')?.classList.toggle('accordion__item--open', !isOpen);
     });
   }
 </script>

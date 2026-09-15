@@ -436,7 +436,10 @@ textarea.field__control {
   transition: grid-template-rows var(--t-slow) var(--ease-out);
 }
 
-.accordion__trigger[aria-expanded='true'] + .accordion__panel {
+/* The trigger lives inside the item's heading, so the panel is the heading's
+   sibling, not the button's — a  combinator off the button can never
+   match. The script mirrors aria-expanded onto the item as a class. */
+.accordion__item--open .accordion__panel {
   grid-template-rows: 1fr;
 }
 

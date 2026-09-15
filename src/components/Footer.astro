@@ -502,15 +502,22 @@ const legalGroups = [
 
     .site-footer__col--collapsible .site-footer__links {
       padding-block: 4px 18px;
+      transition: padding var(--t-slow) var(--ease-out);
     }
 
-    .site-footer__col-toggle[aria-expanded='false'] + .site-footer__panel {
+    /* The toggle lives inside the column heading, so the panel is the
+       heading's sibling — the script mirrors the collapsed state onto the
+       column as a class, which is what these rules key off. */
+    .site-footer__col--collapsed .site-footer__panel {
       grid-template-rows: 0fr;
     }
 
-    .site-footer__col-toggle[aria-expanded='false'] + .site-footer__panel .site-footer__links {
+    .site-footer__col--collapsed .site-footer__panel .site-footer__links {
       overflow: hidden;
       visibility: hidden;
+      /* The 0fr row clips content, not padding — drop it too or the closed
+         panel keeps a 22px sliver. */
+      padding-block: 0;
     }
 
     .site-footer__col:not(.site-footer__col--collapsible) {
@@ -529,10 +536,15 @@ const legalGroups = [
     document.querySelectorAll<HTMLButtonElement>('[data-footer-toggle]'),
   );
 
+  const setOpen = (toggle: HTMLButtonElement, open: boolean) => {
+    toggle.setAttribute('aria-expanded', String(open));
+    toggle.closest('.site-footer__col')?.classList.toggle('site-footer__col--collapsed', !open);
+  };
+
   const sync = () => {
     for (const toggle of toggles) {
       // Desktop: always open, and the heading is not a control.
-      toggle.setAttribute('aria-expanded', mobile.matches ? 'false' : 'true');
+      setOpen(toggle, !mobile.matches);
       toggle.tabIndex = mobile.matches ? 0 : -1;
     }
   };
@@ -540,10 +552,7 @@ const legalGroups = [
   for (const toggle of toggles) {
     toggle.addEventListener('click', () => {
       if (!mobile.matches) return;
-      toggle.setAttribute(
-        'aria-expanded',
-        toggle.getAttribute('aria-expanded') === 'true' ? 'false' : 'true',
-      );
+      setOpen(toggle, toggle.getAttribute('aria-expanded') !== 'true');
     });
   }
 
