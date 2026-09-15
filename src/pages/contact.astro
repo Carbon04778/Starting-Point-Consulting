@@ -18,6 +18,12 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ContactPanel from '../components/ContactPanel.astro';
 import { business, routes } from '../config/site.js';
+
+/* Rendered per request: the contact form's no-JavaScript path posts to
+   /api/contact and is sent back here with ?sent or ?error=not-sent, which a
+   prebuilt page could not read. Home and Services keep the same panel but
+   stay prebuilt; their no-JS submits land here too. */
+export const prerender = false;
 ---
 
 <BaseLayout

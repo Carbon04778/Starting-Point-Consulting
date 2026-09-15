@@ -184,6 +184,11 @@ export const contactPanel = {
       heading: "Thank you, we'll be in touch.",
       body: 'We read every note personally and reply within two business days.',
     },
+    /* NOT approved copy — no source supplies a failed-send message. Shown only
+       when /api/contact cannot store the enquiry. Names the public address so
+       the visitor still has a way in. Logged as OPEN-QUESTIONS #46. */
+    error:
+      'We could not send your message just now. Please try again, or email darlene@startingpointconsulting.com directly.',
   },
 };
 

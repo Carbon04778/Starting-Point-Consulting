@@ -45,7 +45,7 @@ if (!URL_BASE || !ANON) {
   process.exit(1);
 }
 
-const PRIVATE_TABLES = ['csa_acceptances', 'intake_submissions', 'admins'];
+const PRIVATE_TABLES = ['csa_acceptances', 'intake_submissions', 'contact_enquiries', 'admins'];
 
 const headers = {
   apikey: ANON,
@@ -124,6 +124,13 @@ await attemptForge('csa_acceptances', {
 await attemptForge('intake_submissions', {
   full_name: 'RLS test — should never be written',
   email: 'rls-test@example.invalid',
+});
+
+// Migration 0003 — contact enquiries, same rules as intake.
+await attemptForge('contact_enquiries', {
+  full_name: 'RLS test — should never be written',
+  email: 'rls-test@example.invalid',
+  message: 'RLS test',
 });
 
 /* ------------------------------------------------------------------ */

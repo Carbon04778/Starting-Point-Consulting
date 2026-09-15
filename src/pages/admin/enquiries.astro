@@ -1,0 +1,127 @@
+---
+/**
+ * Contact enquiries — the "Let's begin" form's messages, read-only.
+ *
+ * Darlene, 15 Sept 2026: "Please have contact form enquiries land in the
+ * private admin section for now. I don't think we need to add the email
+ * automation at launch. I'll make checking the admin section part of my
+ * regular workflow."
+ *
+ * Rows come through her own session, so the `admins read enquiries` policy
+ * authorises the read; the anon key cannot see this table at all
+ * (scripts/check-rls.mjs proves it). Read-only like intake: no edit, no
+ * delete from the site.
+ *
+ * Replying is a plain mailto: to the visitor with the subject pre-filled, so
+ * the conversation continues in Darlene's own inbox.
+ */
+import AdminLayout from '../../layouts/AdminLayout.astro';
+
+export const prerender = false;
+
+const { supabase, admin } = Astro.locals;
+
+const { data: rows, error } = await supabase
+  .from('contact_enquiries')
+  .select('id, submitted_at, full_name, email, role, message, source_path')
+  .order('submitted_at', { ascending: false })
+  .limit(200);
+
+const when = (iso) =>
+  new Date(iso).toLocaleString('en-US', {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+    timeZone: 'America/Denver',
+  });
+
+const pageName = { '/': 'Home', '/services': 'Services', '/contact': 'Contact' };
+
+const replyHref = (row) =>
+  `mailto:${encodeURIComponent(row.email)}?subject=${encodeURIComponent('Re: your note to Starting Point Consulting')}`;
+---
+
+<AdminLayout title="Enquiries" section="enquiries" adminEmail={admin.email}>
+  <div class="admin-head">
+    <div>
+      <h1>Enquiries</h1>
+      <p>
+        Messages from the "Let's begin" contact form, newest first. Nothing is emailed
+        automatically; this page is where they arrive. Reply opens your own mail app.
+      </p>
+    </div>
+  </div>
+
+  {error && <p class="admin-notice admin-notice--error" role="alert">Could not load enquiries: {error.message}</p>}
+
+  {rows && rows.length === 0 && !error && <p class="admin-card">No enquiries yet.</p>}
+
+  {
+    rows && rows.length > 0 && (
+      <ol class="enquiries">
+        {rows.map((row) => (
+          <li class="admin-card enquiry">
+            <div class="enquiry__head">
+              <span class="enquiry__who">
+                <strong>{row.full_name}</strong>
+                <span class="enquiry__meta">
+                  {row.email}
+                  {row.role && ` · ${row.role}`}
+                </span>
+              </span>
+              <span class="enquiry__meta">
+                {when(row.submitted_at)}
+                {row.source_path && ` · via ${pageName[row.source_path] ?? row.source_path}`}
+              </span>
+            </div>
+            <p class="enquiry__message">{row.message}</p>
+            <div class="enquiry__actions">
+              <a class="btn btn--secondary" href={replyHref(row)}>Reply by email</a>
+            </div>
+          </li>
+        ))}
+      </ol>
+    )
+  }
+</AdminLayout>
+
+<style>
+  .enquiries {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .enquiry__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .enquiry__who {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .enquiry__meta {
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+  }
+
+  .enquiry__message {
+    margin: 14px 0 0;
+    padding-top: 14px;
+    border-top: 1px solid var(--hairline);
+    white-space: pre-wrap;
+    line-height: 1.6;
+  }
+
+  .enquiry__actions {
+    margin-top: 14px;
+  }
+</style>

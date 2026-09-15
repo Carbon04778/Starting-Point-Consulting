@@ -133,13 +133,14 @@ Darlene: is a three-session version wanted?
 Master Copy §05 gives the first talk as **"From Surviving to Steady"** followed
 by a *"confirm title"* marker. Built as written. Confirm or replace.
 
-### 13. Contact form has no destination yet — H
+### 13. Contact form has no destination yet — H — RESOLVED 15 Sept 2026
 
-Handoff §10 settles the inbox (`darlene@startingpointconsulting.com`) but not
-the sending path. The form currently validates, shows the approved success
-state in place, and logs its payload to the console — it does **not** pretend to
-deliver. Wire it before launch; QA checklist requires *"forms arrive in the
-right inbox with a success message."*
+**Darlene: enquiries land in the admin area, no email automation at launch.**
+Built: `/api/contact` stores each message in `contact_enquiries` (migration
+0003, same insert-only / admin-read policy as intake) and `/admin/enquiries`
+lists them newest first with a "Reply by email" mailto. The approved success
+state now shows only after the server confirms the save; a failed save shows
+an error instead (#46). Handoff §10's inbox line is superseded by her decision.
 
 ### 14. Purchase buttons point at a step that isn't built — H
 
@@ -669,6 +670,13 @@ service-card links further down the page, so nothing visual is new.
 The three-word label is not approved copy. It follows the page's own
 "Explore our work" / "Explore Individual Sessions" verb. **Darlene: keep,
 reword, or remove.**
+
+### 46. Contact form failed-send message — D (label)
+
+No source supplies a message for the case where the enquiry cannot be
+stored. Built with: *"We could not send your message just now. Please try
+again, or email darlene@startingpointconsulting.com directly."* It names the
+public address so the visitor still has a way in. Darlene: keep or reword.
 
 ### 45. An intake submitted with no answers is not stored — D (optional message)
 

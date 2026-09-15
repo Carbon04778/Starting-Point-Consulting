@@ -28,7 +28,7 @@ a human looking at them.
 - [x] FAQ (includes the corrected "including internationally" line) — 16 questions, not 18; see OPEN-QUESTIONS.md
 - [ ] Client Resources — still blocked; three of the linked documents now exist as PDFs (Provider Resource, Speaker Kit, Overview One-Pager), the rest do not, see OPEN-QUESTIONS #17
 - [~] For Therapists & Providers (no referral form, per known mockup gap) — "View the Provider Resource" opens the public PDF; one approved paragraph about the intake is withheld as factually stale; needs Darlene, see OPEN-QUESTIONS #33
-- [~] Contact — the form validates and shows the approved success state; Darlene (15 Sept 2026) wants enquiries to land in the admin area, not email — build pending Hadley's approval of the `contact_enquiries` table and policy
+- [x] Contact — the form posts to `/api/contact`; enquiries land in `/admin/enquiries` (Darlene, 15 Sept 2026: no email automation at launch). Needs migration 0003 run in Supabase
 
 **Note on the corrected travel line.** This index puts it on the Speaking page.
 The sentence actually lives in Master Copy §06, on the Individual Sessions

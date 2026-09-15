@@ -9,9 +9,9 @@
  * Blueprints Page 15: the same panel is the whole Contact page. On submit the
  * form is replaced in place by the success state — no page reload, no redirect.
  *
- * The form has no backend yet. Until it does, it posts nowhere and the submit
- * handler shows the approved success state; wiring it to
- * darlene@startingpointconsulting.com is a later phase. See the note below.
+ * Submits to /api/contact, which stores the enquiry for the admin area
+ * (/admin/enquiries). Darlene, 15 Sept 2026: no email automation at launch;
+ * she checks the admin area as part of her routine.
  */
 import Icon from '../components/Icon.astro';
 import { contactPanel } from '../copy/shared.js';
@@ -62,7 +62,26 @@ const rowIcons = ['heart', 'mail', 'calendar'];
     </div>
 
     <div class="contact-panel__card">
-      <form class="contact-form" data-contact-form novalidate>
+      {
+        /* No-JS fallback path: the endpoint answers a plain POST with a 303
+           back here carrying ?sent or ?error=not-sent. With JS the panel
+           swaps states in place and the page never reloads. */
+        Astro.url.searchParams.has('error') && (
+          <p class="contact-form__error" role="alert" data-contact-error>
+            {form.error}
+          </p>
+        )
+      }
+      <form
+        class="contact-form"
+        data-contact-form
+        method="POST"
+        action="/api/contact"
+        novalidate
+        hidden={Astro.url.searchParams.has('sent')}
+        data-error-text={form.error}
+      >
+        <input type="hidden" name="source" value={Astro.url.pathname.replace(/\/$/, '') || '/'} />
         {
           form.fields.map((field) => (
             <div class="field">
@@ -103,7 +122,13 @@ const rowIcons = ['heart', 'mail', 'calendar'];
         <button class="btn btn--primary contact-form__submit" type="submit">{form.submit}</button>
       </form>
 
-      <div class="form-success" hidden data-contact-success role="status">
+      <div
+        class="form-success"
+        hidden={!Astro.url.searchParams.has('sent')}
+        data-contact-success
+        role="status"
+        tabindex="-1"
+      >
         {/* Prototype: a 56px success-50 disc with a 28px success-500 check. */}
         <span class="form-success__mark" aria-hidden="true">
           <Icon name="check" size={28} />
@@ -209,6 +234,17 @@ const rowIcons = ['heart', 'mail', 'calendar'];
     margin-top: 8px;
   }
 
+  /* Same treatment as the checkout page's error notice. */
+  .contact-form__error {
+    margin: 0 0 20px;
+    padding: 14px 16px;
+    border-radius: var(--radius-md);
+    background: var(--danger-50);
+    border: 1px solid var(--danger-500);
+    color: var(--ink-800);
+    line-height: 1.55;
+  }
+
   /* Prototype success state: 56px success-50 disc, success-500 check. */
   .form-success__mark {
     display: grid;
@@ -242,12 +278,8 @@ const rowIcons = ['heart', 'mail', 'calendar'];
 </style>
 
 <script>
-  // The contact form has no destination yet. Handoff §10 "Forms" settles the
-  // inbox (darlene@startingpointconsulting.com) but the sending path is a
-  // later phase, so the form does not pretend to deliver: it validates, shows
-  // the approved success state in place, and logs the payload for the
-  // developer. Wire the real submission before launch — QA checklist:
-  // "forms arrive in the right inbox with a success message".
+  // Validates in the browser first (errors described in words, tied to the
+  // control), then posts to /api/contact. See the submit handler.
   const form = document.querySelector('[data-contact-form]');
   const success = document.querySelector('[data-contact-success]');
 
@@ -289,11 +321,49 @@ const rowIcons = ['heart', 'mail', 'calendar'];
         return;
       }
 
-      console.info('[contact form] not yet wired to an inbox. Payload:', Object.fromEntries(new FormData(form)));
+      // Send to /api/contact (stored for the admin area — Darlene, 15 Sept
+      // 2026). The approved success state shows only once the server has
+      // confirmed the save; otherwise the form stays put with an error above
+      // it, so nobody is thanked for a message that was never received.
+      const submit = form.querySelector('[type="submit"]');
+      const busyLabel = submit?.textContent;
+      if (submit) {
+        submit.disabled = true;
+        submit.setAttribute('aria-busy', 'true');
+      }
 
-      form.hidden = true;
-      success.hidden = false;
-      success.focus?.();
+      fetch(form.action, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: { Accept: 'application/json' },
+      })
+        .then((response) => response.json())
+        .then(({ ok }) => {
+          if (!ok) throw new Error('not saved');
+          document.querySelector('[data-contact-error]')?.remove();
+          form.hidden = true;
+          success.hidden = false;
+          success.focus();
+        })
+        .catch(() => {
+          let error = document.querySelector('[data-contact-error]');
+          if (!error) {
+            error = document.createElement('p');
+            error.className = 'contact-form__error';
+            error.setAttribute('role', 'alert');
+            error.setAttribute('data-contact-error', '');
+            error.textContent = form.dataset.errorText ?? '';
+            form.before(error);
+          }
+          error.focus?.();
+        })
+        .finally(() => {
+          if (submit) {
+            submit.disabled = false;
+            submit.removeAttribute('aria-busy');
+            submit.textContent = busyLabel;
+          }
+        });
     });
 
     // Clear a field's error as soon as the visitor starts fixing it.

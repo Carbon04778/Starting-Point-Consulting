@@ -7,6 +7,7 @@ Supabase SQL editor (or with the Supabase CLI) in order.
 |---|---|---|
 | `0001_initial_schema.sql` | `admins`, `csa_acceptances`, `intake_submissions`, the `sp_writer` insert-only role, RLS | `docs/SUPABASE-RLS-PROPOSAL.md`, Darlene's round-2 decisions |
 | `0002_articles_and_photos.sql` | `articles`, `site_photos`, the `site-media` bucket, RLS, six draft seeds | `docs/ADMIN-CMS-PLAN.md`, Hadley 12 Sept 2026 |
+| `0003_contact_enquiries.sql` | `contact_enquiries` — insert-only for `sp_writer`, read for admins, no update/delete | Darlene 15 Sept 2026: enquiries land in the admin area, no email at launch |
 
 `admin-seed.sql` is **not** a migration: it makes one Auth user an
 administrator. Run it by hand, once per admin, after creating the user in

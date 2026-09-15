@@ -15,7 +15,7 @@ interface Props {
   /** Login page: no nav, no sign-out. */
   bare?: boolean;
   /** Which nav item is current. */
-  section?: 'articles' | 'photos' | 'intake' | 'acceptances';
+  section?: 'articles' | 'photos' | 'enquiries' | 'intake' | 'acceptances';
   adminEmail?: string;
 }
 
@@ -24,6 +24,7 @@ const { title, bare = false, section, adminEmail } = Astro.props;
 const nav = [
   { key: 'articles', label: 'Articles', href: '/admin' },
   { key: 'photos', label: 'Photos', href: '/admin/photos' },
+  { key: 'enquiries', label: 'Enquiries', href: '/admin/enquiries' },
   { key: 'intake', label: 'Intake submissions', href: '/admin/intake' },
   { key: 'acceptances', label: 'Agreement acceptances', href: '/admin/acceptances' },
 ];
