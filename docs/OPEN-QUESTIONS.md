@@ -697,7 +697,7 @@ Each is one flag in `src/config/site.js`.
 
 | Input | Element currently hidden |
 |---|---|
-| Newsletter platform | **Kit**, decided 15 Sept 2026. Signup stays **hidden** until connected. Needed from Darlene: a Kit form (its ID) and a Kit API key for Vercel; she is finishing Kit branding separately |
+| Newsletter platform | **Kit**, decided 15 Sept 2026. **Integration built 17 Sept** (`src/lib/kit.js`, `/api/newsletter`): the footer signup renders only when `KIT_API_KEY` (V4) and `KIT_FORM_ID` are both set in Vercel, so it stays hidden until they are. Form ID received; V4 key awaited |
 | LinkedIn / Instagram URLs | **Received 15 Sept 2026** — footer icons and `sameAs` are live |
 | Everyday Regulation Toolkit PDF | Free guide delivery, the Starting Points download card |
 | Signed testimonial releases | The two About-page quotes |

@@ -86,6 +86,7 @@ server-side so the page cannot be repointed.
 ## Footer behavior (applies globally, check on every page)
 
 - [x] Desktop: How We Partner / Who We Serve / Company shown as standard visible columns
+- [x] Newsletter signup (footer, every page) — posts to Kit via `/api/newsletter`; rendered only when `KIT_API_KEY` and `KIT_FORM_ID` are set, per Darlene's "hidden until connected"
 - [x] Mobile: same three groups collapse into accordions (▾), links remain reachable when expanded, essential legal/footer info stays visible below them at all times — the collapse never actually fired until 16 Sept 2026 (CSS keyed off a sibling that did not exist); now verified in headless Chrome at 375px and 390px
 
 Built so the panels render **open** and only collapse once JS confirms a mobile

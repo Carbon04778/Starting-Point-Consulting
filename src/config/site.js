@@ -335,11 +335,12 @@ export const retention = {
  */
 export const pending = {
   /**
-   * Newsletter signup. Darlene, 15 Sept 2026: Kit account created; keep the
-   * signup HIDDEN at launch until it is connected to Kit. Flip to true only
-   * once NewsletterSignup posts to Kit (needs her Kit form ID and API key).
+   * Newsletter signup — Kit (Darlene, 15 Sept 2026). The footer shows it only
+   * when this is true AND both KIT_API_KEY and KIT_FORM_ID are set in the
+   * environment (src/lib/kit.js), so it stays hidden until actually
+   * connected. Set false to hide it regardless.
    */
-  newsletter: false,
+  newsletter: true,
   /** Darlene, 15 Sept 2026. */
   linkedInUrl: 'https://www.linkedin.com/company/startingpointconsulting/',
   /** Darlene, 15 Sept 2026. */

@@ -27,12 +27,10 @@
  *
  * All four are small and reversible; each is one value.
  *
- * NO DESTINATION YET. Pending Items §01 — the platform (Beehiiv vs
- * Kit/ConvertKit) is still Darlene's to choose, and the prototype itself
- * carries `TODO(ConvertKit)` at this spot. The form follows the same house
- * pattern the contact form uses: it validates, shows the approved success
- * state in place, and logs the payload for the developer. Wire the real
- * endpoint before launch.
+ * Posts to /api/newsletter, which adds the address to Darlene's Kit form
+ * (her platform choice, 15 Sept 2026 — src/lib/kit.js). The approved success
+ * line shows only after Kit confirms; a failure shows the error line. The
+ * Footer renders this component only when Kit is configured.
  */
 import Icon from './Icon.astro';
 import { newsletter } from '../copy/shared.js';
@@ -44,7 +42,7 @@ import { newsletter } from '../copy/shared.js';
   <div data-newsletter-idle>
     <p class="newsletter__body">{newsletter.bodyCompact}</p>
 
-    <form class="newsletter__form" data-newsletter-form novalidate>
+    <form class="newsletter__form" data-newsletter-form method="POST" action="/api/newsletter" novalidate>
       <label class="sr-only" for="newsletter-email">{newsletter.fieldLabel}</label>
       <input
         class="newsletter__input"
@@ -176,9 +174,8 @@ import { newsletter } from '../copy/shared.js';
 </style>
 
 <script>
-  // No destination yet (Pending Items §01) — same house pattern as the contact
-  // form: validate, show the approved success state in place, log the payload.
-  // Replace the marked block with the real platform call before launch.
+  // Validate, then post to /api/newsletter; the success line appears only once
+  // Kit has accepted the address, otherwise the error line shows.
   const form = document.querySelector<HTMLFormElement>('[data-newsletter-form]');
   const idle = document.querySelector<HTMLElement>('[data-newsletter-idle]');
   const success = document.querySelector<HTMLElement>('[data-newsletter-success]');
@@ -201,11 +198,28 @@ import { newsletter } from '../copy/shared.js';
       error.hidden = true;
       field.removeAttribute('aria-invalid');
 
-      // --- TODO: send to the newsletter platform once Darlene picks one. ---
-      console.info('[newsletter] no platform wired yet; payload:', field.value.trim());
+      const submit = form.querySelector<HTMLButtonElement>('[type="submit"]');
+      if (submit) submit.disabled = true;
 
-      idle.hidden = true;
-      success.hidden = false;
+      fetch(form.action, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: { Accept: 'application/json' },
+      })
+        .then((response) => response.json())
+        .then(({ ok }) => {
+          if (!ok) throw new Error('not subscribed');
+          idle.hidden = true;
+          success.hidden = false;
+        })
+        .catch(() => {
+          error.hidden = false;
+          field.setAttribute('aria-invalid', 'true');
+          field.focus();
+        })
+        .finally(() => {
+          if (submit) submit.disabled = false;
+        });
     });
 
     // Clear the error as soon as the visitor starts fixing it — same behaviour
