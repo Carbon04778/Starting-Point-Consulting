@@ -61,6 +61,7 @@ see `docs/OPEN-QUESTIONS.md`.
 - Extracted to: `docs/legal-source/client-service-agreement.txt`
 - Bracketed placeholders: `[PRE-LAUNCH PLACEHOLDER — effective date is the website launch date]`
 - Callout blocks: 0
+- **Revised after extraction — Darlene, 17 Sept 2026:** §1 first sentence now reads "Services may include individual education and supportive body-based practices, consulting, workshops, training, speaking engagements, and digital or educational resources." (was "We provide educational and supportive services that may include coaching, consulting, …"). The text file is the source of truth; the prototype module is now behind it. AGREEMENT_HASH changed with it, so acceptances from this point record the new digest.
 
 ## Testimonial & Media Release
 
